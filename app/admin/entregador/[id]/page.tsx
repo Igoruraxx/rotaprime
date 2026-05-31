@@ -64,7 +64,7 @@ function calcularFiltro(filtro: FiltroData): { data_ini?: string; data_fim?: str
 }
 
 const STATUS_CORES: Record<string, string> = {
-  'Recebido pela Central': 'bg-white/[0.05] text-white/40 border border-white/[0.08]',
+  'Recebido pela Central': 'bg-white/[0.10] text-white/40 border border-white/[0.12]',
   'Aguardando Retirada': 'bg-amber-500/15 text-amber-300 border border-amber-500/25',
   'Retirado pelo Entregador': 'bg-blue-500/15 text-blue-300 border border-blue-500/25',
   'Em Rota': 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/25',
@@ -125,7 +125,7 @@ export default function EntregadorDetalhePage() {
         <button onClick={() => router.push('/admin/entregadores')} className="text-white/40 hover:text-white/70 text-sm">← Voltar</button>
         <h2 className="text-2xl font-bold text-white">{entregador.nome}</h2>
         <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
-          entregador.ativo ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25' : 'bg-white/[0.05] text-white/40 border border-white/[0.08]'
+          entregador.ativo ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25' : 'bg-white/[0.10] text-white/40 border border-white/[0.12]'
         }`}>
           <span className={`w-1.5 h-1.5 rounded-full ${entregador.ativo ? 'bg-emerald-400' : 'bg-white/30'}`} />
           {entregador.ativo ? 'Ativo' : 'Inativo'}
@@ -177,7 +177,7 @@ export default function EntregadorDetalhePage() {
             className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${
               filtro === f.key
                 ? 'bg-violet-600/80 text-white shadow-sm'
-                : 'bg-white/[0.06] text-white/40 hover:bg-white/[0.12]'
+                : 'bg-white/[0.10] text-white/40 hover:bg-white/[0.18]'
             }`}
           >
             {f.label}
@@ -229,7 +229,7 @@ export default function EntregadorDetalhePage() {
 
           {/* Lista de Pacotes */}
           <div className="content-card overflow-hidden">
-            <div className="px-5 py-3 border-b border-white/[0.06] bg-white/[0.02] flex items-center justify-between">
+            <div className="px-5 py-3 border-b border-white/[0.10] bg-white/[0.06] flex items-center justify-between">
               <h3 className="font-semibold text-white/70">
                 Pacotes {filtro !== 'tudo' ? `(${totalPacotes} no período)` : `(${totalPacotes} total)`}
               </h3>
@@ -237,7 +237,7 @@ export default function EntregadorDetalhePage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-white/40 border-b border-white/[0.04] bg-white/[0.02]">
+                  <tr className="text-left text-white/40 border-b border-white/[0.12] bg-white/[0.06]">
                     <th className="p-3 pl-5 font-medium">Código</th>
                     <th className="p-3 font-medium">Data</th>
                     <th className="p-3 font-medium">Destinatário</th>
@@ -260,7 +260,7 @@ export default function EntregadorDetalhePage() {
                       <tr
                         key={p.codigo}
                         onClick={() => router.push(`/admin/pacote/${p.codigo}`)}
-                        className="border-b border-white/[0.04] last:border-0 hover:bg-violet-500/[0.06] transition cursor-pointer"
+                        className="border-b border-white/[0.12] last:border-0 hover:bg-violet-500/[0.06] transition cursor-pointer"
                       >
                         <td className="p-3 pl-5">
                           <span className="font-medium text-violet-300">{p.codigo}</span>
@@ -272,7 +272,7 @@ export default function EntregadorDetalhePage() {
                           {p.destinatario || '—'}
                         </td>
                         <td className="p-3">
-                          <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.05] text-white/40 border border-white/[0.08]'}`}>
+                          <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.10] text-white/40 border border-white/[0.12]'}`}>
                             {p.status}
                           </span>
                         </td>

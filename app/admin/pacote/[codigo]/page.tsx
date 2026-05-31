@@ -129,7 +129,7 @@ export default function PacoteDetalhePage() {
       <div className="flex items-center gap-3 mb-6 flex-wrap">
         <button onClick={() => router.back()} className="text-white/40 hover:text-white/70 text-sm">← Voltar</button>
         <h2 className="text-2xl font-bold text-white">{pacote.codigo}</h2>
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${STATUS_CORES[pacote.status] || 'bg-white/[0.03] text-white/60 border border-white/[0.08]'}`}>
+        <span className={`px-3 py-1 rounded-full text-sm font-medium ${STATUS_CORES[pacote.status] || 'bg-white/[0.07] text-white/60 border border-white/[0.12]'}`}>
           {pacote.status}
         </span>
       </div>
@@ -148,7 +148,7 @@ export default function PacoteDetalhePage() {
 
           {/* INFORMAÇÕES COMPLETAS */}
           <div className="content-card">
-            <div className="p-4 border-b border-white/[0.04] bg-white/[0.02] rounded-t-xl flex items-center justify-between">
+            <div className="p-4 border-b border-white/[0.08] bg-white/[0.06] rounded-t-xl flex items-center justify-between">
               <h3 className="font-semibold text-white">📋 Informações do Pacote</h3>
               <button onClick={() => setShowEdit(!showEdit)} className="link-btn-sm">
                 {showEdit ? '✕ Fechar edição' : '✏️ Editar'}
@@ -189,7 +189,7 @@ export default function PacoteDetalhePage() {
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => acao('atribuir')} className="py-2 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12]">📌 Atribuir</button>
+                <button onClick={() => acao('atribuir')} className="py-2 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18]">📌 Atribuir</button>
                 <button onClick={() => acao('repassar')} className="py-2 btn-primary rounded-lg text-sm">📤 Repassar</button>
               </div>
 
@@ -214,7 +214,7 @@ export default function PacoteDetalhePage() {
                 </div>
               </div>
 
-              <hr className="my-2 border-white/[0.08]" />
+              <hr className="my-2 border-white/[0.12]" />
 
               {!pacote.pago && (
                 <button onClick={() => acao('pagar')} className="w-full py-2 link-btn-green rounded-lg text-sm">💰 Marc. como Pago</button>
@@ -229,7 +229,7 @@ export default function PacoteDetalhePage() {
 
               <button onClick={() => acao('reiniciar')} className="w-full py-2 bg-red-500/15 text-red-300 border border-red-500/25 rounded-lg text-sm hover:bg-red-500/25">🔄 Reiniciar Pacote</button>
 
-              <button onClick={() => setShowTimeline(!showTimeline)} className="w-full py-2 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12]">
+              <button onClick={() => setShowTimeline(!showTimeline)} className="w-full py-2 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18]">
                 {showTimeline ? '🙈 Ocultar' : '👁️ Mostrar'} Timeline
               </button>
             </div>
@@ -298,14 +298,14 @@ function Timeline({ pacote }: { pacote: Pacote }) {
       </h3>
       <div className="relative">
         {/* Linha vertical */}
-        <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-white/[0.08]" />
+        <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-white/[0.12]" />
 
         <div className="space-y-4">
           {eventos.map((ev, i) => (
             <div key={i} className="relative flex items-start gap-4">
               {/* Bolinha */}
               <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs ${
-                ev.ativo ? ev.cor + ' text-white' : 'bg-white/[0.03] text-white/30'
+                ev.ativo ? ev.cor + ' text-white' : 'bg-white/[0.07] text-white/30'
               }`}>
                 {ev.icone}
               </div>
@@ -577,12 +577,12 @@ function EditFormCompleto({
       </div>
 
       {/* Botões */}
-      <div className="flex gap-3 mt-6 pt-4 border-t border-white/[0.04]">
+      <div className="flex gap-3 mt-6 pt-4 border-t border-white/[0.08]">
         <button onClick={save} disabled={saving}
           className="flex-1 py-3 btn-primary rounded-lg font-medium disabled:opacity-50">
           {saving ? 'Salvando...' : '💾 Salvar Todas as Alterações'}
         </button>
-        <button onClick={onCancel} className="px-6 py-3 bg-white/[0.06] text-white/60 rounded-lg font-medium hover:bg-white/[0.12]">
+        <button onClick={onCancel} className="px-6 py-3 bg-white/[0.10] text-white/60 rounded-lg font-medium hover:bg-white/[0.18]">
           Cancelar
         </button>
       </div>

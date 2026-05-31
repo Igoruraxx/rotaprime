@@ -86,12 +86,12 @@ export default function RastrearPage() {
               className="w-full px-4 py-3 rounded-xl text-sm"
             />
             {dropdowns[campo.id] && resultados[campo.id]?.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-[#0f0a1a] border border-white/[0.08] rounded-xl shadow-xl shadow-violet-900/10">
+              <div className="absolute z-10 w-full mt-1 bg-[#1a1240] border border-white/[0.12] rounded-xl shadow-xl shadow-violet-900/10">
                 {resultados[campo.id].map(r => (
                   <button
                     key={r.codigo}
                     onClick={() => selecionar(r)}
-                    className="w-full text-left px-4 py-3 hover:bg-white/[0.04] border-b border-white/[0.04] last:border-0 text-sm"
+                    className="w-full text-left px-4 py-3 hover:bg-white/[0.08] border-b border-white/[0.08] last:border-0 text-sm"
                   >
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-violet-300">{r.codigo}</span>

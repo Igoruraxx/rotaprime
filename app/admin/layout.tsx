@@ -38,13 +38,13 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen flex">
       {/* ===== SIDEBAR ===== */}
-      <aside className="w-64 hidden md:flex flex-col fixed inset-y-0 left-0 z-30 border-r border-white/[0.06]"
+      <aside className="w-64 hidden md:flex flex-col fixed inset-y-0 left-0 z-30 border-r border-white/[0.10]"
         style={{
           background: 'linear-gradient(180deg, hsl(260, 25%, 5%) 0%, hsl(260, 20%, 7%) 100%)',
         }}
       >
         {/* Logo - caminhão laranja + pacote verde */}
-        <div className="px-5 py-5 border-b border-white/[0.06]">
+        <div className="px-5 py-5 border-b border-white/[0.10]">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 flex items-center justify-center">
               <span className="text-2xl" style={{ filter: 'drop-shadow(0 0 8px rgba(249, 115, 22, 0.4))' }}>🚛</span>
@@ -69,7 +69,7 @@ export default async function AdminLayout({
                   <a
                     key={item.href}
                     href={item.href}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/[0.06] transition-all duration-200"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/[0.10] transition-all duration-200"
                   >
                     <span className="text-base">{item.icon}</span>
                     <span>{item.label}</span>
@@ -81,9 +81,9 @@ export default async function AdminLayout({
         </nav>
 
         {/* Logout */}
-        <div className="px-3 py-4 border-t border-white/[0.06]">
+        <div className="px-3 py-4 border-t border-white/[0.10]">
           <form action="/api/auth/logout" method="POST">
-            <button className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-white/40 hover:text-red-400 hover:bg-white/[0.04] transition-all duration-200 w-full">
+            <button className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-white/40 hover:text-red-400 hover:bg-white/[0.08] transition-all duration-200 w-full">
               <span>🚪</span>
               <span>Sair</span>
             </button>
@@ -94,7 +94,7 @@ export default async function AdminLayout({
       {/* ===== MAIN ===== */}
       <div className="flex-1 flex flex-col md:ml-64">
         {/* Top bar mobile */}
-        <header className="md:hidden border-b border-white/[0.06]"
+        <header className="md:hidden border-b border-white/[0.10]"
           style={{ background: 'hsl(260, 25%, 5%)' }}
         >
           <div className="px-4 py-3 flex items-center justify-between">
@@ -109,7 +109,7 @@ export default async function AdminLayout({
         </header>
 
         {/* Mobile nav */}
-        <nav className="md:hidden overflow-x-auto border-b border-white/[0.06]"
+        <nav className="md:hidden overflow-x-auto border-b border-white/[0.10]"
           style={{ background: 'hsl(260, 22%, 6%)' }}
         >
           <div className="flex px-2 py-1 gap-1 text-xs">
@@ -117,7 +117,7 @@ export default async function AdminLayout({
               <a
                 key={item.href}
                 href={item.href}
-                className="px-3 py-2 rounded-lg hover:bg-white/[0.06] text-white/50 hover:text-white whitespace-nowrap transition"
+                className="px-3 py-2 rounded-lg hover:bg-white/[0.10] text-white/50 hover:text-white whitespace-nowrap transition"
               >
                 {item.icon} {item.label}
               </a>

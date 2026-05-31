@@ -88,7 +88,7 @@ export default function ConfiguracoesPage() {
       ) : (
         <div className="space-y-6">
           {Object.entries(grupos).map(([grupo, items]) => (
-            <div key={grupo} className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm overflow-hidden">
+            <div key={grupo} className="rounded-2xl border border-white/10 bg-white/[0.07] backdrop-blur-sm overflow-hidden">
               {/* Grupo header */}
               <div className={`px-5 py-3 bg-gradient-to-r ${GRUPO_CORES[grupo] || 'from-gray-600 to-gray-700'}`}>
                 <h3 className="font-bold text-white text-sm flex items-center gap-2">
@@ -102,7 +102,7 @@ export default function ConfiguracoesPage() {
               {/* Features */}
               <div className="divide-y divide-white/5">
                 {items.map(f => (
-                  <div key={f.id} className="flex items-center justify-between px-5 py-4 hover:bg-white/[0.02] transition">
+                  <div key={f.id} className="flex items-center justify-between px-5 py-4 hover:bg-white/[0.06] transition">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className={`w-2 h-2 rounded-full ${f.ativo ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'bg-gray-600'}`} />

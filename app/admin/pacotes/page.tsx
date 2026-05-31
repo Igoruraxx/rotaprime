@@ -82,7 +82,7 @@ export default function PacotesPage() {
       <div className="content-card overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-white/40 border-b border-white/[0.04]">
+            <tr className="text-left text-white/40 border-b border-white/[0.08]">
               <th className="p-3">Código</th>
               <th className="p-3">Chegada</th>
               <th className="p-3">NF</th>
@@ -95,7 +95,7 @@ export default function PacotesPage() {
           </thead>
           <tbody>
             {filtered.map(p => (
-              <tr key={p.codigo} className="border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02]">
+              <tr key={p.codigo} className="border-b border-white/[0.08] last:border-0 hover:bg-white/[0.06]">
                 <td className="p-3">
                   <a href={`/admin/pacote/${p.codigo}`} className="link-btn-sm">
                     {p.codigo}

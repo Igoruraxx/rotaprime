@@ -26,11 +26,11 @@ type Entregador = {
 
 function statusBadge(status: string) {
   const s = status?.toLowerCase() || ''
-  if (s.includes('entregue')) return 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25'
-  if (s.includes('retornado') || s.includes('devolvido')) return 'bg-red-500/15 text-red-300 border border-red-500/25'
-  if (s.includes('recebido') || s.includes('retirado')) return 'bg-amber-500/15 text-amber-300 border border-amber-500/25'
-  if (s.includes('validado')) return 'bg-emerald-600/15 text-emerald-300 border border-emerald-500/25'
-  return 'bg-violet-500/15 text-violet-300 border border-violet-500/25'
+  if (s.includes('entregue')) return 'bg-emerald-500/25 text-emerald-200 border border-emerald-500/25'
+  if (s.includes('retornado') || s.includes('devolvido')) return 'bg-red-500/25 text-red-200 border border-red-500/25'
+  if (s.includes('recebido') || s.includes('retirado')) return 'bg-amber-500/25 text-amber-200 border border-amber-500/25'
+  if (s.includes('validado')) return 'bg-emerald-600/25 text-emerald-200 border border-emerald-500/25'
+  return 'bg-violet-500/25 text-violet-200 border border-violet-500/25'
 }
 
 export default function AdminDashboard() {
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {cards.map(card => (
           <div key={card.label} className="content-card p-4">
-            <div className="w-full h-0.5 bg-gradient-to-r from-violet-600/40 to-purple-600/20 rounded-full mb-3" />
+            <div className="w-full h-0.5 bg-gradient-to-r from-violet-600/55 to-purple-600/20 rounded-full mb-3" />
             <p className="text-2xl font-bold text-white">{card.value}</p>
             <p className="text-sm text-white/40">{card.label}</p>
           </div>
@@ -76,7 +76,7 @@ export default function AdminDashboard() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-white/40 border-b border-white/[0.04]">
+              <tr className="text-left text-white/40 border-b border-white/[0.08]">
                 <th className="pb-2 pr-4">Codigo</th>
                 <th className="pb-2 pr-4">Chegada</th>
                 <th className="pb-2 pr-4">Status</th>
@@ -86,7 +86,7 @@ export default function AdminDashboard() {
             </thead>
             <tbody>
               {pacotes.map(p => (
-                <tr key={p.codigo} className="border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02]">
+                <tr key={p.codigo} className="border-b border-white/[0.08] last:border-0 hover:bg-white/[0.06]">
                   <td className="py-2 pr-4">
                     <a href={`/admin/pacote/${p.codigo}`} className="link-btn-sm">
                       {p.codigo}
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
         <h3 className="font-semibold text-white mb-3">Entregadores Ativos</h3>
         <div className="flex flex-wrap gap-2">
           {entregadores.map(e => (
-            <span key={e.id} className="px-3 py-1 bg-violet-500/15 text-violet-300 border border-violet-500/20 rounded-full text-sm">
+            <span key={e.id} className="px-3 py-1 bg-violet-500/25 text-violet-200 border border-violet-500/30 rounded-full text-sm">
               {e.nome}
             </span>
           ))}

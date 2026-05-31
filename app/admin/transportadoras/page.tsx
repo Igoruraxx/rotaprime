@@ -113,9 +113,9 @@ export default function TransportadorasPage() {
             <p className="text-xs text-white/20 mt-1">Clique em "+ Nova Transportadora" para começar</p>
           </div>
         ) : (
-          <div className="divide-y divide-white/[0.04]">
+          <div className="divide-y divide-white/[0.08]">
             {transportadoras.map(t => (
-              <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-white/[0.02] transition">
+              <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-white/[0.06] transition">
                 <div className="flex items-center gap-3">
                   <span className="text-lg">🚚</span>
                   <div>
@@ -163,7 +163,7 @@ export default function TransportadorasPage() {
               <button type="submit" className="btn-primary flex-1 py-2.5 rounded-lg text-sm font-medium transition">
                 Cadastrar
               </button>
-              <button type="button" onClick={() => setModal(null)} className="px-5 py-2.5 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12] transition">
+              <button type="button" onClick={() => setModal(null)} className="px-5 py-2.5 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18] transition">
                 Cancelar
               </button>
             </div>
@@ -193,7 +193,7 @@ export default function TransportadorasPage() {
             >
               Sim, Remover
             </button>
-            <button onClick={() => setModal(null)} className="px-5 py-2.5 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12] transition">
+            <button onClick={() => setModal(null)} className="px-5 py-2.5 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18] transition">
               Cancelar
             </button>
           </div>
@@ -226,7 +226,7 @@ function ModalEditar({ nome, onSave, onClose }: { nome: string; onSave: (nome: s
           >
             Salvar
           </button>
-          <button onClick={onClose} className="px-5 py-2.5 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12] transition">
+          <button onClick={onClose} className="px-5 py-2.5 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18] transition">
             Cancelar
           </button>
         </div>
@@ -241,7 +241,7 @@ function ModalEditar({ nome, onSave, onClose }: { nome: string; onSave: (nome: s
 function ModalBase({ titulo, children, onClose }: { titulo: string; children: React.ReactNode; onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-[#0f0a1a] border border-white/[0.1] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-[#1a1240] border border-white/[0.1] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-white">{titulo}</h3>
           <button onClick={onClose} className="text-white/30 hover:text-white/60 text-xl leading-none">&times;</button>

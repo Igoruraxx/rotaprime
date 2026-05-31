@@ -20,7 +20,7 @@ type PacoteFoto = {
 type Entregador = { id: number; nome: string }
 
 const STATUS_CORES: Record<string, string> = {
-  'Recebido pela Central': 'bg-white/[0.06] text-white/60',
+  'Recebido pela Central': 'bg-white/[0.10] text-white/60',
   'Aguardando Retirada': 'bg-amber-500/15 text-amber-300',
   'Retirado pelo Entregador': 'bg-violet-500/15 text-violet-300',
   'Em Rota': 'bg-violet-500/15 text-violet-300',
@@ -136,7 +136,7 @@ export default function FotosPage() {
           </div>
           <button
             onClick={() => { setSelectedEntregador(''); setDataIni(''); setDataFim('') }}
-            className="px-4 py-2 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12] transition"
+            className="px-4 py-2 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18] transition"
           >
             Limpar Filtros
           </button>
@@ -159,7 +159,7 @@ export default function FotosPage() {
             {fotos.map(p => (
               <div key={p.codigo} className="content-card overflow-hidden hover:shadow-md transition group">
                 {/* Foto */}
-                <div className="relative aspect-[4/3] bg-white/[0.03] overflow-hidden cursor-pointer"
+                <div className="relative aspect-[4/3] bg-white/[0.07] overflow-hidden cursor-pointer"
                   onClick={() => window.open(p.foto, '_blank')}>
                   <img
                     src={p.foto}
@@ -219,9 +219,9 @@ export default function FotosPage() {
 
                   {/* Para "Entregue" — botão Validar grande + GPS */}
                   {p.status === 'Entregue' && !p.validacao_admin && (
-                    <div className="pt-2 border-t border-white/[0.06] mt-2 space-y-2">
+                    <div className="pt-2 border-t border-white/[0.10] mt-2 space-y-2">
                       {p.gps_foto && (
-                        <div className="text-xs text-white/40 bg-white/[0.02] p-2 rounded-lg">
+                        <div className="text-xs text-white/40 bg-white/[0.06] p-2 rounded-lg">
                           <span className="font-medium">📍 Coordenadas:</span>{' '}
                           <a
                             href={`https://www.google.com/maps?q=${p.gps_foto}`}

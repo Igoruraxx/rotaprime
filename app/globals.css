@@ -225,9 +225,9 @@
    CARD STYLES
    ============================================================ */
 @utility card-premium {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.07);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
 }
 
@@ -262,31 +262,31 @@
 }
 
 /* ============================================================
-   INPUT / SELECT DARK STYLES
+   INPUT / SELECT DARK STYLES - Fundo visível
    ============================================================ */
 input, select, textarea {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.10) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
   color: white !important;
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: rgba(124, 58, 237, 0.5) !important;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1) !important;
+  border-color: rgba(124, 58, 237, 0.6) !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2) !important;
 }
 
 input::placeholder, textarea::placeholder {
-  color: rgba(255, 255, 255, 0.25) !important;
+  color: rgba(255, 255, 255, 0.35) !important;
 }
 
 /* Dropdown / select option */
 select option {
-  background: #0f0a1a;
+  background: #150d24;
   color: white;
 }
 
 /* ============================================================
-   TABLE STYLES
+   TABLE STYLES - Fundo e texto visíveis
    ============================================================ */
 table {
   border-collapse: separate;
@@ -294,8 +294,8 @@ table {
 }
 
 thead th {
-  background: rgba(255, 255, 255, 0.03) !important;
-  color: rgba(255, 255, 255, 0.5) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
   font-weight: 500 !important;
   font-size: 0.75rem !important;
   text-transform: uppercase;
@@ -303,7 +303,7 @@ thead th {
 }
 
 tbody tr {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   transition: background 0.2s;
 }
 
@@ -312,11 +312,11 @@ tbody tr:last-child {
 }
 
 tbody tr:hover {
-  background: rgba(124, 58, 237, 0.04) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
 }
 
 tbody td {
-  color: rgba(255, 255, 255, 0.8) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 /* ============================================================
@@ -412,10 +412,10 @@ a.link-btn-green:hover {
 }
 
 /* ============================================================
-   CARD DE CONTEÚDO (fundo escuro, borda sutil)
+   CARD DE CONTEÚDO (fundo visível, borda nítida)
    ============================================================ */
 .content-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
 }

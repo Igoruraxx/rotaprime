@@ -15,7 +15,7 @@ type ItemTabela = {
 type EntregadorOpcao = { id: number; nome: string }
 
 const STATUS_CORES: Record<string, string> = {
-  'Recebido pela Central': 'bg-white/[0.06] text-white/60',
+  'Recebido pela Central': 'bg-white/[0.10] text-white/60',
   'Aguardando Retirada': 'bg-amber-500/15 text-amber-300',
   'Retirado pelo Entregador': 'bg-violet-500/15 text-violet-300',
   'Em Rota': 'bg-violet-500/15 text-violet-300',
@@ -114,7 +114,7 @@ export default function RelatorioPage() {
           <h2 className="text-2xl font-bold text-white">📋 Relatório Diário</h2>
           <p className="text-sm text-white/40 capitalize mt-1">{hoje}</p>
         </div>
-        <button onClick={carregar} className="px-4 py-2 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12] transition">
+        <button onClick={carregar} className="px-4 py-2 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18] transition">
           🔄 Atualizar
         </button>
       </div>
@@ -153,7 +153,7 @@ export default function RelatorioPage() {
 
       {/* ============ REPASSAR EM LOTE ============ */}
       <div className="content-card mb-6 overflow-hidden">
-        <div className="px-5 py-3 border-b border-white/[0.08] bg-violet-500/10 flex items-center justify-between">
+        <div className="px-5 py-3 border-b border-white/[0.12] bg-violet-500/10 flex items-center justify-between">
           <h3 className="font-semibold text-violet-300 flex items-center gap-2">
             📦 Repassar Pacotes em Lote
           </h3>
@@ -162,7 +162,7 @@ export default function RelatorioPage() {
           </span>
         </div>
 
-        <div className="p-4 border-b border-white/[0.08] bg-white/[0.02]">
+        <div className="p-4 border-b border-white/[0.12] bg-white/[0.06]">
           <div className="flex items-end gap-3 flex-wrap">
             <div className="min-w-[200px] flex-1">
               <label className="block text-xs font-medium text-white/40 mb-1">Entregador</label>
@@ -191,13 +191,13 @@ export default function RelatorioPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-white/40 border-b border-white/[0.06] bg-white/[0.02]">
+                <tr className="text-left text-white/40 border-b border-white/[0.10] bg-white/[0.06]">
                   <th className="p-3 pl-5 w-10">
                     <input
                       type="checkbox"
                       checked={disponiveisLote.length > 0 && selectedBatch.size === disponiveisLote.length}
                       onChange={selectAll}
-                      className="rounded border-white/[0.08]"
+                      className="rounded border-white/[0.12]"
                     />
                   </th>
                   <th className="p-3 font-medium">Código</th>
@@ -210,7 +210,7 @@ export default function RelatorioPage() {
                   <tr
                     key={p.codigo}
                     onClick={() => toggleSelect(p.codigo)}
-                    className={`border-b border-white/[0.06] last:border-0 hover:bg-violet-500/[0.06] transition cursor-pointer ${
+                    className={`border-b border-white/[0.10] last:border-0 hover:bg-violet-500/[0.06] transition cursor-pointer ${
                       selectedBatch.has(p.codigo) ? 'bg-violet-500/[0.08]' : ''
                     }`}
                   >
@@ -219,12 +219,12 @@ export default function RelatorioPage() {
                         type="checkbox"
                         checked={selectedBatch.has(p.codigo)}
                         onChange={() => toggleSelect(p.codigo)}
-                        className="rounded border-white/[0.08]"
+                        className="rounded border-white/[0.12]"
                       />
                     </td>
                     <td className="p-3 font-medium text-violet-300">{p.codigo}</td>
                     <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.06]'}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.10]'}`}>
                         {p.status}
                       </span>
                     </td>
@@ -260,7 +260,7 @@ export default function RelatorioPage() {
             },
             { label: 'Entregador', render: p => p.entregadores?.nome || '—' },
             { label: 'Status', render: p => (
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.06]'}`}>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.10]'}`}>
                 {p.status}
               </span>
             )},
@@ -281,7 +281,7 @@ export default function RelatorioPage() {
             },
             { label: 'Entregador', render: p => p.entregadores?.nome || '—' },
             { label: 'Status', render: p => (
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.06]'}`}>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.10]'}`}>
                 {p.status}
               </span>
             )},
@@ -302,7 +302,7 @@ export default function RelatorioPage() {
             },
             { label: 'Entregador', render: p => p.entregadores?.nome || '—' },
             { label: 'Status', render: p => (
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.06]'}`}>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.10]'}`}>
                 {p.status}
               </span>
             )},
@@ -328,7 +328,7 @@ function TabelaSection({
 }) {
   return (
     <div className="content-card overflow-hidden">
-      <div className="px-4 py-3 border-b border-white/[0.06] bg-white/[0.02]">
+      <div className="px-4 py-3 border-b border-white/[0.10] bg-white/[0.06]">
         <h3 className="font-semibold text-white/70 text-sm">{titulo} ({itens.length})</h3>
       </div>
       {itens.length === 0 ? (
@@ -337,7 +337,7 @@ function TabelaSection({
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-white/40 border-b border-white/[0.06] bg-white/[0.02]">
+              <tr className="text-left text-white/40 border-b border-white/[0.10] bg-white/[0.06]">
                 {colunas.map(c => (
                   <th key={c.label} className="p-3 font-medium whitespace-nowrap">{c.label}</th>
                 ))}
@@ -348,7 +348,7 @@ function TabelaSection({
                 <tr
                   key={p.codigo}
                   onClick={() => onRowClick(p)}
-                  className="border-b border-white/[0.06] last:border-0 hover:bg-violet-500/[0.06] transition cursor-pointer"
+                  className="border-b border-white/[0.10] last:border-0 hover:bg-violet-500/[0.06] transition cursor-pointer"
                 >
                   {colunas.map(c => (
                     <td key={c.label} className="p-3 whitespace-nowrap">{c.render(p)}</td>
