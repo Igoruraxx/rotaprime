@@ -53,9 +53,27 @@ export default function EntregadorPage() {
     setActionLoading(actionModal.codigo)
     setErro('')
 
+    // Upload foto primeiro se tiver
+    let fotoUrl = ''
+    if (actionModal.acao === 'entregar' && fotoBase64) {
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ foto: fotoBase64, pasta: 'entregas' })
+      })
+      const uploadData = await uploadRes.json()
+      if (uploadRes.ok) {
+        fotoUrl = uploadData.url
+      } else {
+        setErro('Erro ao fazer upload da foto')
+        setActionLoading(null)
+        return
+      }
+    }
+
     const body: Record<string, unknown> = { acao: actionModal.acao }
     if (actionModal.acao === 'entregar') {
-      if (fotoBase64) body.foto = fotoBase64
+      if (fotoUrl) body.foto = fotoUrl
       if (gps) body.gps_foto = gps
     }
     if (actionModal.acao === 'devolver' && motivo) {
