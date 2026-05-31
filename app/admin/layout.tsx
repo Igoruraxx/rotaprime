@@ -22,6 +22,9 @@ export default async function AdminLayout({
           <a href="/admin" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
             📊 Dashboard
           </a>
+          <a href="/admin/relatorio" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
+            📋 Relatório
+          </a>
           <a href="/admin/pacotes" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
             📦 Pacotes
           </a>
@@ -61,6 +64,7 @@ export default async function AdminLayout({
         <nav className="bg-white border-b md:hidden overflow-x-auto">
           <div className="flex px-2 py-1 gap-1 text-xs">
             <a href="/admin" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">📊 Dash</a>
+            <a href="/admin/relatorio" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">📋 Relatório</a>
             <a href="/admin/pacotes" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">📦 Pacotes</a>
             <a href="/admin/registrar" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">➕ Novo</a>
             <a href="/admin/rastrear" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">🔍 Buscar</a>
