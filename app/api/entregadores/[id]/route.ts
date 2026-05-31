@@ -16,17 +16,42 @@ export async function GET(
   const id = parseInt(params.id)
   if (isNaN(id)) return NextResponse.json({ erro: 'ID inválido' }, { status: 400 })
 
-  const { data, error } = await supabase
+  const { searchParams } = new URL(request.url)
+  const dataIni = searchParams.get('data_ini')
+  const dataFim = searchParams.get('data_fim')
+
+  // Buscar entregador
+  const { data: entregador, error } = await supabase
     .from('entregadores')
-    .select('*, pacotes(*)')
+    .select('*')
     .eq('id', id)
     .single()
 
-  if (error || !data) {
+  if (error || !entregador) {
     return NextResponse.json({ erro: 'Entregador não encontrado' }, { status: 404 })
   }
 
-  return NextResponse.json({ entregador: data })
+  // Buscar pacotes com filtro opcional de data
+  let query = supabase
+    .from('pacotes')
+    .select('*')
+    .eq('entregador_id', id)
+    .order('data_chegada', { ascending: false })
+
+  if (dataIni) {
+    query = query.gte('data_chegada', dataIni)
+  }
+  if (dataFim) {
+    query = query.lte('data_chegada', dataFim)
+  }
+
+  const { data: pacotes, error: errPacotes } = await query
+
+  if (errPacotes) {
+    return NextResponse.json({ erro: errPacotes.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ entregador: { ...entregador, pacotes: pacotes || [] } })
 }
 
 export async function PUT(

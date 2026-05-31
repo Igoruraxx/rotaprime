@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 type Entregador = {
   id: number
@@ -18,115 +18,317 @@ type Pacote = {
   codigo: string
   data_chegada: string
   status: string
-  valor_pacote: number
   pago: boolean
-  endereco_entrega: string
+  destinatario: string
+}
+
+type FiltroData = 'hoje' | 'ontem' | 'semana' | 'quinzena' | 'tudo'
+
+const FILTROS: { key: FiltroData; label: string }[] = [
+  { key: 'hoje', label: 'Hoje' },
+  { key: 'ontem', label: 'Ontem' },
+  { key: 'semana', label: 'Semana' },
+  { key: 'quinzena', label: 'Quinzena' },
+  { key: 'tudo', label: 'Tudo' },
+]
+
+function calcularFiltro(filtro: FiltroData): { data_ini?: string; data_fim?: string } {
+  const agora = new Date()
+  const fim = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 23, 59, 59).toISOString()
+
+  switch (filtro) {
+    case 'hoje': {
+      const ini = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()).toISOString()
+      return { data_ini: ini, data_fim: fim }
+    }
+    case 'ontem': {
+      const ontem = new Date(agora)
+      ontem.setDate(ontem.getDate() - 1)
+      const ini = new Date(ontem.getFullYear(), ontem.getMonth(), ontem.getDate()).toISOString()
+      const f = new Date(ontem.getFullYear(), ontem.getMonth(), ontem.getDate(), 23, 59, 59).toISOString()
+      return { data_ini: ini, data_fim: f }
+    }
+    case 'semana': {
+      const semana = new Date(agora)
+      semana.setDate(semana.getDate() - 7)
+      return { data_ini: semana.toISOString(), data_fim: fim }
+    }
+    case 'quinzena': {
+      const quinzena = new Date(agora)
+      quinzena.setDate(quinzena.getDate() - 15)
+      return { data_ini: quinzena.toISOString(), data_fim: fim }
+    }
+    default:
+      return {}
+  }
+}
+
+const STATUS_CORES: Record<string, string> = {
+  'Recebido pela Central': 'bg-gray-100 text-gray-700',
+  'Aguardando Retirada': 'bg-yellow-100 text-yellow-700',
+  'Retirado pelo Entregador': 'bg-blue-100 text-blue-700',
+  'Em Rota': 'bg-indigo-100 text-indigo-700',
+  'Entregue': 'bg-green-100 text-green-700',
+  'Retornado a Central': 'bg-red-100 text-red-700',
+  'Validado pelo Admin': 'bg-emerald-100 text-emerald-700',
 }
 
 export default function EntregadorDetalhePage() {
   const params = useParams()
+  const router = useRouter()
   const [entregador, setEntregador] = useState<Entregador | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [filtro, setFiltro] = useState<FiltroData>('tudo')
 
-  useEffect(() => {
-    fetch(`/api/entregadores/${params.id}`)
+  function carregar(f: FiltroData) {
+    setLoading(true)
+    const paramsData = calcularFiltro(f)
+    let url = `/api/entregadores/${params.id}`
+    if (paramsData.data_ini) url += `?data_ini=${encodeURIComponent(paramsData.data_ini)}`
+    if (paramsData.data_fim) url += `&data_fim=${encodeURIComponent(paramsData.data_fim)}`
+
+    fetch(url)
       .then(r => r.json())
-      .then(data => setEntregador(data.entregador))
-  }, [params.id])
+      .then(data => {
+        setEntregador(data.entregador)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }
 
-  if (!entregador) return <div className="text-gray-500">Carregando...</div>
+  useEffect(() => carregar(filtro), [params.id, filtro])
+
+  function selecionarFiltro(f: FiltroData) {
+    setFiltro(f)
+  }
+
+  if (!entregador) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-gray-400 text-lg">Carregando...</div>
+      </div>
+    )
+  }
 
   const pacotes = entregador.pacotes || []
-  const total = pacotes.length
+  const totalPacotes = pacotes.length
   const entregues = pacotes.filter(p => p.status === 'Entregue' || p.status === 'Validado pelo Admin').length
-  const valorTotal = pacotes.reduce((acc, p) => acc + (p.valor_pacote || 0), 0)
-  const valorPago = pacotes.filter(p => p.pago).reduce((acc, p) => acc + (p.valor_pacote || 0), 0)
+  const valorTotal = totalPacotes * (entregador.valor_padrao || 0)
+  const valorPago = pacotes
+    .filter(p => p.pago)
+    .reduce((acc, p) => acc + (entregador.valor_padrao || 0), 0)
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-6">
-        <a href="/admin/entregadores" className="text-gray-500 hover:text-gray-700 text-sm">← Voltar</a>
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6 flex-wrap">
+        <button onClick={() => router.push('/admin/entregadores')} className="text-gray-500 hover:text-gray-700 text-sm">← Voltar</button>
         <h2 className="text-2xl font-bold text-gray-800">{entregador.nome}</h2>
-        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${entregador.ativo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
+          entregador.ativo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+        }`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${entregador.ativo ? 'bg-green-500' : 'bg-gray-400'}`} />
           {entregador.ativo ? 'Ativo' : 'Inativo'}
         </span>
+        <span className="text-xs text-gray-400">Cadastro: {new Date(entregador.criado_em).toLocaleDateString('pt-BR')}</span>
       </div>
 
-      {/* Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        {[
-          { label: 'Total Pacotes', value: total, color: 'bg-blue-500' },
-          { label: 'Entregues', value: entregues, color: 'bg-green-500' },
-          { label: 'Valor Total', value: `R$ ${valorTotal.toFixed(2)}`, color: 'bg-purple-500' },
-          { label: 'Valor Pago', value: `R$ ${valorPago.toFixed(2)}`, color: 'bg-emerald-500' },
-        ].map(card => (
-          <div key={card.label} className="bg-white rounded-xl shadow-sm border p-4">
-            <div className={`w-3 h-3 rounded-full ${card.color} mb-2`} />
-            <p className="text-xl font-bold text-gray-800">{card.value}</p>
-            <p className="text-sm text-gray-500">{card.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Info */}
+      {/* Informações do perfil */}
       <div className="bg-white rounded-xl shadow-sm border p-4 mb-6">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div><span className="text-gray-500">Telefone:</span> <span className="font-medium">{entregador.telefone || '—'}</span></div>
-          <div><span className="text-gray-500">Valor Padrão:</span> <span className="font-medium">R$ {entregador.valor_padrao.toFixed(2)}</span></div>
-          <div><span className="text-gray-500">Cadastro:</span> <span className="font-medium">{new Date(entregador.criado_em).toLocaleDateString('pt-BR')}</span></div>
-          <div><span className="text-gray-500">Último Pagamento:</span> <span className="font-medium">{entregador.ultimo_pagamento_em ? new Date(entregador.ultimo_pagamento_em).toLocaleDateString('pt-BR') : 'Nunca'}</span></div>
-          {entregador.telefone && (
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-6 text-sm">
             <div>
-              <a
-                href={`https://wa.me/${entregador.telefone.replace(/\D/g, '')}`}
-                target="_blank"
-                className="text-green-600 hover:underline font-medium"
-              >
-                📱 WhatsApp
-              </a>
+              <span className="text-gray-500">Valor Padrão:</span>
+              <span className="font-medium ml-1">R$ {entregador.valor_padrao.toFixed(2)}</span>
             </div>
+            <div>
+              <span className="text-gray-500">Telefone:</span>
+              <span className="font-medium ml-1">{entregador.telefone || '—'}</span>
+            </div>
+            <div>
+              <span className="text-gray-500">Último Pagamento:</span>
+              <span className="font-medium ml-1">
+                {entregador.ultimo_pagamento_em
+                  ? new Date(entregador.ultimo_pagamento_em).toLocaleString('pt-BR')
+                  : 'Nunca'}
+              </span>
+            </div>
+          </div>
+          {entregador.telefone && (
+            <a
+              href={`https://wa.me/${entregador.telefone.replace(/\D/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition flex items-center gap-2"
+            >
+              <span>📱</span> WhatsApp
+            </a>
           )}
         </div>
       </div>
 
-      {/* Pacotes do Entregador */}
-      <div className="bg-white rounded-xl shadow-sm border">
-        <div className="p-3 border-b bg-gray-50 rounded-t-xl">
-          <h3 className="font-semibold text-gray-700">Pacotes ({pacotes.length})</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-500 border-b">
-                <th className="p-3">Código</th>
-                <th className="p-3">Data</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Endereço</th>
-                <th className="p-3">Valor</th>
-                <th className="p-3">Pago</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pacotes.map(p => (
-                <tr key={p.codigo} className="border-b last:border-0 hover:bg-gray-50">
-                  <td className="p-3">
-                    <a href={`/admin/pacote/${p.codigo}`} className="text-blue-600 hover:underline font-medium">{p.codigo}</a>
-                  </td>
-                  <td className="p-3 text-gray-600">{new Date(p.data_chegada).toLocaleDateString('pt-BR')}</td>
-                  <td className="p-3">
-                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">{p.status}</span>
-                  </td>
-                  <td className="p-3 text-gray-600 max-w-[200px] truncate">{p.endereco_entrega}</td>
-                  <td className="p-3 text-gray-600">R$ {(p.valor_pacote || 0).toFixed(2)}</td>
-                  <td className="p-3">{p.pago ? '✅' : '❌'}</td>
-                </tr>
-              ))}
-              {pacotes.length === 0 && (
-                <tr><td colSpan={6} className="p-6 text-center text-gray-400">Nenhum pacote vinculado</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* Filtro de Data */}
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        <span className="text-sm text-gray-500 font-medium mr-1">Filtrar por:</span>
+        {FILTROS.map(f => (
+          <button
+            key={f.key}
+            onClick={() => selecionarFiltro(f.key)}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${
+              filtro === f.key
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
+
+      {/* Loading */}
+      {loading ? (
+        <div className="text-center py-8 text-gray-400">Atualizando dados...</div>
+      ) : (
+        <>
+          {/* Cards de Resumo */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <CardResumo
+              icone="📦"
+              label="Total Pacotes"
+              valor={totalPacotes}
+              cor="from-blue-500 to-blue-600"
+              formatar={false}
+            />
+            <CardResumo
+              icone="✅"
+              label="Entregues"
+              valor={entregues}
+              cor="from-green-500 to-green-600"
+              formatar={false}
+            />
+            <CardResumo
+              icone="💰"
+              label="Valor Total"
+              valor={valorTotal}
+              cor="from-purple-500 to-purple-600"
+              formatar={true}
+            />
+            <CardResumo
+              icone="💳"
+              label="Valor Pago"
+              valor={valorPago}
+              cor="from-emerald-500 to-emerald-600"
+              formatar={true}
+              extra={
+                entregador.ultimo_pagamento_em
+                  ? `Último pagamento: ${new Date(entregador.ultimo_pagamento_em).toLocaleDateString('pt-BR')}`
+                  : undefined
+              }
+            />
+          </div>
+
+          {/* Lista de Pacotes */}
+          <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+            <div className="px-5 py-3 border-b bg-gray-50 flex items-center justify-between">
+              <h3 className="font-semibold text-gray-700">
+                Pacotes {filtro !== 'tudo' ? `(${totalPacotes} no período)` : `(${totalPacotes} total)`}
+              </h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-gray-500 border-b bg-gray-50/50">
+                    <th className="p-3 pl-5 font-medium">Código</th>
+                    <th className="p-3 font-medium">Data</th>
+                    <th className="p-3 font-medium">Destinatário</th>
+                    <th className="p-3 font-medium">Status</th>
+                    <th className="p-3 font-medium">Valor</th>
+                    <th className="p-3 pr-5 font-medium">Pago</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pacotes.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="p-10 text-center text-gray-400">
+                        {filtro !== 'tudo'
+                          ? 'Nenhum pacote neste período'
+                          : 'Nenhum pacote vinculado a este entregador'}
+                      </td>
+                    </tr>
+                  ) : (
+                    pacotes.map(p => (
+                      <tr
+                        key={p.codigo}
+                        onClick={() => router.push(`/admin/pacote/${p.codigo}`)}
+                        className="border-b last:border-0 hover:bg-blue-50/50 transition cursor-pointer"
+                      >
+                        <td className="p-3 pl-5">
+                          <span className="font-medium text-blue-600">{p.codigo}</span>
+                        </td>
+                        <td className="p-3 text-gray-600 whitespace-nowrap">
+                          {new Date(p.data_chegada).toLocaleDateString('pt-BR')}
+                        </td>
+                        <td className="p-3 text-gray-600 max-w-[180px] truncate">
+                          {p.destinatario || '—'}
+                        </td>
+                        <td className="p-3">
+                          <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-gray-100 text-gray-700'}`}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td className="p-3 text-gray-700 font-medium">
+                          R$ {(entregador.valor_padrao || 0).toFixed(2)}
+                        </td>
+                        <td className="p-3 pr-5">
+                          {p.pago ? (
+                            <span className="inline-flex items-center gap-1 text-green-600 text-xs font-medium">
+                              <span>✅</span> Pago
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-gray-400 text-xs">
+                              <span>❌</span> Pendente
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ============================================================
+// CARD DE RESUMO
+// ============================================================
+function CardResumo({
+  icone, label, valor, cor, formatar, extra
+}: {
+  icone: string
+  label: string
+  valor: number
+  cor: string
+  formatar: boolean
+  extra?: string
+}) {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border p-4 flex flex-col relative overflow-hidden">
+      <div className={`absolute top-0 right-0 w-20 h-20 rounded-bl-full bg-gradient-to-br ${cor} opacity-5`} />
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-lg">{icone}</span>
+        <span className="text-xs text-gray-500 font-medium">{label}</span>
+      </div>
+      <p className="text-2xl font-bold text-gray-800">
+        {formatar ? `R$ ${valor.toFixed(2)}` : valor}
+      </p>
+      {extra && (
+        <p className="text-xs text-gray-400 mt-1">{extra}</p>
+      )}
     </div>
   )
 }
