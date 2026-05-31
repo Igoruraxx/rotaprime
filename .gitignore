@@ -7,7 +7,6 @@ out/
 next-env.d.ts
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -22,3 +21,6 @@ supabase/.temp/
 # Vercel
 .vercel/
 .vercel
+
+# Screenshots temporários
+*.png
