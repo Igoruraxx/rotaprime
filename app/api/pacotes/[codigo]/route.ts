@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/db'
 import { sanitizeText, sanitizeFloat } from '@/lib/utils'
 import { getSessionFromRequest } from '@/lib/auth'
+import { transicaoValida, camposParaTransicao } from '@/lib/maquina-estados'
 
 export async function GET(
   request: NextRequest,
@@ -36,6 +37,29 @@ export async function PUT(
     const body = await request.json()
     const updates: Record<string, unknown> = {}
 
+    // Se está mudando de status, validar pela máquina de estados
+    if (body.status !== undefined) {
+      // Buscar status atual
+      const { data: pacoteAtual } = await supabase
+        .from('pacotes')
+        .select('status')
+        .eq('codigo', params.codigo)
+        .single()
+
+      if (pacoteAtual) {
+        const validacao = transicaoValida(pacoteAtual.status, body.status, 'admin')
+        if (!validacao.valida) {
+          return NextResponse.json({ erro: validacao.erro }, { status: 400 })
+        }
+        // Usar campos da máquina de estados
+        const camposEstado = camposParaTransicao(pacoteAtual.status, body.status)
+        Object.assign(updates, camposEstado)
+      } else {
+        updates.status = body.status
+      }
+    }
+
+    // Campos de edição livre (não afetam estado)
     if (body.nf_remessa !== undefined) updates.nf_remessa = sanitizeText(body.nf_remessa)
     if (body.descricao !== undefined) updates.descricao = sanitizeText(body.descricao)
     if (body.quantidade !== undefined) updates.quantidade = parseInt(body.quantidade)
@@ -45,7 +69,6 @@ export async function PUT(
     if (body.valor_pacote !== undefined) updates.valor_pacote = sanitizeFloat(body.valor_pacote)
     if (body.observacoes !== undefined) updates.observacoes = sanitizeText(body.observacoes)
     if (body.transportadora !== undefined) updates.transportadora = sanitizeText(body.transportadora)
-    if (body.status !== undefined) updates.status = body.status
     if (body.pago !== undefined) updates.pago = body.pago
     if (body.data_pagamento !== undefined) updates.data_pagamento = body.data_pagamento
     if (body.validacao_admin !== undefined) updates.validacao_admin = body.validacao_admin
@@ -62,7 +85,7 @@ export async function PUT(
       .from('pacotes')
       .update(updates)
       .eq('codigo', params.codigo)
-      .select()
+      .select('*, entregadores(nome, telefone, valor_padrao)')
       .single()
 
     if (error) return NextResponse.json({ erro: error.message }, { status: 500 })
