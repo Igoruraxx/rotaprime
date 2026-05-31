@@ -1,6 +1,32 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
 
+const NAV_ITEMS = [
+  { href: '/admin', icon: '📊', label: 'Dashboard', grupo: 'Gestão' },
+  { href: '/admin/relatorio', icon: '📋', label: 'Relatório', grupo: 'Gestão' },
+  { href: '/admin/pacotes', icon: '📦', label: 'Pacotes', grupo: 'Gestão' },
+  { href: '/admin/registrar', icon: '➕', label: 'Registrar', grupo: 'Gestão' },
+  { href: '/admin/rastrear', icon: '🔍', label: 'Rastrear', grupo: 'Gestão' },
+  { href: '/admin/entregadores', icon: '👥', label: 'Entregadores', grupo: 'Operacional' },
+  { href: '/admin/fotos', icon: '📸', label: 'Fotos', grupo: 'Operacional' },
+  { href: '/admin/transportadoras', icon: '🚚', label: 'Transportadoras', grupo: 'Operacional' },
+  { href: '/admin/configuracoes', icon: '⚙️', label: 'Controle', grupo: 'Sistema' },
+]
+
+const MOBILE_ITEMS = [
+  { href: '/admin', icon: '📊', label: 'Dash' },
+  { href: '/admin/relatorio', icon: '📋', label: 'Relatório' },
+  { href: '/admin/pacotes', icon: '📦', label: 'Pacotes' },
+  { href: '/admin/registrar', icon: '➕', label: 'Novo' },
+  { href: '/admin/rastrear', icon: '🔍', label: 'Buscar' },
+  { href: '/admin/entregadores', icon: '👥', label: 'Entreg.' },
+  { href: '/admin/fotos', icon: '📸', label: 'Fotos' },
+  { href: '/admin/transportadoras', icon: '🚚', label: 'Transp.' },
+  { href: '/admin/configuracoes', icon: '⚙️', label: 'Ctrl' },
+]
+
+const GRUPOS = Array.from(new Set(NAV_ITEMS.map(i => i.grupo)))
+
 export default async function AdminLayout({
   children,
 }: {
@@ -10,75 +36,100 @@ export default async function AdminLayout({
   if (!session || session.tipo !== 'admin') redirect('/login')
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r hidden md:block">
-        <div className="p-4 border-b">
-          <h1 className="text-lg font-bold text-gray-800">Rota Prime</h1>
-          <p className="text-xs text-gray-500">Admin</p>
+    <div className="min-h-screen flex">
+      {/* ===== SIDEBAR ===== */}
+      <aside className="w-64 hidden md:flex flex-col fixed inset-y-0 left-0 z-30 border-r border-white/[0.06]"
+        style={{
+          background: 'linear-gradient(180deg, hsl(260, 25%, 5%) 0%, hsl(260, 20%, 7%) 100%)',
+        }}
+      >
+        {/* Logo - caminhão laranja + pacote verde */}
+        <div className="px-5 py-5 border-b border-white/[0.06]">
+          <div className="flex items-center gap-3">
+            <div className="relative w-10 h-10 flex items-center justify-center">
+              <span className="text-2xl" style={{ filter: 'drop-shadow(0 0 8px rgba(249, 115, 22, 0.4))' }}>🚛</span>
+              <span className="absolute -top-1 -right-1 text-sm" style={{ filter: 'drop-shadow(0 0 6px rgba(16, 185, 129, 0.5))' }}>📦</span>
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-white tracking-tight">Rota Prime</h1>
+              <p className="text-[10px] text-white/30 font-medium tracking-widest uppercase">Admin</p>
+            </div>
+          </div>
         </div>
-        <nav className="p-3 space-y-1">
-          <p className="text-xs font-semibold text-gray-400 uppercase px-3 pt-3 pb-1">Gestão</p>
-          <a href="/admin" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
-            📊 Dashboard
-          </a>
-          <a href="/admin/relatorio" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
-            📋 Relatório
-          </a>
-          <a href="/admin/pacotes" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
-            📦 Pacotes
-          </a>
-          <a href="/admin/registrar" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
-            ➕ Registrar
-          </a>
-          <a href="/admin/rastrear" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
-            🔍 Rastrear
-          </a>
-          <a href="/admin/entregadores" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
-            👥 Entregadores
-          </a>
-          <a href="/admin/fotos" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
-            📸 Fotos
-          </a>
-          <a href="/admin/transportadoras" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
-            🚚 Transportadoras
-          </a>
 
-          <p className="text-xs font-semibold text-gray-400 uppercase px-3 pt-4 pb-1">Config</p>
-          <a href="/login" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 transition">
-            🚪 Sair
-          </a>
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto no-scrollbar px-3 py-4 space-y-5">
+          {GRUPOS.map(grupo => (
+            <div key={grupo}>
+              <p className="text-[10px] font-semibold text-white/20 uppercase tracking-widest px-3 mb-1.5">
+                {grupo}
+              </p>
+              <div className="space-y-0.5">
+                {NAV_ITEMS.filter(i => i.grupo === grupo).map(item => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/[0.06] transition-all duration-200"
+                  >
+                    <span className="text-base">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
         </nav>
+
+        {/* Logout */}
+        <div className="px-3 py-4 border-t border-white/[0.06]">
+          <form action="/api/auth/logout" method="POST">
+            <button className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-white/40 hover:text-red-400 hover:bg-white/[0.04] transition-all duration-200 w-full">
+              <span>🚪</span>
+              <span>Sair</span>
+            </button>
+          </form>
+        </div>
       </aside>
 
-      {/* Main */}
-      <div className="flex-1 flex flex-col">
+      {/* ===== MAIN ===== */}
+      <div className="flex-1 flex flex-col md:ml-64">
         {/* Top bar mobile */}
-        <header className="bg-white border-b md:hidden">
+        <header className="md:hidden border-b border-white/[0.06]"
+          style={{ background: 'hsl(260, 25%, 5%)' }}
+        >
           <div className="px-4 py-3 flex items-center justify-between">
-            <h1 className="text-lg font-bold text-gray-800">Rota Prime</h1>
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🚛</span>
+              <h1 className="text-lg font-bold text-white">Rota Prime</h1>
+            </div>
             <form action="/api/auth/logout" method="POST">
-              <button className="text-sm text-red-600">Sair</button>
+              <button className="text-sm text-white/40 hover:text-red-400 transition">Sair</button>
             </form>
           </div>
         </header>
 
         {/* Mobile nav */}
-        <nav className="bg-white border-b md:hidden overflow-x-auto">
+        <nav className="md:hidden overflow-x-auto border-b border-white/[0.06]"
+          style={{ background: 'hsl(260, 22%, 6%)' }}
+        >
           <div className="flex px-2 py-1 gap-1 text-xs">
-            <a href="/admin" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">📊 Dash</a>
-            <a href="/admin/relatorio" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">📋 Relatório</a>
-            <a href="/admin/pacotes" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">📦 Pacotes</a>
-            <a href="/admin/registrar" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">➕ Novo</a>
-            <a href="/admin/rastrear" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">🔍 Buscar</a>
-            <a href="/admin/entregadores" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">👥 Entreg.</a>
-            <a href="/admin/fotos" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">📸 Fotos</a>
-            <a href="/admin/transportadoras" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">🚚 Transp.</a>
+            {MOBILE_ITEMS.map(item => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="px-3 py-2 rounded-lg hover:bg-white/[0.06] text-white/50 hover:text-white whitespace-nowrap transition"
+              >
+                {item.icon} {item.label}
+              </a>
+            ))}
           </div>
         </nav>
 
-        <main className="flex-1 p-4 md:p-6">
-          {children}
+        {/* Content */}
+        <main className="flex-1 p-4 md:p-8">
+          <div className="animate-fade-in-up">
+            {children}
+          </div>
         </main>
       </div>
     </div>

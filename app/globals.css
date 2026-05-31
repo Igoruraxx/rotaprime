@@ -3,145 +3,356 @@
 @import "shadcn/tailwind.css";
 
 @utility gradient-primary {
-  background: linear-gradient(135deg, hsl(200 80% 55%), hsl(270 70% 60%));
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+}
+
+@utility gradient-orange {
+  background: linear-gradient(135deg, #f97316, #fb923c);
+}
+
+@utility gradient-green {
+  background: linear-gradient(135deg, #10b981, #34d399);
 }
 
 @utility text-gradient {
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  background-image: linear-gradient(135deg, hsl(200 80% 55%), hsl(270 70% 60%));
+  background-image: linear-gradient(135deg, #a78bfa, #f97316);
+}
+
+@utility glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@utility glass-strong {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@utility glow-purple {
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.15), 0 0 60px rgba(124, 58, 237, 0.05);
+}
+
+@utility glow-orange {
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.15), 0 0 60px rgba(249, 115, 22, 0.05);
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar { display: none; }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: var(--font-sans);
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* ============================================================
+   DARK THEME — ROTA PRIME PREMIUM
+   Purple primary · Orange truck · Green package
+   ============================================================ */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: 220 25% 10%;
+  --background: 260 25% 5%;
+  --foreground: 210 40% 98%;
 
-    --card: oklch(1 0 0);
-    --card-foreground: 220 25% 10%;
+  --card: 260 20% 8%;
+  --card-foreground: 210 40% 98%;
 
-    --popover: oklch(1 0 0);
-    --popover-foreground: 220 25% 10%;
+  --popover: 260 20% 8%;
+  --popover-foreground: 210 40% 98%;
 
-    --primary: 200 80% 55%;
-    --primary-foreground: 220 25% 10%;
+  --primary: 260 80% 65%;
+  --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 220 25% 10%;
+  --secondary: 260 15% 15%;
+  --secondary-foreground: 210 40% 98%;
 
-    --muted: 210 40% 94%;
-    --muted-foreground: 215 16% 47%;
+  --muted: 260 15% 15%;
+  --muted-foreground: 260 10% 55%;
 
-    --accent: 270 70% 60%;
-    --accent-foreground: 0 0% 100%;
+  --accent: 25 95% 53%;
+  --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 200 80% 55%;
+  --destructive: 0 84% 60%;
+  --border: 260 15% 18%;
+  --input: 260 15% 18%;
+  --ring: 260 80% 65%;
 
-    --radius: 0.625rem;
+  --radius: 0.75rem;
 
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: 220 25% 10%;
-    --sidebar-primary: 200 80% 55%;
-    --sidebar-primary-foreground: 220 25% 10%;
-    --sidebar-accent: 270 70% 60%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 200 80% 55%;
+  --sidebar: 260 25% 6%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-primary: 260 80% 65%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 25 95% 53%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 260 15% 14%;
+  --sidebar-ring: 260 80% 65%;
+
+  --chart-1: 260 80% 65%;
+  --chart-2: 25 95% 53%;
+  --chart-3: 160 84% 39%;
+  --chart-4: 270 70% 60%;
+  --chart-5: 0 84% 60%;
 }
 
 .dark {
-    --background: 220 25% 8%;
-    --foreground: 210 40% 98%;
-
-    --card: 220 25% 12%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 220 25% 12%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 200 80% 60%;
-    --primary-foreground: 220 25% 10%;
-
-    --secondary: 215 25% 18%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 215 25% 18%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 270 70% 65%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 63% 50%;
-    --border: 215 25% 22%;
-    --input: 215 25% 22%;
-    --ring: 200 80% 60%;
-
-    --sidebar: 220 25% 10%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 200 80% 60%;
-    --sidebar-primary-foreground: 220 25% 10%;
-    --sidebar-accent: 270 70% 65%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 215 25% 18%;
-    --sidebar-ring: 200 80% 60%;
+  --background: 260 25% 5%;
+  --foreground: 210 40% 98%;
+  --card: 260 20% 8%;
+  --card-foreground: 210 40% 98%;
+  --popover: 260 20% 8%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 260 80% 65%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 260 15% 15%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 260 15% 15%;
+  --muted-foreground: 260 10% 55%;
+  --accent: 25 95% 53%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --border: 260 15% 18%;
+  --input: 260 15% 18%;
+  --ring: 260 80% 65%;
+  --sidebar: 260 25% 6%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-primary: 260 80% 65%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 25 95% 53%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 260 15% 14%;
+  --sidebar-ring: 260 80% 65%;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.08), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(249, 115, 22, 0.04), transparent);
+  }
   html {
     @apply font-sans;
-    }
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.3);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(124, 58, 237, 0.5);
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(124, 58, 237, 0.4);
+    color: white;
+  }
+}
+
+/* ============================================================
+   LOGIN PAGE SPECIFIC
+   ============================================================ */
+@utility login-bg {
+  background:
+    radial-gradient(ellipse 100% 60% at 50% -20%, rgba(124, 58, 237, 0.15), transparent 70%),
+    radial-gradient(ellipse 80% 50% at 20% 100%, rgba(249, 115, 22, 0.08), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.05), transparent 50%),
+    linear-gradient(180deg, hsl(260, 25%, 4%), hsl(260, 25%, 6%));
+}
+
+/* ============================================================
+   CARD STYLES
+   ============================================================ */
+@utility card-premium {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1rem;
+}
+
+@utility card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+  border-color: rgba(124, 58, 237, 0.3);
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.08);
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.1); }
+  50% { box-shadow: 0 0 30px rgba(124, 58, 237, 0.2); }
+}
+
+@utility animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+@utility animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* ============================================================
+   INPUT / SELECT DARK STYLES
+   ============================================================ */
+input, select, textarea {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(124, 58, 237, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1) !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Dropdown / select option */
+select option {
+  background: #0f0a1a;
+  color: white;
+}
+
+/* ============================================================
+   TABLE STYLES
+   ============================================================ */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+thead th {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  font-weight: 500 !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.2s;
+}
+
+tbody tr:last-child {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background: rgba(124, 58, 237, 0.04) !important;
+}
+
+tbody td {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ============================================================
+   BADGE / TAG STYLES
+   ============================================================ */
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+/* ============================================================
+   BUTTON STYLES
+   ============================================================ */
+.btn-primary {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa) !important;
+  color: white !important;
+  border: none !important;
+  transition: all 0.2s !important;
+}
+.btn-primary:hover {
+  box-shadow: 0 0 24px rgba(124, 58, 237, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+.btn-orange {
+  background: linear-gradient(135deg, #f97316, #fb923c) !important;
+  color: white !important;
+  border: none !important;
+}
+.btn-orange:hover {
+  box-shadow: 0 0 24px rgba(249, 115, 22, 0.3) !important;
+  transform: translateY(-1px);
 }
