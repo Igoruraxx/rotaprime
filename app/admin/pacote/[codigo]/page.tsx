@@ -334,6 +334,7 @@ function GridInfo({ pacote }: { pacote: Pacote }) {
   const infos = [
     { label: 'Código', value: pacote.codigo, colspan: 1 },
     { label: 'NF / Remessa', value: pacote.nf_remessa || '—', colspan: 1 },
+    { label: 'Destinatário', value: (pacote as Record<string, unknown>).destinatario || '—', colspan: 1 },
     { label: 'Status', value: pacote.status, colspan: 1 },
     { label: 'Transportadora', value: pacote.transportadora || '—', colspan: 1 },
     { label: 'Descrição', value: pacote.descricao || '—', colspan: 2 },
@@ -387,6 +388,7 @@ function EditFormCompleto({
 
   const [form, setForm] = useState({
     nf_remessa: pacote.nf_remessa || '',
+    destinatario: (pacote as Record<string, unknown>).destinatario as string || '',
     descricao: pacote.descricao || '',
     quantidade: pacote.quantidade || 1,
     endereco_entrega: pacote.endereco_entrega || '',
@@ -425,10 +427,6 @@ function EditFormCompleto({
       ...form,
       valor_pacote: form.valor_pacote.replace(',', '.'),
       entregador_id: form.entregador_id ? parseInt(form.entregador_id as string) : null,
-      quantidade: form.quantidade,
-      tentativa_atual: form.tentativa_atual,
-      pago: form.pago,
-      validacao_admin: form.validacao_admin,
       data_chegada: form.data_chegada ? new Date(form.data_chegada).toISOString() : null,
       data_limite_entrega: form.data_limite_entrega ? new Date(form.data_limite_entrega).toISOString() : null,
       data_repassado_entregador: form.data_repassado_entregador ? new Date(form.data_repassado_entregador).toISOString() : null,
@@ -468,6 +466,9 @@ function EditFormCompleto({
         <Section titulo="📋 Identificação">
           <Field label="NF / Remessa" cols={2}>
             <input value={form.nf_remessa} onChange={e => set('nf_remessa', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+          </Field>
+          <Field label="Destinatário" cols={2}>
+            <input value={form.destinatario} onChange={e => set('destinatario', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
           </Field>
           <Field label="Descrição" cols={2}>
             <input value={form.descricao} onChange={e => set('descricao', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />

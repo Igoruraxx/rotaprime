@@ -27,6 +27,7 @@ export default function RegistrarPage() {
     const form = new FormData(e.currentTarget)
     const body: Record<string, unknown> = {
       nf_remessa: form.get('nf_remessa'),
+      destinatario: form.get('destinatario'),
       endereco_entrega: form.get('endereco_entrega'),
       descricao: form.get('descricao'),
       quantidade: form.get('quantidade') || 1,
@@ -83,14 +84,20 @@ export default function RegistrarPage() {
               <input name="nf_remessa" required className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Quantidade</label>
-              <input name="quantidade" type="number" defaultValue={1} min={1} className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              <label className="block text-sm font-medium text-gray-700 mb-1">Destinatário</label>
+              <input name="destinatario" className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Endereço de Entrega *</label>
-            <input name="endereco_entrega" required className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Endereço de Entrega *</label>
+              <input name="endereco_entrega" required className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Quantidade</label>
+              <input name="quantidade" type="number" defaultValue={1} min={1} className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

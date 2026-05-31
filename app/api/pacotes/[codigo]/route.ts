@@ -61,6 +61,7 @@ export async function PUT(
 
     // TODOS os campos editáveis
     if (body.nf_remessa !== undefined) updates.nf_remessa = sanitizeText(body.nf_remessa)
+    if (body.destinatario !== undefined) updates.destinatario = sanitizeText(body.destinatario)
     if (body.descricao !== undefined) updates.descricao = sanitizeText(body.descricao)
     if (body.quantidade !== undefined) updates.quantidade = parseInt(body.quantidade) || 1
     if (body.endereco_entrega !== undefined) updates.endereco_entrega = sanitizeText(body.endereco_entrega)

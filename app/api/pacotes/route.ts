@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
     const pacote = {
       codigo,
       nf_remessa: sanitizeText(body.nf_remessa || ''),
+      destinatario: sanitizeText(body.destinatario || ''),
       descricao: sanitizeText(body.descricao || ''),
       quantidade: parseInt(body.quantidade) || 1,
       endereco_entrega: sanitizeText(body.endereco_entrega || ''),
