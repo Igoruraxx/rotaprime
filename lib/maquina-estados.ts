@@ -1,7 +1,7 @@
 // Máquina de Estados - Fluxo de Pacotes
 // Define as transições válidas entre status
 
-const TRANSICOES: Record<string, string[]> = {
+export const TRANSICOES: Record<string, string[]> = {
   'Recebido pela Central':     ['Aguardando Retirada', 'Retornado a Central'],
   'Aguardando Retirada':       ['Retirado pelo Entregador', 'Retornado a Central'],
   'Retirado pelo Entregador':  ['Em Rota', 'Retornado a Central'],

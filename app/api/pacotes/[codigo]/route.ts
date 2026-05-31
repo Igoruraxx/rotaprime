@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/db'
 import { sanitizeText, sanitizeFloat } from '@/lib/utils'
 import { getSessionFromRequest } from '@/lib/auth'
-import { transicaoValida, camposParaTransicao } from '@/lib/maquina-estados'
+import { camposParaTransicao, TRANSICOES } from '@/lib/maquina-estados'
 
 export async function GET(
   request: NextRequest,
@@ -37,21 +37,21 @@ export async function PUT(
     const body = await request.json()
     const updates: Record<string, unknown> = {}
 
-    // Se está mudando de status, validar pela máquina de estados
+    // Admin pode setar QUALQUER status (override total)
     if (body.status !== undefined) {
-      // Buscar status atual
+      const statusValido = Object.keys(TRANSICOES).includes(body.status)
+      if (!statusValido) {
+        return NextResponse.json({ erro: `Status inválido: "${body.status}"` }, { status: 400 })
+      }
+
+      // Buscar status atual para auto-preenchimento de timestamps
       const { data: pacoteAtual } = await supabase
         .from('pacotes')
         .select('status')
         .eq('codigo', params.codigo)
         .single()
 
-      if (pacoteAtual) {
-        const validacao = transicaoValida(pacoteAtual.status, body.status, 'admin')
-        if (!validacao.valida) {
-          return NextResponse.json({ erro: validacao.erro }, { status: 400 })
-        }
-        // Usar campos da máquina de estados
+      if (pacoteAtual && pacoteAtual.status !== body.status) {
         const camposEstado = camposParaTransicao(pacoteAtual.status, body.status)
         Object.assign(updates, camposEstado)
       } else {
@@ -59,27 +59,28 @@ export async function PUT(
       }
     }
 
-    // Campos de edição livre (não afetam estado)
+    // TODOS os campos editáveis
     if (body.nf_remessa !== undefined) updates.nf_remessa = sanitizeText(body.nf_remessa)
     if (body.descricao !== undefined) updates.descricao = sanitizeText(body.descricao)
-    if (body.quantidade !== undefined) updates.quantidade = parseInt(body.quantidade)
+    if (body.quantidade !== undefined) updates.quantidade = parseInt(body.quantidade) || 1
     if (body.endereco_entrega !== undefined) updates.endereco_entrega = sanitizeText(body.endereco_entrega)
-    if (body.data_limite_entrega !== undefined) updates.data_limite_entrega = body.data_limite_entrega
+    if (body.data_limite_entrega !== undefined) updates.data_limite_entrega = body.data_limite_entrega || null
     if (body.entregador_id !== undefined) updates.entregador_id = body.entregador_id ? parseInt(body.entregador_id) : null
-    if (body.valor_pacote !== undefined) updates.valor_pacote = sanitizeFloat(body.valor_pacote)
+    if (body.valor_pacote !== undefined) updates.valor_pacote = sanitizeFloat(body.valor_pacote) || 0
     if (body.observacoes !== undefined) updates.observacoes = sanitizeText(body.observacoes)
     if (body.transportadora !== undefined) updates.transportadora = sanitizeText(body.transportadora)
     if (body.pago !== undefined) updates.pago = body.pago
-    if (body.data_pagamento !== undefined) updates.data_pagamento = body.data_pagamento
+    if (body.data_pagamento !== undefined) updates.data_pagamento = body.data_pagamento || null
     if (body.validacao_admin !== undefined) updates.validacao_admin = body.validacao_admin
-    if (body.data_validacao_admin !== undefined) updates.data_validacao_admin = body.data_validacao_admin
+    if (body.data_validacao_admin !== undefined) updates.data_validacao_admin = body.data_validacao_admin || null
     if (body.motivo_devolucao !== undefined) updates.motivo_devolucao = sanitizeText(body.motivo_devolucao)
-    if (body.tentativa_atual !== undefined) updates.tentativa_atual = parseInt(body.tentativa_atual)
-    if (body.foto !== undefined) updates.foto = body.foto
-    if (body.gps_foto !== undefined) updates.gps_foto = body.gps_foto
-    if (body.data_repassado_entregador !== undefined) updates.data_repassado_entregador = body.data_repassado_entregador
-    if (body.data_retirada_central !== undefined) updates.data_retirada_central = body.data_retirada_central
-    if (body.data_entrega_real !== undefined) updates.data_entrega_real = body.data_entrega_real
+    if (body.tentativa_atual !== undefined) updates.tentativa_atual = parseInt(body.tentativa_atual) || 0
+    if (body.foto !== undefined) updates.foto = body.foto || null
+    if (body.gps_foto !== undefined) updates.gps_foto = body.gps_foto || null
+    if (body.data_repassado_entregador !== undefined) updates.data_repassado_entregador = body.data_repassado_entregador || null
+    if (body.data_retirada_central !== undefined) updates.data_retirada_central = body.data_retirada_central || null
+    if (body.data_entrega_real !== undefined) updates.data_entrega_real = body.data_entrega_real || null
+    if (body.data_chegada !== undefined) updates.data_chegada = body.data_chegada
 
     const { data, error } = await supabase
       .from('pacotes')

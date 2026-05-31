@@ -1,4 +1,11 @@
-// Sanitização de textos (remove HTML/script injection)
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+// Sanitização de textos
 export function sanitizeText(text: string): string {
   return text
     .replace(/</g, '&lt;')
