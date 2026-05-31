@@ -70,25 +70,25 @@ export default function ConfiguracoesPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-white">⚙️ Controle do Sistema</h2>
-          <p className="text-sm text-white/50 mt-1">
+          <h2 className="text-2xl font-bold text-gray-900">⚙️ Controle do Sistema</h2>
+          <p className="text-sm text-gray-500 mt-1">
             {totalAtivas}/{total} funcionalidades ativas
           </p>
         </div>
       </div>
 
       {msg && (
-        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-white/10 text-white border border-white/20 backdrop-blur-sm">
+        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-gray-50 text-gray-700 border border-gray-200">
           {msg}
         </div>
       )}
 
       {loading ? (
-        <div className="text-center py-12 text-white/40">Carregando...</div>
+        <div className="text-center py-12 text-gray-500">Carregando...</div>
       ) : (
         <div className="space-y-6">
           {Object.entries(grupos).map(([grupo, items]) => (
-            <div key={grupo} className="rounded-2xl border border-white/10 bg-white/[0.07] backdrop-blur-sm overflow-hidden">
+            <div key={grupo} className="rounded-2xl border border-gray-200 bg-gray-50 overflow-hidden">
               {/* Grupo header */}
               <div className={`px-5 py-3 bg-gradient-to-r ${GRUPO_CORES[grupo] || 'from-gray-600 to-gray-700'}`}>
                 <h3 className="font-bold text-white text-sm flex items-center gap-2">
@@ -100,19 +100,19 @@ export default function ConfiguracoesPage() {
               </div>
 
               {/* Features */}
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-gray-100">
                 {items.map(f => (
-                  <div key={f.id} className="flex items-center justify-between px-5 py-4 hover:bg-white/[0.06] transition">
+                  <div key={f.id} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className={`w-2 h-2 rounded-full ${f.ativo ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'bg-gray-600'}`} />
-                        <span className="font-medium text-white text-sm">{f.nome}</span>
-                        <code className="text-[10px] text-white/30 font-mono bg-white/5 px-1.5 py-0.5 rounded">
+                        <span className="font-medium text-gray-900 text-sm">{f.nome}</span>
+                        <code className="text-[10px] text-gray-400 font-mono bg-gray-100 px-1.5 py-0.5 rounded">
                           {f.chave}
                         </code>
                       </div>
                       {f.descricao && (
-                        <p className="text-xs text-white/40 mt-0.5 ml-4">{f.descricao}</p>
+                        <p className="text-xs text-gray-500 mt-0.5 ml-4">{f.descricao}</p>
                       )}
                     </div>
                     <button
@@ -120,7 +120,7 @@ export default function ConfiguracoesPage() {
                       className={`relative w-11 h-6 rounded-full transition-all duration-300 shrink-0 ${
                         f.ativo
                           ? 'bg-gradient-to-r from-violet-500 to-purple-600 shadow-[0_0_12px_rgba(139,92,246,0.3)]'
-                          : 'bg-white/10'
+                          : 'bg-gray-200'
                       }`}
                     >
                       <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all duration-300 shadow-md ${

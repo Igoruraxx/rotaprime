@@ -121,7 +121,7 @@ export default async function AdminLayout({
         </nav>
 
         {/* Content */}
-        <main className="flex-1 p-4 md:p-8">
+        <main className="admin-content flex-1 p-4 md:p-8">
           <div className="animate-fade-in-up">
             {children}
           </div>

@@ -262,79 +262,7 @@
 }
 
 /* ============================================================
-   INPUT / SELECT DARK STYLES - Fundo visível
-   ============================================================ */
-input, select, textarea {
-  background: rgba(255, 255, 255, 0.10) !important;
-  border-color: rgba(255, 255, 255, 0.15) !important;
-  color: white !important;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: rgba(124, 58, 237, 0.6) !important;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2) !important;
-}
-
-input::placeholder, textarea::placeholder {
-  color: rgba(255, 255, 255, 0.35) !important;
-}
-
-/* Dropdown / select option */
-select option {
-  background: #150d24;
-  color: white;
-}
-
-/* ============================================================
-   TABLE STYLES - Fundo e texto visíveis
-   ============================================================ */
-table {
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-thead th {
-  background: rgba(255, 255, 255, 0.06) !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-  font-weight: 500 !important;
-  font-size: 0.75rem !important;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-tbody tr {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  transition: background 0.2s;
-}
-
-tbody tr:last-child {
-  border-bottom: none;
-}
-
-tbody tr:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
-}
-
-tbody td {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-/* ============================================================
-   BADGE / TAG STYLES
-   ============================================================ */
-.badge-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.125rem 0.625rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border: 1px solid;
-}
-
-/* ============================================================
-   BUTTON STYLES
+   BUTTON STYLES (shared - work on both themes)
    ============================================================ */
 .btn-primary {
   background: linear-gradient(135deg, #7c3aed, #a78bfa) !important;
@@ -358,7 +286,7 @@ tbody td {
 }
 
 /* ============================================================
-   LINK CLICÁVEL ESTILO BOTÃO
+   LINK CLICÁVEL ESTILO BOTÃO (shared)
    ============================================================ */
 a.link-btn {
   display: inline-flex;
@@ -387,14 +315,14 @@ a.link-btn-sm {
   font-size: 0.75rem;
   font-weight: 600;
   color: white !important;
-  background: rgba(124, 58, 237, 0.3);
-  border: 1px solid rgba(124, 58, 237, 0.4);
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+  border: none;
   transition: all 0.2s;
   text-decoration: none;
 }
 a.link-btn-sm:hover {
-  background: rgba(124, 58, 237, 0.5);
-  border-color: rgba(124, 58, 237, 0.6);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.35);
+  transform: translateY(-1px);
 }
 
 a.link-btn-orange {
@@ -412,10 +340,134 @@ a.link-btn-green:hover {
 }
 
 /* ============================================================
-   CARD DE CONTEÚDO (fundo visível, borda nítida)
+   BADGE / TAG STYLES (shared)
    ============================================================ */
-.content-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+/* ============================================================
+   ADMIN CONTENT AREA — LIGHT THEME · Solid · Premium
+   Fundo claro, cards brancos sólidos, contraste total
+   ============================================================ */
+.admin-content {
+  background: #f5f5f7;
+  color: #1d1d1f;
+  min-height: 100%;
+}
+
+.admin-content .content-card {
+  background: #ffffff;
+  border: 1px solid #e5e5ea;
   border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+  transition: box-shadow 0.2s;
+}
+
+.admin-content .card-premium {
+  background: #ffffff;
+  border: 1px solid #e5e5ea;
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+}
+
+/* Inputs on admin content */
+.admin-content input,
+.admin-content select,
+.admin-content textarea {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  color: #1d1d1f !important;
+  border-radius: 0.5rem !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+.admin-content input:focus,
+.admin-content select:focus,
+.admin-content textarea:focus {
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15) !important;
+  outline: none !important;
+}
+
+.admin-content input::placeholder,
+.admin-content textarea::placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+}
+
+.admin-content select option {
+  background: #ffffff;
+  color: #1d1d1f;
+}
+
+/* Tables on admin content */
+.admin-content table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-content thead th {
+  background: #f8f8fa !important;
+  color: #6b7280 !important;
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem !important;
+  border-bottom: 1px solid #e5e5ea !important;
+}
+
+.admin-content tbody tr {
+  border-bottom: 1px solid #f0f0f5;
+  transition: background 0.15s;
+}
+
+.admin-content tbody tr:last-child {
+  border-bottom: none;
+}
+
+.admin-content tbody tr:hover {
+  background: #f8f8fa !important;
+}
+
+.admin-content tbody td {
+  color: #374151 !important;
+  padding: 0.75rem !important;
+  font-size: 0.875rem !important;
+}
+
+/* Checkbox styling */
+.admin-content input[type="checkbox"] {
+  width: 1rem !important;
+  height: 1rem !important;
+  accent-color: #7c3aed;
+}
+
+/* Section headers in admin content */
+.admin-content .section-header {
+  background: #f8f8fa;
+  border-bottom: 1px solid #e5e5ea;
+}
+
+/* Orange accent header */
+.admin-content .accent-header {
+  background: #fff7ed;
+  border-bottom: 1px solid #fed7aa;
+}
+
+/* Card hover effect */
+.admin-content .card-hover:hover {
+  border-color: #c4b5fd;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.08);
+  transform: translateY(-1px);
 }

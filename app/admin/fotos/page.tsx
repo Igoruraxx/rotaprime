@@ -20,13 +20,13 @@ type PacoteFoto = {
 type Entregador = { id: number; nome: string }
 
 const STATUS_CORES: Record<string, string> = {
-  'Recebido pela Central': 'bg-white/[0.10] text-white/60',
-  'Aguardando Retirada': 'bg-amber-500/15 text-amber-300',
-  'Retirado pelo Entregador': 'bg-violet-500/15 text-violet-300',
-  'Em Rota': 'bg-violet-500/15 text-violet-300',
-  'Entregue': 'bg-emerald-500/15 text-emerald-300',
-  'Retornado a Central': 'bg-red-500/15 text-red-300',
-  'Validado pelo Admin': 'bg-emerald-500/15 text-emerald-300',
+  'Recebido pela Central': 'bg-gray-100 text-gray-500',
+  'Aguardando Retirada': 'bg-amber-500 text-white',
+  'Retirado pelo Entregador': 'bg-violet-500 text-white',
+  'Em Rota': 'bg-violet-500 text-white',
+  'Entregue': 'bg-emerald-500 text-white',
+  'Retornado a Central': 'bg-red-500 text-white',
+  'Validado pelo Admin': 'bg-emerald-500 text-white',
 }
 
 export default function FotosPage() {
@@ -86,8 +86,8 @@ export default function FotosPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-white">📸 Fotos das Entregas</h2>
-          <p className="text-sm text-white/40 mt-1">
+          <h2 className="text-2xl font-bold text-gray-900">📸 Fotos das Entregas</h2>
+          <p className="text-sm text-gray-500 mt-1">
             {totalFotos} foto(s) · {pendentesValidacao} pendente(s) de validação
           </p>
         </div>
@@ -95,7 +95,7 @@ export default function FotosPage() {
 
       {/* Mensagem flash */}
       {msg && (
-        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
           {msg}
         </div>
       )}
@@ -104,7 +104,7 @@ export default function FotosPage() {
       <div className="content-card p-4 mb-6">
         <div className="flex items-end gap-4 flex-wrap">
           <div className="min-w-[200px]">
-            <label className="block text-xs font-medium text-white/40 mb-1">Entregador</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Entregador</label>
             <select
               value={selectedEntregador}
               onChange={e => setSelectedEntregador(e.target.value)}
@@ -117,7 +117,7 @@ export default function FotosPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-white/40 mb-1">Data Início</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Data Início</label>
             <input
               type="date"
               value={dataIni}
@@ -126,7 +126,7 @@ export default function FotosPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-white/40 mb-1">Data Fim</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Data Fim</label>
             <input
               type="date"
               value={dataFim}
@@ -136,7 +136,7 @@ export default function FotosPage() {
           </div>
           <button
             onClick={() => { setSelectedEntregador(''); setDataIni(''); setDataFim('') }}
-            className="px-4 py-2 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18] transition"
+            className="px-4 py-2 bg-gray-100 text-gray-500 rounded-lg text-sm hover:bg-gray-200 transition"
           >
             Limpar Filtros
           </button>
@@ -145,12 +145,12 @@ export default function FotosPage() {
 
       {/* Loading */}
       {loading ? (
-        <div className="text-center py-16 text-white/30">Carregando fotos...</div>
+        <div className="text-center py-16 text-gray-400">Carregando fotos...</div>
       ) : fotos.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-4xl mb-3">📸</p>
-          <p className="text-white/30">Nenhuma foto encontrada</p>
-          <p className="text-xs text-white/20 mt-1">Os entregadores ainda não enviaram fotos das entregas</p>
+          <p className="text-gray-400">Nenhuma foto encontrada</p>
+          <p className="text-xs text-gray-300 mt-1">Os entregadores ainda não enviaram fotos das entregas</p>
         </div>
       ) : (
         <>
@@ -159,7 +159,7 @@ export default function FotosPage() {
             {fotos.map(p => (
               <div key={p.codigo} className="content-card overflow-hidden hover:shadow-md transition group">
                 {/* Foto */}
-                <div className="relative aspect-[4/3] bg-white/[0.07] overflow-hidden cursor-pointer"
+                <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden cursor-pointer"
                   onClick={() => window.open(p.foto, '_blank')}>
                   <img
                     src={p.foto}
@@ -174,7 +174,7 @@ export default function FotosPage() {
                   </div>
                   {/* Badge de status */}
                   <div className="absolute top-2 left-2">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${STATUS_CORES[p.status] || 'text-white/60'}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${STATUS_CORES[p.status] || 'text-gray-500'}`}>
                       {p.status}
                     </span>
                   </div>
@@ -188,19 +188,19 @@ export default function FotosPage() {
                       className="font-bold link-btn-sm text-sm">
                       {p.codigo}
                     </a>
-                    <span className="text-xs text-white/30">
+                    <span className="text-xs text-gray-400">
                       {new Date(p.data_chegada).toLocaleDateString('pt-BR')}
                     </span>
                   </div>
 
                   {/* Endereço */}
-                  <p className="text-xs text-white/40 truncate" title={p.endereco_entrega}>
+                  <p className="text-xs text-gray-500 truncate" title={p.endereco_entrega}>
                     📍 {p.endereco_entrega}
                   </p>
 
                   {/* Entregador */}
                   {p.entregadores && (
-                    <p className="text-xs text-white/40">
+                    <p className="text-xs text-gray-500">
                       👤 {p.entregadores.nome}
                     </p>
                   )}
@@ -211,7 +211,7 @@ export default function FotosPage() {
                       href={`https://www.google.com/maps?q=${p.gps_foto}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"
+                      className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline"
                     >
                       🗺️ Ver localização no Maps
                     </a>
@@ -219,15 +219,15 @@ export default function FotosPage() {
 
                   {/* Para "Entregue" — botão Validar grande + GPS */}
                   {p.status === 'Entregue' && !p.validacao_admin && (
-                    <div className="pt-2 border-t border-white/[0.10] mt-2 space-y-2">
+                    <div className="pt-2 border-t border-gray-100 mt-2 space-y-2">
                       {p.gps_foto && (
-                        <div className="text-xs text-white/40 bg-white/[0.06] p-2 rounded-lg">
+                        <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded-lg">
                           <span className="font-medium">📍 Coordenadas:</span>{' '}
                           <a
                             href={`https://www.google.com/maps?q=${p.gps_foto}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-emerald-400 hover:underline"
+                            className="text-emerald-600 hover:underline"
                           >
                             {p.gps_foto}
                           </a>
@@ -245,7 +245,7 @@ export default function FotosPage() {
                   {/* Já validado */}
                   {p.validacao_admin && (
                     <div className="pt-1">
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-300 bg-emerald-500/15 px-2 py-1 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-100 px-2 py-1 rounded-full">
                         ✅ Validado
                       </span>
                     </div>

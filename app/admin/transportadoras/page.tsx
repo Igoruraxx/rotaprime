@@ -84,8 +84,8 @@ export default function TransportadorasPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-white">🚚 Transportadoras</h2>
-          <p className="text-sm text-white/40 mt-1">
+          <h2 className="text-2xl font-bold text-gray-900">🚚 Transportadoras</h2>
+          <p className="text-sm text-gray-500 mt-1">
             {transportadoras.length} transportadora(s) cadastrada(s)
           </p>
         </div>
@@ -99,7 +99,7 @@ export default function TransportadorasPage() {
 
       {/* Mensagem flash */}
       {msg && (
-        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-violet-500/10 text-violet-300 border border-violet-500/20">
+        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-violet-50 text-violet-700 border border-violet-200">
           {msg}
         </div>
       )}
@@ -109,18 +109,18 @@ export default function TransportadorasPage() {
         {transportadoras.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-4xl mb-3">🚚</p>
-            <p className="text-white/30 text-sm">Nenhuma transportadora cadastrada</p>
-            <p className="text-xs text-white/20 mt-1">Clique em "+ Nova Transportadora" para começar</p>
+            <p className="text-gray-400 text-sm">Nenhuma transportadora cadastrada</p>
+            <p className="text-xs text-gray-300 mt-1">Clique em "+ Nova Transportadora" para começar</p>
           </div>
         ) : (
-          <div className="divide-y divide-white/[0.08]">
+          <div className="divide-y divide-gray-100">
             {transportadoras.map(t => (
-              <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-white/[0.06] transition">
+              <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition">
                 <div className="flex items-center gap-3">
                   <span className="text-lg">🚚</span>
                   <div>
-                    <p className="font-medium text-white">{t.nome}</p>
-                    <p className="text-xs text-white/30">
+                    <p className="font-medium text-gray-900">{t.nome}</p>
+                    <p className="text-xs text-gray-400">
                       Cadastrada em {new Date(t.criado_em).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
@@ -128,13 +128,13 @@ export default function TransportadorasPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setModal({ tipo: 'editar', id: t.id, nome: t.nome })}
-                    className="px-3 py-1.5 bg-violet-500/10 text-violet-300 rounded-lg text-xs font-medium hover:bg-violet-500/15 transition"
+                    className="px-3 py-1.5 bg-violet-100 text-violet-600 rounded-lg text-xs font-medium hover:bg-violet-200 transition"
                   >
                     ✏️ Editar
                   </button>
                   <button
                     onClick={() => setModal({ tipo: 'remover', id: t.id, nome: t.nome })}
-                    className="px-3 py-1.5 bg-red-500/10 text-red-300 rounded-lg text-xs font-medium hover:bg-red-500/15 transition"
+                    className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-xs font-medium hover:bg-red-200 transition"
                   >
                     🗑️ Remover
                   </button>
@@ -150,7 +150,7 @@ export default function TransportadorasPage() {
         <ModalBase titulo="Nova Transportadora" onClose={() => setModal(null)}>
           <form action={criar} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-white/40 mb-1">Nome da Transportadora *</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Nome da Transportadora *</label>
               <input
                 name="nome"
                 required
@@ -163,7 +163,7 @@ export default function TransportadorasPage() {
               <button type="submit" className="btn-primary flex-1 py-2.5 rounded-lg text-sm font-medium transition">
                 Cadastrar
               </button>
-              <button type="button" onClick={() => setModal(null)} className="px-5 py-2.5 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18] transition">
+              <button type="button" onClick={() => setModal(null)} className="px-5 py-2.5 bg-gray-100 text-gray-500 rounded-lg text-sm hover:bg-gray-200 transition">
                 Cancelar
               </button>
             </div>
@@ -193,7 +193,7 @@ export default function TransportadorasPage() {
             >
               Sim, Remover
             </button>
-            <button onClick={() => setModal(null)} className="px-5 py-2.5 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18] transition">
+            <button onClick={() => setModal(null)} className="px-5 py-2.5 bg-gray-100 text-gray-500 rounded-lg text-sm hover:bg-gray-200 transition">
               Cancelar
             </button>
           </div>
@@ -212,7 +212,7 @@ function ModalEditar({ nome, onSave, onClose }: { nome: string; onSave: (nome: s
   return (
     <ModalBase titulo="Editar Transportadora" onClose={onClose}>
       <div>
-        <label className="block text-xs font-medium text-white/40 mb-1">Nome</label>
+        <label className="block text-xs font-medium text-gray-500 mb-1">Nome</label>
         <input
           value={val}
           onChange={e => setVal(e.target.value)}
@@ -226,7 +226,7 @@ function ModalEditar({ nome, onSave, onClose }: { nome: string; onSave: (nome: s
           >
             Salvar
           </button>
-          <button onClick={onClose} className="px-5 py-2.5 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18] transition">
+          <button onClick={onClose} className="px-5 py-2.5 bg-gray-100 text-gray-500 rounded-lg text-sm hover:bg-gray-200 transition">
             Cancelar
           </button>
         </div>

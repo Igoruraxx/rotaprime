@@ -74,10 +74,10 @@ export default function RegistrarPage() {
 
   return (
     <div className="max-w-2xl">
-      <h2 className="text-2xl font-bold text-white mb-6">Registrar Pacote</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">Registrar Pacote</h2>
 
       {erro && (
-        <div className="bg-red-500/10 text-red-300 border border-red-500/20 p-3 rounded-lg mb-4 text-sm">
+        <div className="bg-red-50 text-red-700 border border-red-200 p-3 rounded-lg mb-4 text-sm">
           {erro}
         </div>
       )}
@@ -86,29 +86,29 @@ export default function RegistrarPage() {
         <div className="content-card p-4 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-white/40 mb-1">NF / Remessa *</label>
+              <label className="block text-sm font-medium text-gray-500 mb-1">NF / Remessa *</label>
               <input name="nf_remessa" required className="w-full px-3 py-2 rounded-lg text-sm" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-white/40 mb-1">Destinatario</label>
+              <label className="block text-sm font-medium text-gray-500 mb-1">Destinatario</label>
               <input name="destinatario" className="w-full px-3 py-2 rounded-lg text-sm" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-white/40 mb-1">Endereco de Entrega *</label>
+              <label className="block text-sm font-medium text-gray-500 mb-1">Endereco de Entrega *</label>
               <input name="endereco_entrega" required className="w-full px-3 py-2 rounded-lg text-sm" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-white/40 mb-1">Quantidade</label>
+              <label className="block text-sm font-medium text-gray-500 mb-1">Quantidade</label>
               <input name="quantidade" type="number" defaultValue={1} min={1} className="w-full px-3 py-2 rounded-lg text-sm" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-white/40 mb-1">Entregador</label>
+              <label className="block text-sm font-medium text-gray-500 mb-1">Entregador</label>
               <select name="entregador_id" onChange={handleEntregadorChange} className="w-full px-3 py-2 rounded-lg text-sm">
                 <option value="">Sem atribuicao</option>
                 {entregadores.map(e => (
@@ -117,7 +117,7 @@ export default function RegistrarPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-white/40 mb-1">Valor (R$)</label>
+              <label className="block text-sm font-medium text-gray-500 mb-1">Valor (R$)</label>
               <input
                 value={valor}
                 onChange={e => setValor(e.target.value)}
@@ -128,24 +128,24 @@ export default function RegistrarPage() {
         </div>
 
         <details className="content-card p-4">
-          <summary className="text-sm font-medium text-white/60 cursor-pointer">Opcoes adicionais</summary>
+          <summary className="text-sm font-medium text-gray-500 cursor-pointer">Opcoes adicionais</summary>
           <div className="mt-4 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-white/40 mb-1">Descricao</label>
+              <label className="block text-sm font-medium text-gray-500 mb-1">Descricao</label>
               <input name="descricao" className="w-full px-3 py-2 rounded-lg text-sm" />
             </div>
             <div className="flex items-center gap-3">
-              <label className="text-sm font-medium text-white/40">Prazo de Entrega</label>
-              <input type="checkbox" checked={prazoAtivo} onChange={e => setPrazoAtivo(e.target.checked)} className="rounded border-white/10" />
+              <label className="text-sm font-medium text-gray-500">Prazo de Entrega</label>
+              <input type="checkbox" checked={prazoAtivo} onChange={e => setPrazoAtivo(e.target.checked)} className="rounded border-gray-200" />
             </div>
             {prazoAtivo && (
               <div>
-                <label className="block text-sm font-medium text-white/40 mb-1">Data Limite</label>
+                <label className="block text-sm font-medium text-gray-500 mb-1">Data Limite</label>
                 <input name="data_limite_entrega" type="datetime-local" className="w-full px-3 py-2 rounded-lg text-sm" />
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-white/40 mb-1">Transportadora</label>
+              <label className="block text-sm font-medium text-gray-500 mb-1">Transportadora</label>
               <SelectTransportadora
                 value={transportadora}
                 onChange={setTransportadora}
@@ -154,7 +154,7 @@ export default function RegistrarPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-white/40 mb-1">Observacoes</label>
+              <label className="block text-sm font-medium text-gray-500 mb-1">Observacoes</label>
               <textarea name="observacoes" rows={3} className="w-full px-3 py-2 rounded-lg text-sm" />
             </div>
           </div>

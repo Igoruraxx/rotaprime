@@ -15,13 +15,13 @@ type ItemTabela = {
 type EntregadorOpcao = { id: number; nome: string }
 
 const STATUS_CORES: Record<string, string> = {
-  'Recebido pela Central': 'bg-white/[0.10] text-white/60',
-  'Aguardando Retirada': 'bg-amber-500/15 text-amber-300',
-  'Retirado pelo Entregador': 'bg-violet-500/15 text-violet-300',
-  'Em Rota': 'bg-violet-500/15 text-violet-300',
-  'Entregue': 'bg-emerald-500/15 text-emerald-300',
-  'Retornado a Central': 'bg-red-500/15 text-red-300',
-  'Validado pelo Admin': 'bg-emerald-500/15 text-emerald-300',
+  'Recebido pela Central': 'bg-gray-100 text-gray-500',
+  'Aguardando Retirada': 'bg-amber-500 text-white',
+  'Retirado pelo Entregador': 'bg-violet-500 text-white',
+  'Em Rota': 'bg-violet-500 text-white',
+  'Entregue': 'bg-emerald-500 text-white',
+  'Retornado a Central': 'bg-red-500 text-white',
+  'Validado pelo Admin': 'bg-emerald-500 text-white',
 }
 
 export default function RelatorioPage() {
@@ -103,7 +103,7 @@ export default function RelatorioPage() {
   ) || []
 
   if (!dados) {
-    return <div className="text-center py-12 text-white/30">Carregando relatório...</div>
+    return <div className="text-center py-12 text-gray-400">Carregando relatório...</div>
   }
 
   return (
@@ -111,17 +111,17 @@ export default function RelatorioPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-white">📋 Relatório Diário</h2>
-          <p className="text-sm text-white/40 capitalize mt-1">{hoje}</p>
+          <h2 className="text-2xl font-bold text-gray-900">📋 Relatório Diário</h2>
+          <p className="text-sm text-gray-500 capitalize mt-1">{hoje}</p>
         </div>
-        <button onClick={carregar} className="px-4 py-2 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18] transition">
+        <button onClick={carregar} className="px-4 py-2 bg-gray-100 text-gray-500 rounded-lg text-sm hover:bg-gray-200 transition">
           🔄 Atualizar
         </button>
       </div>
 
       {/* Mensagem */}
       {msg && (
-        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-violet-500/10 text-violet-300 border border-violet-500/20">
+        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-violet-50 text-violet-700 border border-violet-200">
           {msg}
         </div>
       )}
@@ -129,43 +129,43 @@ export default function RelatorioPage() {
       {/* Cards de Indicadores */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="content-card p-4 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-xl">✋</div>
+          <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center text-xl">✋</div>
           <div>
-            <p className="text-2xl font-bold text-white">{dados.stats.totalPegosHoje}</p>
-            <p className="text-xs text-white/40">Total Pegos Hoje</p>
+            <p className="text-2xl font-bold text-gray-900">{dados.stats.totalPegosHoje}</p>
+            <p className="text-xs text-gray-500">Total Pegos Hoje</p>
           </div>
         </div>
         <div className="content-card p-4 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/15 flex items-center justify-center text-xl">⏳</div>
+          <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-xl">⏳</div>
           <div>
-            <p className="text-2xl font-bold text-white">{dados.stats.totalPendentesHoje}</p>
-            <p className="text-xs text-white/40">Pendentes Hoje</p>
+            <p className="text-2xl font-bold text-gray-900">{dados.stats.totalPendentesHoje}</p>
+            <p className="text-xs text-gray-500">Pendentes Hoje</p>
           </div>
         </div>
         <div className="content-card p-4 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center text-xl">📤</div>
+          <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-xl">📤</div>
           <div>
-            <p className="text-2xl font-bold text-white">{dados.stats.totalRepassadosHoje}</p>
-            <p className="text-xs text-white/40">Repassados Hoje</p>
+            <p className="text-2xl font-bold text-gray-900">{dados.stats.totalRepassadosHoje}</p>
+            <p className="text-xs text-gray-500">Repassados Hoje</p>
           </div>
         </div>
       </div>
 
       {/* ============ REPASSAR EM LOTE ============ */}
       <div className="content-card mb-6 overflow-hidden">
-        <div className="px-5 py-3 border-b border-white/[0.12] bg-violet-500/10 flex items-center justify-between">
-          <h3 className="font-semibold text-violet-300 flex items-center gap-2">
+        <div className="px-5 py-3 border-b border-gray-200 bg-violet-50 flex items-center justify-between">
+          <h3 className="font-semibold text-violet-600 flex items-center gap-2">
             📦 Repassar Pacotes em Lote
           </h3>
-          <span className="text-xs text-violet-300 font-medium bg-violet-500/15 px-2 py-1 rounded-full">
+          <span className="text-xs text-violet-600 font-medium bg-violet-100 px-2 py-1 rounded-full">
             {selectedBatch.size} selecionado(s)
           </span>
         </div>
 
-        <div className="p-4 border-b border-white/[0.12] bg-white/[0.06]">
+        <div className="p-4 border-b border-gray-200 bg-gray-50">
           <div className="flex items-end gap-3 flex-wrap">
             <div className="min-w-[200px] flex-1">
-              <label className="block text-xs font-medium text-white/40 mb-1">Entregador</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Entregador</label>
               <select
                 value={batchEntregador}
                 onChange={e => setBatchEntregador(e.target.value)}
@@ -191,13 +191,13 @@ export default function RelatorioPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-white/40 border-b border-white/[0.10] bg-white/[0.06]">
+                <tr className="text-left text-gray-500 border-b border-gray-100 bg-gray-50">
                   <th className="p-3 pl-5 w-10">
                     <input
                       type="checkbox"
                       checked={disponiveisLote.length > 0 && selectedBatch.size === disponiveisLote.length}
                       onChange={selectAll}
-                      className="rounded border-white/[0.12]"
+                      className="rounded border-gray-200"
                     />
                   </th>
                   <th className="p-3 font-medium">Código</th>
@@ -210,8 +210,8 @@ export default function RelatorioPage() {
                   <tr
                     key={p.codigo}
                     onClick={() => toggleSelect(p.codigo)}
-                    className={`border-b border-white/[0.10] last:border-0 hover:bg-violet-500/[0.06] transition cursor-pointer ${
-                      selectedBatch.has(p.codigo) ? 'bg-violet-500/[0.08]' : ''
+                    className={`border-b border-gray-100 last:border-0 hover:bg-violet-50 transition cursor-pointer ${
+                      selectedBatch.has(p.codigo) ? 'bg-violet-50' : ''
                     }`}
                   >
                     <td className="p-3 pl-5">
@@ -219,16 +219,16 @@ export default function RelatorioPage() {
                         type="checkbox"
                         checked={selectedBatch.has(p.codigo)}
                         onChange={() => toggleSelect(p.codigo)}
-                        className="rounded border-white/[0.12]"
+                        className="rounded border-gray-200"
                       />
                     </td>
-                    <td className="p-3 font-medium text-violet-300">{p.codigo}</td>
+                    <td className="p-3 font-medium text-violet-600">{p.codigo}</td>
                     <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.10]'}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-gray-100'}`}>
                         {p.status}
                       </span>
                     </td>
-                    <td className="p-3 text-white/40 text-xs">
+                    <td className="p-3 text-gray-500 text-xs">
                       {p.data_retirada_central
                         ? new Date(p.data_retirada_central).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
                         : '—'}
@@ -239,7 +239,7 @@ export default function RelatorioPage() {
             </table>
           </div>
         ) : (
-          <div className="p-8 text-center text-white/30 text-sm">
+          <div className="p-8 text-center text-gray-400 text-sm">
             Nenhum pacote disponível na Central para repassar no momento
           </div>
         )}
@@ -260,7 +260,7 @@ export default function RelatorioPage() {
             },
             { label: 'Entregador', render: p => p.entregadores?.nome || '—' },
             { label: 'Status', render: p => (
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.10]'}`}>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-gray-100'}`}>
                 {p.status}
               </span>
             )},
@@ -281,7 +281,7 @@ export default function RelatorioPage() {
             },
             { label: 'Entregador', render: p => p.entregadores?.nome || '—' },
             { label: 'Status', render: p => (
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.10]'}`}>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-gray-100'}`}>
                 {p.status}
               </span>
             )},
@@ -302,7 +302,7 @@ export default function RelatorioPage() {
             },
             { label: 'Entregador', render: p => p.entregadores?.nome || '—' },
             { label: 'Status', render: p => (
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.10]'}`}>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-gray-100'}`}>
                 {p.status}
               </span>
             )},
@@ -328,16 +328,16 @@ function TabelaSection({
 }) {
   return (
     <div className="content-card overflow-hidden">
-      <div className="px-4 py-3 border-b border-white/[0.10] bg-white/[0.06]">
-        <h3 className="font-semibold text-white/70 text-sm">{titulo} ({itens.length})</h3>
+      <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+        <h3 className="font-semibold text-gray-900 text-sm">{titulo} ({itens.length})</h3>
       </div>
       {itens.length === 0 ? (
-        <div className="p-6 text-center text-white/30 text-sm">{vazia}</div>
+        <div className="p-6 text-center text-gray-400 text-sm">{vazia}</div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-white/40 border-b border-white/[0.10] bg-white/[0.06]">
+              <tr className="text-left text-gray-500 border-b border-gray-100 bg-gray-50">
                 {colunas.map(c => (
                   <th key={c.label} className="p-3 font-medium whitespace-nowrap">{c.label}</th>
                 ))}
@@ -348,7 +348,7 @@ function TabelaSection({
                 <tr
                   key={p.codigo}
                   onClick={() => onRowClick(p)}
-                  className="border-b border-white/[0.10] last:border-0 hover:bg-violet-500/[0.06] transition cursor-pointer"
+                  className="border-b border-gray-100 last:border-0 hover:bg-violet-50 transition cursor-pointer"
                 >
                   {colunas.map(c => (
                     <td key={c.label} className="p-3 whitespace-nowrap">{c.render(p)}</td>

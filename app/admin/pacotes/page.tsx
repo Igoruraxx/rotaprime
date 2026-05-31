@@ -16,14 +16,14 @@ type Pacote = {
 
 function statusBadge(status: string) {
   const map: Record<string, string> = {
-    'Entregue': 'bg-emerald-500/15 text-emerald-300',
-    'Validado pelo Admin': 'bg-emerald-500/15 text-emerald-300',
-    'Retornado a Central': 'bg-red-500/15 text-red-300',
-    'Recebido pela Central': 'bg-amber-500/15 text-amber-300',
-    'Aguardando Retirada': 'bg-amber-500/15 text-amber-300',
-    'Retirado pelo Entregador': 'bg-amber-500/15 text-amber-300',
+    'Entregue': 'bg-emerald-500 text-white',
+    'Validado pelo Admin': 'bg-emerald-500 text-white',
+    'Retornado a Central': 'bg-red-500 text-white',
+    'Recebido pela Central': 'bg-amber-500 text-white',
+    'Aguardando Retirada': 'bg-amber-500 text-white',
+    'Retirado pelo Entregador': 'bg-amber-500 text-white',
   }
-  return map[status] || 'bg-violet-500/15 text-violet-300 border border-violet-500/25'
+  return map[status] || 'bg-violet-500 text-white'
 }
 
 export default function PacotesPage() {
@@ -51,7 +51,7 @@ export default function PacotesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-white">Pacotes</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Pacotes</h2>
         <a href="/admin/registrar" className="btn-primary">
           + Novo
         </a>
@@ -82,7 +82,7 @@ export default function PacotesPage() {
       <div className="content-card overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-white/40 border-b border-white/[0.08]">
+            <tr className="text-left text-gray-500 border-b border-gray-100">
               <th className="p-3">Código</th>
               <th className="p-3">Chegada</th>
               <th className="p-3">NF</th>
@@ -95,31 +95,31 @@ export default function PacotesPage() {
           </thead>
           <tbody>
             {filtered.map(p => (
-              <tr key={p.codigo} className="border-b border-white/[0.08] last:border-0 hover:bg-white/[0.06]">
+              <tr key={p.codigo} className="border-b border-gray-100 last:border-0 hover:bg-gray-50">
                 <td className="p-3">
                   <a href={`/admin/pacote/${p.codigo}`} className="link-btn-sm">
                     {p.codigo}
                   </a>
                 </td>
-                <td className="p-3 text-white/60">{new Date(p.data_chegada).toLocaleDateString('pt-BR')}</td>
-                <td className="p-3 text-white/60">{p.nf_remessa || '—'}</td>
+                <td className="p-3 text-gray-500">{new Date(p.data_chegada).toLocaleDateString('pt-BR')}</td>
+                <td className="p-3 text-gray-500">{p.nf_remessa || '—'}</td>
                 <td className="p-3">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusBadge(p.status)}`}>
                     {p.status}
                   </span>
                 </td>
-                <td className="p-3 text-white/60">{p.entregadores?.nome || '—'}</td>
-                <td className="p-3 text-white/60">
+                <td className="p-3 text-gray-500">{p.entregadores?.nome || '—'}</td>
+                <td className="p-3 text-gray-500">
                   {p.data_repassado_entregador ? new Date(p.data_repassado_entregador).toLocaleDateString('pt-BR') : '—'}
                 </td>
-                <td className="p-3 text-white/60">
+                <td className="p-3 text-gray-500">
                   {p.data_limite_entrega ? new Date(p.data_limite_entrega).toLocaleDateString('pt-BR') : '—'}
                 </td>
-                <td className="p-3 text-white/60">{p.tentativa_atual || 0}</td>
+                <td className="p-3 text-gray-500">{p.tentativa_atual || 0}</td>
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={8} className="p-6 text-center text-white/30">Nenhum pacote encontrado</td></tr>
+              <tr><td colSpan={8} className="p-6 text-center text-gray-400">Nenhum pacote encontrado</td></tr>
             )}
           </tbody>
         </table>

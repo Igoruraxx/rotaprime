@@ -64,13 +64,13 @@ function calcularFiltro(filtro: FiltroData): { data_ini?: string; data_fim?: str
 }
 
 const STATUS_CORES: Record<string, string> = {
-  'Recebido pela Central': 'bg-white/[0.10] text-white/40 border border-white/[0.12]',
-  'Aguardando Retirada': 'bg-amber-500/15 text-amber-300 border border-amber-500/25',
-  'Retirado pelo Entregador': 'bg-blue-500/15 text-blue-300 border border-blue-500/25',
-  'Em Rota': 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/25',
-  'Entregue': 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25',
-  'Retornado a Central': 'bg-red-500/15 text-red-300 border border-red-500/25',
-  'Validado pelo Admin': 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25',
+  'Recebido pela Central': 'bg-gray-100 text-gray-500 border border-gray-200',
+  'Aguardando Retirada': 'bg-amber-500 text-white',
+  'Retirado pelo Entregador': 'bg-blue-500 text-white',
+  'Em Rota': 'bg-indigo-500 text-white',
+  'Entregue': 'bg-emerald-500 text-white',
+  'Retornado a Central': 'bg-red-500 text-white',
+  'Validado pelo Admin': 'bg-emerald-500 text-white',
 }
 
 export default function EntregadorDetalhePage() {
@@ -105,7 +105,7 @@ export default function EntregadorDetalhePage() {
   if (!entregador) {
     return (
       <div className="text-center py-12">
-        <div className="text-white/30 text-lg">Carregando...</div>
+        <div className="text-gray-400 text-lg">Carregando...</div>
       </div>
     )
   }
@@ -122,15 +122,15 @@ export default function EntregadorDetalhePage() {
     <div>
       {/* Header */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
-        <button onClick={() => router.push('/admin/entregadores')} className="text-white/40 hover:text-white/70 text-sm">← Voltar</button>
-        <h2 className="text-2xl font-bold text-white">{entregador.nome}</h2>
+        <button onClick={() => router.push('/admin/entregadores')} className="text-gray-500 hover:text-gray-700 text-sm">← Voltar</button>
+        <h2 className="text-2xl font-bold text-gray-900">{entregador.nome}</h2>
         <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
-          entregador.ativo ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25' : 'bg-white/[0.10] text-white/40 border border-white/[0.12]'
+          entregador.ativo ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500 border border-gray-200'
         }`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${entregador.ativo ? 'bg-emerald-400' : 'bg-white/30'}`} />
+          <span className={`w-1.5 h-1.5 rounded-full ${entregador.ativo ? 'bg-emerald-400' : 'bg-gray-300'}`} />
           {entregador.ativo ? 'Ativo' : 'Inativo'}
         </span>
-        <span className="text-xs text-white/30">Cadastro: {new Date(entregador.criado_em).toLocaleDateString('pt-BR')}</span>
+        <span className="text-xs text-gray-400">Cadastro: {new Date(entregador.criado_em).toLocaleDateString('pt-BR')}</span>
       </div>
 
       {/* Informações do perfil */}
@@ -138,15 +138,15 @@ export default function EntregadorDetalhePage() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-6 text-sm">
             <div>
-              <span className="text-white/40">Valor Padrão:</span>
+              <span className="text-gray-500">Valor Padrão:</span>
               <span className="font-medium ml-1">R$ {entregador.valor_padrao.toFixed(2)}</span>
             </div>
             <div>
-              <span className="text-white/40">Telefone:</span>
+              <span className="text-gray-500">Telefone:</span>
               <span className="font-medium ml-1">{entregador.telefone || '—'}</span>
             </div>
             <div>
-              <span className="text-white/40">Último Pagamento:</span>
+              <span className="text-gray-500">Último Pagamento:</span>
               <span className="font-medium ml-1">
                 {entregador.ultimo_pagamento_em
                   ? new Date(entregador.ultimo_pagamento_em).toLocaleString('pt-BR')
@@ -169,7 +169,7 @@ export default function EntregadorDetalhePage() {
 
       {/* Filtro de Data */}
       <div className="flex items-center gap-2 mb-4 flex-wrap">
-        <span className="text-sm text-white/40 font-medium mr-1">Filtrar por:</span>
+        <span className="text-sm text-gray-500 font-medium mr-1">Filtrar por:</span>
         {FILTROS.map(f => (
           <button
             key={f.key}
@@ -177,7 +177,7 @@ export default function EntregadorDetalhePage() {
             className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${
               filtro === f.key
                 ? 'bg-violet-600/80 text-white shadow-sm'
-                : 'bg-white/[0.10] text-white/40 hover:bg-white/[0.18]'
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
             }`}
           >
             {f.label}
@@ -187,7 +187,7 @@ export default function EntregadorDetalhePage() {
 
       {/* Loading */}
       {loading ? (
-        <div className="text-center py-8 text-white/30">Atualizando dados...</div>
+        <div className="text-center py-8 text-gray-400">Atualizando dados...</div>
       ) : (
         <>
           {/* Cards de Resumo */}
@@ -229,15 +229,15 @@ export default function EntregadorDetalhePage() {
 
           {/* Lista de Pacotes */}
           <div className="content-card overflow-hidden">
-            <div className="px-5 py-3 border-b border-white/[0.10] bg-white/[0.06] flex items-center justify-between">
-              <h3 className="font-semibold text-white/70">
+            <div className="px-5 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+              <h3 className="font-semibold text-gray-900">
                 Pacotes {filtro !== 'tudo' ? `(${totalPacotes} no período)` : `(${totalPacotes} total)`}
               </h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-white/40 border-b border-white/[0.12] bg-white/[0.06]">
+                  <tr className="text-left text-gray-500 border-b border-gray-200 bg-gray-50">
                     <th className="p-3 pl-5 font-medium">Código</th>
                     <th className="p-3 font-medium">Data</th>
                     <th className="p-3 font-medium">Destinatário</th>
@@ -249,7 +249,7 @@ export default function EntregadorDetalhePage() {
                 <tbody>
                   {pacotes.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="p-10 text-center text-white/30">
+                      <td colSpan={6} className="p-10 text-center text-gray-400">
                         {filtro !== 'tudo'
                           ? 'Nenhum pacote neste período'
                           : 'Nenhum pacote vinculado a este entregador'}
@@ -260,32 +260,32 @@ export default function EntregadorDetalhePage() {
                       <tr
                         key={p.codigo}
                         onClick={() => router.push(`/admin/pacote/${p.codigo}`)}
-                        className="border-b border-white/[0.12] last:border-0 hover:bg-violet-500/[0.06] transition cursor-pointer"
+                        className="border-b border-gray-200 last:border-0 hover:bg-violet-50 transition cursor-pointer"
                       >
                         <td className="p-3 pl-5">
-                          <span className="font-medium text-violet-300">{p.codigo}</span>
+                          <span className="font-medium text-violet-600">{p.codigo}</span>
                         </td>
-                        <td className="p-3 text-white/60 whitespace-nowrap">
+                        <td className="p-3 text-gray-500 whitespace-nowrap">
                           {new Date(p.data_chegada).toLocaleDateString('pt-BR')}
                         </td>
-                        <td className="p-3 text-white/60 max-w-[180px] truncate">
+                        <td className="p-3 text-gray-500 max-w-[180px] truncate">
                           {p.destinatario || '—'}
                         </td>
                         <td className="p-3">
-                          <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-white/[0.10] text-white/40 border border-white/[0.12]'}`}>
+                          <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_CORES[p.status] || 'bg-gray-100 text-gray-500 border border-gray-200'}`}>
                             {p.status}
                           </span>
                         </td>
-                        <td className="p-3 text-white/70 font-medium">
+                        <td className="p-3 text-gray-700 font-medium">
                           R$ {(entregador.valor_padrao || 0).toFixed(2)}
                         </td>
                         <td className="p-3 pr-5">
                           {p.pago ? (
-                            <span className="inline-flex items-center gap-1 text-emerald-400 text-xs font-medium">
+                            <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-medium">
                               <span>✅</span> Pago
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-white/30 text-xs">
+                            <span className="inline-flex items-center gap-1 text-gray-400 text-xs">
                               <span>❌</span> Pendente
                             </span>
                           )}
@@ -321,13 +321,13 @@ function CardResumo({
       <div className={`absolute top-0 right-0 w-20 h-20 rounded-bl-full bg-gradient-to-br ${cor} opacity-5`} />
       <div className="flex items-center gap-2 mb-2">
         <span className="text-lg">{icone}</span>
-        <span className="text-xs text-white/40 font-medium">{label}</span>
+        <span className="text-xs text-gray-500 font-medium">{label}</span>
       </div>
-      <p className="text-2xl font-bold text-white">
+      <p className="text-2xl font-bold text-gray-900">
         {formatar ? `R$ ${valor.toFixed(2)}` : valor}
       </p>
       {extra && (
-        <p className="text-xs text-white/30 mt-1">{extra}</p>
+        <p className="text-gray-400 text-xs">{extra}</p>
       )}
     </div>
   )

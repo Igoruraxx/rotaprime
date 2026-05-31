@@ -43,13 +43,13 @@ const STATUS_LIST = [
 ]
 
 const STATUS_CORES: Record<string, string> = {
-  'Recebido pela Central': 'bg-amber-500/15 text-amber-300 border border-amber-500/25',
-  'Aguardando Retirada': 'bg-violet-500/15 text-violet-300 border border-violet-500/25',
-  'Retirado pelo Entregador': 'bg-violet-500/15 text-violet-300 border border-violet-500/25',
-  'Em Rota': 'bg-violet-500/15 text-violet-300 border border-violet-500/25',
-  'Entregue': 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25',
-  'Retornado a Central': 'bg-red-500/15 text-red-300 border border-red-500/25',
-  'Validado pelo Admin': 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25',
+  'Recebido pela Central': 'bg-amber-500 text-white',
+  'Aguardando Retirada': 'bg-violet-500 text-white',
+  'Retirado pelo Entregador': 'bg-violet-500 text-white',
+  'Em Rota': 'bg-violet-500 text-white',
+  'Entregue': 'bg-emerald-500 text-white',
+  'Retornado a Central': 'bg-red-500 text-white',
+  'Validado pelo Admin': 'bg-emerald-500 text-white',
 }
 
 export default function PacoteDetalhePage() {
@@ -121,22 +121,22 @@ export default function PacoteDetalhePage() {
     }
   }
 
-  if (!pacote) return <div className="text-white/40 text-center py-12">Carregando...</div>
+  if (!pacote) return <div className="text-gray-400 text-center py-12">Carregando...</div>
 
   return (
     <div>
       {/* Header */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
-        <button onClick={() => router.back()} className="text-white/40 hover:text-white/70 text-sm">← Voltar</button>
-        <h2 className="text-2xl font-bold text-white">{pacote.codigo}</h2>
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${STATUS_CORES[pacote.status] || 'bg-white/[0.07] text-white/60 border border-white/[0.12]'}`}>
+        <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700 text-sm">← Voltar</button>
+        <h2 className="text-2xl font-bold text-gray-900">{pacote.codigo}</h2>
+        <span className={`px-3 py-1 rounded-full text-sm font-medium ${STATUS_CORES[pacote.status] || 'bg-gray-50 text-gray-500 border border-gray-200'}`}>
           {pacote.status}
         </span>
       </div>
 
       {/* Mensagem de ação */}
       {acaoMsg && (
-        <div className="bg-violet-500/10 text-violet-300 border border-violet-500/20 p-3 rounded-lg mb-4 text-sm">{acaoMsg}</div>
+        <div className="bg-violet-50 text-violet-700 border border-violet-200 p-3 rounded-lg mb-4 text-sm">{acaoMsg}</div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -148,8 +148,8 @@ export default function PacoteDetalhePage() {
 
           {/* INFORMAÇÕES COMPLETAS */}
           <div className="content-card">
-            <div className="p-4 border-b border-white/[0.08] bg-white/[0.06] rounded-t-xl flex items-center justify-between">
-              <h3 className="font-semibold text-white">📋 Informações do Pacote</h3>
+            <div className="p-4 border-b border-gray-100 bg-gray-50 rounded-t-xl flex items-center justify-between">
+              <h3 className="font-semibold text-gray-900">📋 Informações do Pacote</h3>
               <button onClick={() => setShowEdit(!showEdit)} className="link-btn-sm">
                 {showEdit ? '✕ Fechar edição' : '✏️ Editar'}
               </button>
@@ -175,11 +175,11 @@ export default function PacoteDetalhePage() {
         <div className="space-y-4">
           {/* Ações Rápidas */}
           <div className="content-card p-4 border-violet-500/20">
-            <h3 className="font-semibold text-white mb-3 flex items-center gap-2">⚡ Ações Rápidas</h3>
+            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">⚡ Ações Rápidas</h3>
             <div className="space-y-2">
               {/* Selecionar entregador */}
               <div>
-                <label className="block text-xs text-white/40 mb-1">Entregador</label>
+                <label className="block text-xs text-gray-500 mb-1">Entregador</label>
                 <select id="entregador_select" className="w-full px-3 py-2 rounded-lg text-sm">
                   <option value="">Sem entregador</option>
                   {entregadores.map(e => (
@@ -189,13 +189,13 @@ export default function PacoteDetalhePage() {
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => acao('atribuir')} className="py-2 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18]">📌 Atribuir</button>
+                <button onClick={() => acao('atribuir')} className="py-2 bg-gray-100 text-gray-500 rounded-lg text-sm hover:bg-gray-200">📌 Atribuir</button>
                 <button onClick={() => acao('repassar')} className="py-2 btn-primary rounded-lg text-sm">📤 Repassar</button>
               </div>
 
               {/* Status - Admin override */}
               <div>
-                <label className="block text-xs text-white/40 mb-1">Alterar Status (override)</label>
+                <label className="block text-xs text-gray-500 mb-1">Alterar Status (override)</label>
                 <div className="flex gap-2">
                   <select id="status_override" className="flex-1 px-3 py-2 rounded-lg text-sm">
                     {STATUS_LIST.map(s => (
@@ -214,22 +214,22 @@ export default function PacoteDetalhePage() {
                 </div>
               </div>
 
-              <hr className="my-2 border-white/[0.12]" />
+              <hr className="my-2 border-gray-200" />
 
               {!pacote.pago && (
                 <button onClick={() => acao('pagar')} className="w-full py-2 link-btn-green rounded-lg text-sm">💰 Marc. como Pago</button>
               )}
               {pacote.pago && (
-                <button onClick={() => acao('estornar')} className="w-full py-2 bg-amber-500/15 text-amber-300 border border-amber-500/25 rounded-lg text-sm hover:bg-amber-500/25">↩️ Estornar Pag.</button>
+                <button onClick={() => acao('estornar')} className="w-full py-2 bg-amber-100 text-amber-600 border border-amber-200 rounded-lg text-sm hover:bg-amber-200">↩️ Estornar Pag.</button>
               )}
 
               {pacote.status === 'Entregue' && !pacote.validacao_admin && (
                 <button onClick={() => acao('validar')} className="w-full py-2 link-btn-green rounded-lg text-sm">✅ Validar Entrega</button>
               )}
 
-              <button onClick={() => acao('reiniciar')} className="w-full py-2 bg-red-500/15 text-red-300 border border-red-500/25 rounded-lg text-sm hover:bg-red-500/25">🔄 Reiniciar Pacote</button>
+              <button onClick={() => acao('reiniciar')} className="w-full py-2 bg-red-100 text-red-600 border border-red-200 rounded-lg text-sm hover:bg-red-200">🔄 Reiniciar Pacote</button>
 
-              <button onClick={() => setShowTimeline(!showTimeline)} className="w-full py-2 bg-white/[0.10] text-white/60 rounded-lg text-sm hover:bg-white/[0.18]">
+              <button onClick={() => setShowTimeline(!showTimeline)} className="w-full py-2 bg-gray-100 text-gray-500 rounded-lg text-sm hover:bg-gray-200">
                 {showTimeline ? '🙈 Ocultar' : '👁️ Mostrar'} Timeline
               </button>
             </div>
@@ -238,11 +238,11 @@ export default function PacoteDetalhePage() {
           {/* Foto */}
           {pacote.foto && (
             <div className="content-card p-4">
-              <h3 className="font-semibold text-white mb-2">📸 Foto da Entrega</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">📸 Foto da Entrega</h3>
               <img src={pacote.foto} alt="Foto da entrega" className="w-full rounded-lg mb-2 object-cover max-h-64" />
               {pacote.gps_foto && (
                 <a href={`https://www.google.com/maps?q=${pacote.gps_foto}`} target="_blank" rel="noopener noreferrer"
-                  className="text-violet-300 text-sm hover:underline flex items-center gap-1">
+                  className="text-violet-600 text-sm hover:underline flex items-center gap-1">
                   📍 Ver no Google Maps
                 </a>
               )}
@@ -259,7 +259,7 @@ export default function PacoteDetalhePage() {
 // ============================================================
 function Timeline({ pacote }: { pacote: Pacote }) {
   const eventos: { label: string; data: string | null; icone: string; cor: string; ativo: boolean }[] = [
-    { label: 'Chegou na Central', data: pacote.criado_em || pacote.data_chegada, icone: '📦', cor: 'bg-white/40', ativo: true },
+    { label: 'Chegou na Central', data: pacote.criado_em || pacote.data_chegada, icone: '📦', cor: 'bg-gray-400', ativo: true },
     { label: 'Repassado ao Entregador', data: pacote.data_repassado_entregador, icone: '📤', cor: 'bg-amber-400', ativo: !!pacote.data_repassado_entregador },
     { label: 'Retirado pelo Entregador', data: pacote.data_retirada_central, icone: '✋', cor: 'bg-violet-400', ativo: !!pacote.data_retirada_central },
     { label: 'Entregue', data: pacote.data_entrega_real, icone: '✅', cor: 'bg-emerald-400', ativo: pacote.status === 'Entregue' || pacote.status === 'Validado pelo Admin' },
@@ -292,30 +292,30 @@ function Timeline({ pacote }: { pacote: Pacote }) {
 
   return (
     <div className="content-card p-4">
-      <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+      <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
         📊 Linha do Tempo
-        <span className="text-xs text-white/30 font-normal">({ativos}/{eventos.length} etapas concluídas)</span>
+        <span className="text-xs text-gray-400 font-normal">({ativos}/{eventos.length} etapas concluídas)</span>
       </h3>
       <div className="relative">
         {/* Linha vertical */}
-        <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-white/[0.12]" />
+        <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-gray-200" />
 
         <div className="space-y-4">
           {eventos.map((ev, i) => (
             <div key={i} className="relative flex items-start gap-4">
               {/* Bolinha */}
               <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs ${
-                ev.ativo ? ev.cor + ' text-white' : 'bg-white/[0.07] text-white/30'
+                ev.ativo ? ev.cor + ' text-white' : 'bg-gray-50 text-gray-400'
               }`}>
                 {ev.icone}
               </div>
               {/* Conteúdo */}
               <div className="flex-1 pt-1">
-                <p className={`text-sm font-medium ${ev.ativo ? 'text-white' : 'text-white/30'}`}>
+                <p className={`text-sm font-medium ${ev.ativo ? 'text-gray-900' : 'text-gray-400'}`}>
                   {ev.label}
                 </p>
                 {ev.data && (
-                  <p className="text-xs text-white/30">
+                  <p className="text-xs text-gray-400">
                     {new Date(ev.data).toLocaleString('pt-BR')}
                   </p>
                 )}
@@ -362,8 +362,8 @@ function GridInfo({ pacote }: { pacote: Pacote }) {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
       {infos.map(info => (
         <div key={info.label} className={info.colspan === 2 ? 'md:col-span-2' : ''}>
-          <span className="text-xs text-white/40 block">{info.label}</span>
-          <span className="text-sm font-medium text-white/70">{String(info.value)}</span>
+          <span className="text-xs text-gray-500 block">{info.label}</span>
+          <span className="text-sm font-medium text-gray-700">{String(info.value)}</span>
         </div>
       ))}
     </div>
@@ -458,9 +458,9 @@ function EditFormCompleto({
 
   return (
     <div className="content-card p-4">
-      <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">✏️ Editar Pacote — Todos os Campos</h3>
+      <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">✏️ Editar Pacote — Todos os Campos</h3>
 
-      {erro && <div className="bg-red-500/15 text-red-300 border border-red-500/25 p-3 rounded-lg mb-4 text-sm">{erro}</div>}
+      {erro && <div className="bg-red-100 text-red-600 border border-red-200 p-3 rounded-lg mb-4 text-sm">{erro}</div>}
 
       <div className="space-y-6">
         {/* Seção: Identificação */}
@@ -577,12 +577,12 @@ function EditFormCompleto({
       </div>
 
       {/* Botões */}
-      <div className="flex gap-3 mt-6 pt-4 border-t border-white/[0.08]">
+      <div className="flex gap-3 mt-6 pt-4 border-t border-gray-100">
         <button onClick={save} disabled={saving}
           className="flex-1 py-3 btn-primary rounded-lg font-medium disabled:opacity-50">
           {saving ? 'Salvando...' : '💾 Salvar Todas as Alterações'}
         </button>
-        <button onClick={onCancel} className="px-6 py-3 bg-white/[0.10] text-white/60 rounded-lg font-medium hover:bg-white/[0.18]">
+        <button onClick={onCancel} className="px-6 py-3 bg-gray-100 text-gray-500 rounded-lg font-medium hover:bg-gray-200">
           Cancelar
         </button>
       </div>
@@ -597,7 +597,7 @@ function EditFormCompleto({
 function Section({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <div className="content-card p-4">
-      <h4 className="text-sm font-semibold text-white/60 mb-3">{titulo}</h4>
+      <h4 className="text-sm font-semibold text-gray-500 mb-3">{titulo}</h4>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {children}
       </div>
@@ -608,7 +608,7 @@ function Section({ titulo, children }: { titulo: string; children: React.ReactNo
 function Field({ label, cols, children }: { label: string; cols?: number; children: React.ReactNode }) {
   return (
     <div className={cols === 2 ? 'md:col-span-2' : ''}>
-      <label className="block text-xs font-medium text-white/40 mb-1">{label}</label>
+      <label className="block text-xs font-medium text-gray-500 mb-1">{label}</label>
       {children}
     </div>
   )

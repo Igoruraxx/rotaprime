@@ -124,8 +124,8 @@ export default function EntregadoresPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-white">Entregadores</h2>
-          <p className="text-sm text-white/40 mt-1">{entregadores.length} cadastrados · {ativos.length} ativos</p>
+          <h2 className="text-2xl font-bold text-gray-900">Entregadores</h2>
+          <p className="text-sm text-gray-500 mt-1">{entregadores.length} cadastrados · {ativos.length} ativos</p>
         </div>
         <button onClick={() => setModal({ tipo: 'novo' })}
           className="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-sm">
@@ -135,15 +135,15 @@ export default function EntregadoresPage() {
 
       {/* Mensagem flash */}
       {msg && (
-        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-violet-500/10 text-violet-300 border border-violet-500/30">
+        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-violet-50 text-violet-700 border border-violet-200">
           {msg}
         </div>
       )}
 
       {/* ============ ATIVOS ============ */}
       <div className="content-card mb-6 overflow-hidden">
-        <div className="px-5 py-3 border-b border-white/[0.10] bg-white/[0.06] flex items-center justify-between">
-          <h3 className="font-semibold text-white/70 flex items-center gap-2">
+        <div className="px-5 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+          <h3 className="font-semibold text-gray-700 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400" />
             Ativos ({ativos.length})
           </h3>
@@ -151,7 +151,7 @@ export default function EntregadoresPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-white/40 border-b border-white/[0.08] bg-white/[0.06]">
+              <tr className="text-left text-gray-500 border-b border-gray-100 bg-gray-50">
                 <th className="p-3 pl-5 font-medium">Nome</th>
                 <th className="p-3 font-medium">Telefone</th>
                 <th className="p-3 font-medium">Senha</th>
@@ -164,7 +164,7 @@ export default function EntregadoresPage() {
             </thead>
             <tbody>
               {ativos.length === 0 ? (
-                <tr><td colSpan={8} className="p-8 text-center text-white/30">Nenhum entregador ativo cadastrado</td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-gray-400">Nenhum entregador ativo cadastrado</td></tr>
               ) : (
                 ativos.map(e => (
                   <LinhaEntregador
@@ -184,16 +184,16 @@ export default function EntregadoresPage() {
       {/* ============ INATIVOS ============ */}
       {inativos.length > 0 && (
         <div className="content-card overflow-hidden">
-          <div className="px-5 py-3 border-b border-white/[0.10] bg-white/[0.06] flex items-center justify-between">
-            <h3 className="font-semibold text-white/40 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-white/30" />
+          <div className="px-5 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+            <h3 className="font-semibold text-gray-500 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-gray-300" />
               Inativos ({inativos.length})
             </h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-white/40 border-b border-white/[0.08] bg-white/[0.06]">
+                <tr className="text-left text-gray-500 border-b border-gray-100 bg-gray-50">
                   <th className="p-3 pl-5 font-medium">Nome</th>
                   <th className="p-3 font-medium">Telefone</th>
                   <th className="p-3 font-medium">Senha</th>
@@ -332,17 +332,17 @@ function LinhaEntregador({
   isAtivo: boolean
 }) {
   return (
-    <tr className={`border-b border-white/[0.08] last:border-0 hover:bg-white/[0.06] transition ${!isAtivo ? 'text-white/30' : ''}`}>
+    <tr className={`border-b border-gray-100 last:border-0 hover:bg-gray-50 transition ${!isAtivo ? 'text-gray-400' : ''}`}>
       {/* Nome */}
       <td className="p-3 pl-5">
         <div className="flex items-center gap-2">
           <a href={`/admin/entregador/${entregador.id}`}
-            className={`font-medium hover:underline ${isAtivo ? 'link-btn-sm' : 'text-white/30'}`}>
+            className={`font-medium hover:underline ${isAtivo ? 'link-btn-sm' : 'text-gray-400'}`}>
             {entregador.nome}
           </a>
           <button
             onClick={() => onOpenModal({ tipo: 'editar', id: entregador.id, campo: 'nome', valorAtual: entregador.nome })}
-            className="text-white/20 hover:text-violet-300 transition text-xs"
+            className="text-gray-300 hover:text-violet-600 transition text-xs"
             title="Editar nome">
             ✏️
           </button>
@@ -363,7 +363,7 @@ function LinhaEntregador({
           )}
           <button
             onClick={() => onOpenModal({ tipo: 'editar', id: entregador.id, campo: 'telefone', valorAtual: entregador.telefone || '' })}
-            className="text-white/20 hover:text-violet-300 transition text-xs"
+            className="text-gray-300 hover:text-violet-600 transition text-xs"
             title="Editar telefone">
             ✏️
           </button>
@@ -384,7 +384,7 @@ function LinhaEntregador({
           )}
           <button
             onClick={() => onOpenModal({ tipo: 'senha', id: entregador.id, temSenha: !!entregador.senha_hash })}
-            className="text-white/20 hover:text-amber-400 transition text-xs"
+            className="text-gray-300 hover:text-amber-400 transition text-xs"
             title={entregador.senha_hash ? 'Alterar senha' : 'Definir senha'}>
             🔑
           </button>
@@ -397,7 +397,7 @@ function LinhaEntregador({
           <span className="font-medium">R$ {entregador.valor_padrao.toFixed(2)}</span>
           <button
             onClick={() => onOpenModal({ tipo: 'editar', id: entregador.id, campo: 'valor_padrao', valorAtual: entregador.valor_padrao.toFixed(2) })}
-            className="text-white/20 hover:text-violet-300 transition text-xs"
+            className="text-gray-300 hover:text-violet-600 transition text-xs"
             title="Editar valor padrão">
             ✏️
           </button>
@@ -407,9 +407,9 @@ function LinhaEntregador({
       {/* Status */}
       <td className="p-3">
         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
-          isAtivo ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/25' : 'bg-white/[0.10] text-white/40 border border-white/[0.12]'
+          isAtivo ? 'bg-emerald-500 text-white border border-emerald-500' : 'bg-gray-100 text-gray-400 border border-gray-200'
         }`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${isAtivo ? 'bg-emerald-400' : 'bg-white/30'}`} />
+          <span className={`w-1.5 h-1.5 rounded-full ${isAtivo ? 'bg-emerald-400' : 'bg-gray-300'}`} />
           {isAtivo ? 'Ativo' : 'Inativo'}
         </span>
       </td>
@@ -417,7 +417,7 @@ function LinhaEntregador({
       {/* Pacotes */}
       <td className="p-3">
         <a href={`/admin/entregador/${entregador.id}`}
-          className={`font-medium hover:underline ${isAtivo ? 'text-white/70' : 'text-white/30'}`}>
+          className={`font-medium hover:underline ${isAtivo ? 'text-gray-700' : 'text-gray-400'}`}>
           {totalPacotes} {totalPacotes === 1 ? 'pacote' : 'pacotes'}
         </a>
       </td>
@@ -621,7 +621,7 @@ function ModalConfirmacao({
 function ModalBase({ titulo, children, onClose }: { titulo: string; children: React.ReactNode; onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-[#1a1240] border border-white/[0.1] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-[#1a1240] border border-gray-200 rounded-xl p-6 w-full max-w-md mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-white">{titulo}</h3>
           <button onClick={onClose} className="text-white/30 hover:text-white/60 text-xl leading-none">&times;</button>
