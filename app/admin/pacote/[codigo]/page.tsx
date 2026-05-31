@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import SelectTransportadora from '@/components/select-transportadora'
 
 type Pacote = {
   codigo: string
@@ -477,7 +478,11 @@ function EditFormCompleto({
             <input type="number" value={form.quantidade} onChange={e => set('quantidade', parseInt(e.target.value) || 1)} min={1} className="w-full px-3 py-2 border rounded-lg text-sm" />
           </Field>
           <Field label="Transportadora">
-            <input value={form.transportadora} onChange={e => set('transportadora', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <SelectTransportadora
+              value={form.transportadora}
+              onChange={v => set('transportadora', v)}
+              placeholder="Buscar transportadora..."
+            />
           </Field>
         </Section>
 

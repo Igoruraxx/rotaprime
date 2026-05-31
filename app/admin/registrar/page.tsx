@@ -2,6 +2,7 @@
 
 import { useEffect, useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import SelectTransportadora from '@/components/select-transportadora'
 
 type Entregador = { id: number; nome: string; valor_padrao: number }
 
@@ -12,6 +13,7 @@ export default function RegistrarPage() {
   const [erro, setErro] = useState('')
   const [valor, setValor] = useState('0,50')
   const [prazoAtivo, setPrazoAtivo] = useState(false)
+  const [transportadora, setTransportadora] = useState('')
 
   useEffect(() => {
     fetch('/api/admin/stats')
@@ -140,7 +142,12 @@ export default function RegistrarPage() {
             )}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Transportadora</label>
-              <input name="transportadora" className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              <SelectTransportadora
+                value={transportadora}
+                onChange={setTransportadora}
+                name="transportadora"
+                placeholder="Buscar transportadora..."
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>

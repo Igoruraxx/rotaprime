@@ -40,6 +40,9 @@ export default async function AdminLayout({
           <a href="/admin/fotos" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
             📸 Fotos
           </a>
+          <a href="/admin/transportadoras" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition">
+            🚚 Transportadoras
+          </a>
 
           <p className="text-xs font-semibold text-gray-400 uppercase px-3 pt-4 pb-1">Config</p>
           <a href="/login" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 transition">
@@ -70,6 +73,7 @@ export default async function AdminLayout({
             <a href="/admin/rastrear" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">🔍 Buscar</a>
             <a href="/admin/entregadores" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">👥 Entreg.</a>
             <a href="/admin/fotos" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">📸 Fotos</a>
+            <a href="/admin/transportadoras" className="px-3 py-2 rounded-lg hover:bg-blue-50 whitespace-nowrap">🚚 Transp.</a>
           </div>
         </nav>
 
