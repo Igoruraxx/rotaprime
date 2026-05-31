@@ -22,3 +22,6 @@ supabase/.temp/
 # Vercel
 .vercel/
 .vercel
+
+# ROTAPRIME copy
+ROTAPRIME/
