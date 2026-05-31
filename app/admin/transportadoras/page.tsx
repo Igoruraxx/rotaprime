@@ -84,14 +84,14 @@ export default function TransportadorasPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">🚚 Transportadoras</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <h2 className="text-2xl font-bold text-white">🚚 Transportadoras</h2>
+          <p className="text-sm text-white/40 mt-1">
             {transportadoras.length} transportadora(s) cadastrada(s)
           </p>
         </div>
         <button
           onClick={() => setModal({ tipo: 'novo' })}
-          className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition shadow-sm"
+          className="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-sm"
         >
           + Nova Transportadora
         </button>
@@ -99,28 +99,28 @@ export default function TransportadorasPage() {
 
       {/* Mensagem flash */}
       {msg && (
-        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200">
+        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-violet-500/10 text-violet-300 border border-violet-500/20">
           {msg}
         </div>
       )}
 
       {/* Lista */}
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+      <div className="content-card overflow-hidden">
         {transportadoras.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-4xl mb-3">🚚</p>
-            <p className="text-gray-400 text-sm">Nenhuma transportadora cadastrada</p>
-            <p className="text-xs text-gray-300 mt-1">Clique em "+ Nova Transportadora" para começar</p>
+            <p className="text-white/30 text-sm">Nenhuma transportadora cadastrada</p>
+            <p className="text-xs text-white/20 mt-1">Clique em "+ Nova Transportadora" para começar</p>
           </div>
         ) : (
-          <div className="divide-y">
+          <div className="divide-y divide-white/[0.04]">
             {transportadoras.map(t => (
-              <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition">
+              <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-white/[0.02] transition">
                 <div className="flex items-center gap-3">
                   <span className="text-lg">🚚</span>
                   <div>
-                    <p className="font-medium text-gray-800">{t.nome}</p>
-                    <p className="text-xs text-gray-400">
+                    <p className="font-medium text-white">{t.nome}</p>
+                    <p className="text-xs text-white/30">
                       Cadastrada em {new Date(t.criado_em).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
@@ -128,13 +128,13 @@ export default function TransportadorasPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setModal({ tipo: 'editar', id: t.id, nome: t.nome })}
-                    className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-100 transition"
+                    className="px-3 py-1.5 bg-violet-500/10 text-violet-300 rounded-lg text-xs font-medium hover:bg-violet-500/15 transition"
                   >
                     ✏️ Editar
                   </button>
                   <button
                     onClick={() => setModal({ tipo: 'remover', id: t.id, nome: t.nome })}
-                    className="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition"
+                    className="px-3 py-1.5 bg-red-500/10 text-red-300 rounded-lg text-xs font-medium hover:bg-red-500/15 transition"
                   >
                     🗑️ Remover
                   </button>
@@ -150,7 +150,7 @@ export default function TransportadorasPage() {
         <ModalBase titulo="Nova Transportadora" onClose={() => setModal(null)}>
           <form action={criar} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Nome da Transportadora *</label>
+              <label className="block text-xs font-medium text-white/40 mb-1">Nome da Transportadora *</label>
               <input
                 name="nome"
                 required
@@ -160,10 +160,10 @@ export default function TransportadorasPage() {
               />
             </div>
             <div className="flex gap-2">
-              <button type="submit" className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+              <button type="submit" className="btn-primary flex-1 py-2.5 rounded-lg text-sm font-medium transition">
                 Cadastrar
               </button>
-              <button type="button" onClick={() => setModal(null)} className="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition">
+              <button type="button" onClick={() => setModal(null)} className="px-5 py-2.5 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12] transition">
                 Cancelar
               </button>
             </div>
@@ -183,17 +183,17 @@ export default function TransportadorasPage() {
       {/* Modal Remover */}
       {modal?.tipo === 'remover' && (
         <ModalBase titulo="Remover Transportadora" onClose={() => setModal(null)}>
-          <p className="text-sm text-gray-600 mb-5">
+          <p className="text-sm text-white/60 mb-5">
             Tem certeza que deseja remover <strong>{modal.nome}</strong>? Esta ação não pode ser desfeita.
           </p>
           <div className="flex gap-2">
             <button
               onClick={() => remover(modal.id)}
-              className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
+              className="flex-1 py-2.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition"
             >
               Sim, Remover
             </button>
-            <button onClick={() => setModal(null)} className="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition">
+            <button onClick={() => setModal(null)} className="px-5 py-2.5 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12] transition">
               Cancelar
             </button>
           </div>
@@ -212,7 +212,7 @@ function ModalEditar({ nome, onSave, onClose }: { nome: string; onSave: (nome: s
   return (
     <ModalBase titulo="Editar Transportadora" onClose={onClose}>
       <div>
-        <label className="block text-xs font-medium text-gray-500 mb-1">Nome</label>
+        <label className="block text-xs font-medium text-white/40 mb-1">Nome</label>
         <input
           value={val}
           onChange={e => setVal(e.target.value)}
@@ -222,11 +222,11 @@ function ModalEditar({ nome, onSave, onClose }: { nome: string; onSave: (nome: s
         <div className="flex gap-2">
           <button
             onClick={() => val.trim().length >= 2 ? onSave(val.trim()) : null}
-            className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+            className="btn-primary flex-1 py-2.5 rounded-lg text-sm font-medium transition"
           >
             Salvar
           </button>
-          <button onClick={onClose} className="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition">
+          <button onClick={onClose} className="px-5 py-2.5 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12] transition">
             Cancelar
           </button>
         </div>
@@ -241,10 +241,10 @@ function ModalEditar({ nome, onSave, onClose }: { nome: string; onSave: (nome: s
 function ModalBase({ titulo, children, onClose }: { titulo: string; children: React.ReactNode; onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-[#0f0a1a] border border-white/[0.1] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-gray-800">{titulo}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+          <h3 className="text-lg font-bold text-white">{titulo}</h3>
+          <button onClick={onClose} className="text-white/30 hover:text-white/60 text-xl leading-none">&times;</button>
         </div>
         {children}
       </div>

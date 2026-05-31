@@ -14,6 +14,18 @@ type Pacote = {
   entregadores: { nome: string } | null
 }
 
+function statusBadge(status: string) {
+  const map: Record<string, string> = {
+    'Entregue': 'bg-emerald-500/15 text-emerald-300',
+    'Validado pelo Admin': 'bg-emerald-500/15 text-emerald-300',
+    'Retornado a Central': 'bg-red-500/15 text-red-300',
+    'Recebido pela Central': 'bg-amber-500/15 text-amber-300',
+    'Aguardando Retirada': 'bg-amber-500/15 text-amber-300',
+    'Retirado pelo Entregador': 'bg-amber-500/15 text-amber-300',
+  }
+  return map[status] || 'bg-violet-500/15 text-violet-300 border border-violet-500/25'
+}
+
 export default function PacotesPage() {
   const [pacotes, setPacotes] = useState<Pacote[]>([])
   const [busca, setBusca] = useState('')
@@ -39,8 +51,8 @@ export default function PacotesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Pacotes</h2>
-        <a href="/admin/registrar" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+        <h2 className="text-2xl font-bold text-white">Pacotes</h2>
+        <a href="/admin/registrar" className="btn-primary">
           + Novo
         </a>
       </div>
@@ -52,12 +64,12 @@ export default function PacotesPage() {
           placeholder="Buscar por código, NF ou entregador..."
           value={busca}
           onChange={e => setBusca(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          className="flex-1 px-4 py-2 rounded-lg text-sm"
         />
         <select
           value={filtroStatus}
           onChange={e => setFiltroStatus(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          className="px-3 py-2 rounded-lg text-sm"
         >
           <option value="">Todos os status</option>
           {statusList.map(s => (
@@ -67,10 +79,10 @@ export default function PacotesPage() {
       </div>
 
       {/* Tabela */}
-      <div className="bg-white rounded-xl shadow-sm border overflow-x-auto">
+      <div className="content-card overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-gray-500 border-b bg-gray-50">
+            <tr className="text-left text-white/40 border-b border-white/[0.04]">
               <th className="p-3">Código</th>
               <th className="p-3">Chegada</th>
               <th className="p-3">NF</th>
@@ -83,31 +95,31 @@ export default function PacotesPage() {
           </thead>
           <tbody>
             {filtered.map(p => (
-              <tr key={p.codigo} className="border-b last:border-0 hover:bg-gray-50">
+              <tr key={p.codigo} className="border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02]">
                 <td className="p-3">
-                  <a href={`/admin/pacote/${p.codigo}`} className="text-blue-600 hover:underline font-medium">
+                  <a href={`/admin/pacote/${p.codigo}`} className="link-btn-sm">
                     {p.codigo}
                   </a>
                 </td>
-                <td className="p-3 text-gray-600">{new Date(p.data_chegada).toLocaleDateString('pt-BR')}</td>
-                <td className="p-3 text-gray-600">{p.nf_remessa || '—'}</td>
+                <td className="p-3 text-white/60">{new Date(p.data_chegada).toLocaleDateString('pt-BR')}</td>
+                <td className="p-3 text-white/60">{p.nf_remessa || '—'}</td>
                 <td className="p-3">
-                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusBadge(p.status)}`}>
                     {p.status}
                   </span>
                 </td>
-                <td className="p-3 text-gray-600">{p.entregadores?.nome || '—'}</td>
-                <td className="p-3 text-gray-600">
+                <td className="p-3 text-white/60">{p.entregadores?.nome || '—'}</td>
+                <td className="p-3 text-white/60">
                   {p.data_repassado_entregador ? new Date(p.data_repassado_entregador).toLocaleDateString('pt-BR') : '—'}
                 </td>
-                <td className="p-3 text-gray-600">
+                <td className="p-3 text-white/60">
                   {p.data_limite_entrega ? new Date(p.data_limite_entrega).toLocaleDateString('pt-BR') : '—'}
                 </td>
-                <td className="p-3 text-gray-600">{p.tentativa_atual || 0}</td>
+                <td className="p-3 text-white/60">{p.tentativa_atual || 0}</td>
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={8} className="p-6 text-center text-gray-400">Nenhum pacote encontrado</td></tr>
+              <tr><td colSpan={8} className="p-6 text-center text-white/30">Nenhum pacote encontrado</td></tr>
             )}
           </tbody>
         </table>

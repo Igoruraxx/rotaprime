@@ -43,13 +43,13 @@ const STATUS_LIST = [
 ]
 
 const STATUS_CORES: Record<string, string> = {
-  'Recebido pela Central': 'bg-gray-100 text-gray-700 border-gray-300',
-  'Aguardando Retirada': 'bg-yellow-100 text-yellow-700 border-yellow-300',
-  'Retirado pelo Entregador': 'bg-blue-100 text-blue-700 border-blue-300',
-  'Em Rota': 'bg-indigo-100 text-indigo-700 border-indigo-300',
-  'Entregue': 'bg-green-100 text-green-700 border-green-300',
-  'Retornado a Central': 'bg-red-100 text-red-700 border-red-300',
-  'Validado pelo Admin': 'bg-emerald-100 text-emerald-700 border-emerald-300',
+  'Recebido pela Central': 'bg-amber-500/15 text-amber-300 border border-amber-500/25',
+  'Aguardando Retirada': 'bg-violet-500/15 text-violet-300 border border-violet-500/25',
+  'Retirado pelo Entregador': 'bg-violet-500/15 text-violet-300 border border-violet-500/25',
+  'Em Rota': 'bg-violet-500/15 text-violet-300 border border-violet-500/25',
+  'Entregue': 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25',
+  'Retornado a Central': 'bg-red-500/15 text-red-300 border border-red-500/25',
+  'Validado pelo Admin': 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25',
 }
 
 export default function PacoteDetalhePage() {
@@ -121,22 +121,22 @@ export default function PacoteDetalhePage() {
     }
   }
 
-  if (!pacote) return <div className="text-gray-500 text-center py-12">Carregando...</div>
+  if (!pacote) return <div className="text-white/40 text-center py-12">Carregando...</div>
 
   return (
     <div>
       {/* Header */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
-        <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700 text-sm">← Voltar</button>
-        <h2 className="text-2xl font-bold text-gray-800">{pacote.codigo}</h2>
-        <span className={`px-3 py-1 rounded-full text-sm font-medium border ${STATUS_CORES[pacote.status] || 'bg-gray-100 text-gray-700'}`}>
+        <button onClick={() => router.back()} className="text-white/40 hover:text-white/70 text-sm">← Voltar</button>
+        <h2 className="text-2xl font-bold text-white">{pacote.codigo}</h2>
+        <span className={`px-3 py-1 rounded-full text-sm font-medium ${STATUS_CORES[pacote.status] || 'bg-white/[0.03] text-white/60 border border-white/[0.08]'}`}>
           {pacote.status}
         </span>
       </div>
 
       {/* Mensagem de ação */}
       {acaoMsg && (
-        <div className="bg-green-50 text-green-700 p-3 rounded-lg mb-4 text-sm">{acaoMsg}</div>
+        <div className="bg-violet-500/10 text-violet-300 border border-violet-500/20 p-3 rounded-lg mb-4 text-sm">{acaoMsg}</div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -147,10 +147,10 @@ export default function PacoteDetalhePage() {
           {showTimeline && <Timeline pacote={pacote} />}
 
           {/* INFORMAÇÕES COMPLETAS */}
-          <div className="bg-white rounded-xl shadow-sm border">
-            <div className="p-4 border-b bg-gray-50 rounded-t-xl flex items-center justify-between">
-              <h3 className="font-semibold text-gray-700">📋 Informações do Pacote</h3>
-              <button onClick={() => setShowEdit(!showEdit)} className="text-sm text-blue-600 hover:underline">
+          <div className="content-card">
+            <div className="p-4 border-b border-white/[0.04] bg-white/[0.02] rounded-t-xl flex items-center justify-between">
+              <h3 className="font-semibold text-white">📋 Informações do Pacote</h3>
+              <button onClick={() => setShowEdit(!showEdit)} className="link-btn-sm">
                 {showEdit ? '✕ Fechar edição' : '✏️ Editar'}
               </button>
             </div>
@@ -174,13 +174,13 @@ export default function PacoteDetalhePage() {
         {/* Coluna Lateral: Ações + Foto */}
         <div className="space-y-4">
           {/* Ações Rápidas */}
-          <div className="bg-white rounded-xl shadow-sm border p-4">
-            <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">⚡ Ações Rápidas</h3>
+          <div className="content-card p-4 border-violet-500/20">
+            <h3 className="font-semibold text-white mb-3 flex items-center gap-2">⚡ Ações Rápidas</h3>
             <div className="space-y-2">
               {/* Selecionar entregador */}
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Entregador</label>
-                <select id="entregador_select" className="w-full px-3 py-2 border rounded-lg text-sm">
+                <label className="block text-xs text-white/40 mb-1">Entregador</label>
+                <select id="entregador_select" className="w-full px-3 py-2 rounded-lg text-sm">
                   <option value="">Sem entregador</option>
                   {entregadores.map(e => (
                     <option key={e.id} value={e.id} selected={pacote.entregador_id === e.id}>{e.nome}</option>
@@ -189,15 +189,15 @@ export default function PacoteDetalhePage() {
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => acao('atribuir')} className="py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">📌 Atribuir</button>
-                <button onClick={() => acao('repassar')} className="py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">📤 Repassar</button>
+                <button onClick={() => acao('atribuir')} className="py-2 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12]">📌 Atribuir</button>
+                <button onClick={() => acao('repassar')} className="py-2 btn-primary rounded-lg text-sm">📤 Repassar</button>
               </div>
 
               {/* Status - Admin override */}
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Alterar Status (override)</label>
+                <label className="block text-xs text-white/40 mb-1">Alterar Status (override)</label>
                 <div className="flex gap-2">
-                  <select id="status_override" className="flex-1 px-3 py-2 border rounded-lg text-sm">
+                  <select id="status_override" className="flex-1 px-3 py-2 rounded-lg text-sm">
                     {STATUS_LIST.map(s => (
                       <option key={s} value={s} selected={pacote.status === s}>{s}</option>
                     ))}
@@ -207,29 +207,29 @@ export default function PacoteDetalhePage() {
                       const novo = (document.getElementById('status_override') as HTMLSelectElement).value
                       acao('_status', { status: novo })
                     }}
-                    className="px-3 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700"
+                    className="px-3 py-2 btn-primary rounded-lg text-sm"
                   >
                     OK
                   </button>
                 </div>
               </div>
 
-              <hr className="my-2" />
+              <hr className="my-2 border-white/[0.08]" />
 
               {!pacote.pago && (
-                <button onClick={() => acao('pagar')} className="w-full py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700">💰 Marc. como Pago</button>
+                <button onClick={() => acao('pagar')} className="w-full py-2 link-btn-green rounded-lg text-sm">💰 Marc. como Pago</button>
               )}
               {pacote.pago && (
-                <button onClick={() => acao('estornar')} className="w-full py-2 bg-yellow-500 text-white rounded-lg text-sm hover:bg-yellow-600">↩️ Estornar Pag.</button>
+                <button onClick={() => acao('estornar')} className="w-full py-2 bg-amber-500/15 text-amber-300 border border-amber-500/25 rounded-lg text-sm hover:bg-amber-500/25">↩️ Estornar Pag.</button>
               )}
 
               {pacote.status === 'Entregue' && !pacote.validacao_admin && (
-                <button onClick={() => acao('validar')} className="w-full py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">✅ Validar Entrega</button>
+                <button onClick={() => acao('validar')} className="w-full py-2 link-btn-green rounded-lg text-sm">✅ Validar Entrega</button>
               )}
 
-              <button onClick={() => acao('reiniciar')} className="w-full py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600">🔄 Reiniciar Pacote</button>
+              <button onClick={() => acao('reiniciar')} className="w-full py-2 bg-red-500/15 text-red-300 border border-red-500/25 rounded-lg text-sm hover:bg-red-500/25">🔄 Reiniciar Pacote</button>
 
-              <button onClick={() => setShowTimeline(!showTimeline)} className="w-full py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200">
+              <button onClick={() => setShowTimeline(!showTimeline)} className="w-full py-2 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12]">
                 {showTimeline ? '🙈 Ocultar' : '👁️ Mostrar'} Timeline
               </button>
             </div>
@@ -237,12 +237,12 @@ export default function PacoteDetalhePage() {
 
           {/* Foto */}
           {pacote.foto && (
-            <div className="bg-white rounded-xl shadow-sm border p-4">
-              <h3 className="font-semibold text-gray-800 mb-2">📸 Foto da Entrega</h3>
+            <div className="content-card p-4">
+              <h3 className="font-semibold text-white mb-2">📸 Foto da Entrega</h3>
               <img src={pacote.foto} alt="Foto da entrega" className="w-full rounded-lg mb-2 object-cover max-h-64" />
               {pacote.gps_foto && (
                 <a href={`https://www.google.com/maps?q=${pacote.gps_foto}`} target="_blank" rel="noopener noreferrer"
-                  className="text-blue-600 text-sm hover:underline flex items-center gap-1">
+                  className="text-violet-300 text-sm hover:underline flex items-center gap-1">
                   📍 Ver no Google Maps
                 </a>
               )}
@@ -259,11 +259,11 @@ export default function PacoteDetalhePage() {
 // ============================================================
 function Timeline({ pacote }: { pacote: Pacote }) {
   const eventos: { label: string; data: string | null; icone: string; cor: string; ativo: boolean }[] = [
-    { label: 'Chegou na Central', data: pacote.criado_em || pacote.data_chegada, icone: '📦', cor: 'bg-gray-500', ativo: true },
-    { label: 'Repassado ao Entregador', data: pacote.data_repassado_entregador, icone: '📤', cor: 'bg-yellow-500', ativo: !!pacote.data_repassado_entregador },
-    { label: 'Retirado pelo Entregador', data: pacote.data_retirada_central, icone: '✋', cor: 'bg-blue-500', ativo: !!pacote.data_retirada_central },
-    { label: 'Entregue', data: pacote.data_entrega_real, icone: '✅', cor: 'bg-green-500', ativo: pacote.status === 'Entregue' || pacote.status === 'Validado pelo Admin' },
-    { label: 'Validado pelo Admin', data: pacote.data_validacao_admin, icone: '👍', cor: 'bg-emerald-500', ativo: pacote.validacao_admin },
+    { label: 'Chegou na Central', data: pacote.criado_em || pacote.data_chegada, icone: '📦', cor: 'bg-white/40', ativo: true },
+    { label: 'Repassado ao Entregador', data: pacote.data_repassado_entregador, icone: '📤', cor: 'bg-amber-400', ativo: !!pacote.data_repassado_entregador },
+    { label: 'Retirado pelo Entregador', data: pacote.data_retirada_central, icone: '✋', cor: 'bg-violet-400', ativo: !!pacote.data_retirada_central },
+    { label: 'Entregue', data: pacote.data_entrega_real, icone: '✅', cor: 'bg-emerald-400', ativo: pacote.status === 'Entregue' || pacote.status === 'Validado pelo Admin' },
+    { label: 'Validado pelo Admin', data: pacote.data_validacao_admin, icone: '👍', cor: 'bg-emerald-400', ativo: pacote.validacao_admin },
   ]
 
   // Se tem devolução, inserir
@@ -272,7 +272,7 @@ function Timeline({ pacote }: { pacote: Pacote }) {
       label: `Devolvido à Central${pacote.motivo_devolucao ? ': ' + pacote.motivo_devolucao : ''}`,
       data: null,
       icone: '🔄',
-      cor: 'bg-red-500',
+      cor: 'bg-red-400',
       ativo: pacote.status === 'Retornado a Central'
     })
   }
@@ -283,7 +283,7 @@ function Timeline({ pacote }: { pacote: Pacote }) {
       label: `Pago R$ ${(pacote.valor_pacote || 0).toFixed(2)}`,
       data: pacote.data_pagamento,
       icone: '💰',
-      cor: 'bg-emerald-500',
+      cor: 'bg-emerald-400',
       ativo: true
     })
   }
@@ -291,31 +291,31 @@ function Timeline({ pacote }: { pacote: Pacote }) {
   const ativos = eventos.filter(e => e.ativo).length
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border p-4">
-      <h3 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+    <div className="content-card p-4">
+      <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
         📊 Linha do Tempo
-        <span className="text-xs text-gray-400 font-normal">({ativos}/{eventos.length} etapas concluídas)</span>
+        <span className="text-xs text-white/30 font-normal">({ativos}/{eventos.length} etapas concluídas)</span>
       </h3>
       <div className="relative">
         {/* Linha vertical */}
-        <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-gray-200" />
+        <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-white/[0.08]" />
 
         <div className="space-y-4">
           {eventos.map((ev, i) => (
             <div key={i} className="relative flex items-start gap-4">
               {/* Bolinha */}
               <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-xs ${
-                ev.ativo ? ev.cor + ' text-white' : 'bg-gray-100 text-gray-400'
+                ev.ativo ? ev.cor + ' text-white' : 'bg-white/[0.03] text-white/30'
               }`}>
                 {ev.icone}
               </div>
               {/* Conteúdo */}
               <div className="flex-1 pt-1">
-                <p className={`text-sm font-medium ${ev.ativo ? 'text-gray-800' : 'text-gray-400'}`}>
+                <p className={`text-sm font-medium ${ev.ativo ? 'text-white' : 'text-white/30'}`}>
                   {ev.label}
                 </p>
                 {ev.data && (
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-white/30">
                     {new Date(ev.data).toLocaleString('pt-BR')}
                   </p>
                 )}
@@ -362,8 +362,8 @@ function GridInfo({ pacote }: { pacote: Pacote }) {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
       {infos.map(info => (
         <div key={info.label} className={info.colspan === 2 ? 'md:col-span-2' : ''}>
-          <span className="text-xs text-gray-500 block">{info.label}</span>
-          <span className="text-sm font-medium text-gray-800">{String(info.value)}</span>
+          <span className="text-xs text-white/40 block">{info.label}</span>
+          <span className="text-sm font-medium text-white/70">{String(info.value)}</span>
         </div>
       ))}
     </div>
@@ -457,25 +457,25 @@ function EditFormCompleto({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border p-4">
-      <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">✏️ Editar Pacote — Todos os Campos</h3>
+    <div className="content-card p-4">
+      <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">✏️ Editar Pacote — Todos os Campos</h3>
 
-      {erro && <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">{erro}</div>}
+      {erro && <div className="bg-red-500/15 text-red-300 border border-red-500/25 p-3 rounded-lg mb-4 text-sm">{erro}</div>}
 
       <div className="space-y-6">
         {/* Seção: Identificação */}
         <Section titulo="📋 Identificação">
           <Field label="NF / Remessa" cols={2}>
-            <input value={form.nf_remessa} onChange={e => set('nf_remessa', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input value={form.nf_remessa} onChange={e => set('nf_remessa', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Destinatário" cols={2}>
-            <input value={form.destinatario} onChange={e => set('destinatario', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input value={form.destinatario} onChange={e => set('destinatario', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Descrição" cols={2}>
-            <input value={form.descricao} onChange={e => set('descricao', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input value={form.descricao} onChange={e => set('descricao', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Quantidade">
-            <input type="number" value={form.quantidade} onChange={e => set('quantidade', parseInt(e.target.value) || 1)} min={1} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input type="number" value={form.quantidade} onChange={e => set('quantidade', parseInt(e.target.value) || 1)} min={1} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Transportadora">
             <SelectTransportadora
@@ -489,13 +489,13 @@ function EditFormCompleto({
         {/* Seção: Endereço e Valor */}
         <Section titulo="📍 Endereço & Valor">
           <Field label="Endereço de Entrega" cols={2}>
-            <input value={form.endereco_entrega} onChange={e => set('endereco_entrega', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input value={form.endereco_entrega} onChange={e => set('endereco_entrega', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Valor (R$)">
-            <input value={form.valor_pacote} onChange={e => set('valor_pacote', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input value={form.valor_pacote} onChange={e => set('valor_pacote', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Entregador">
-            <select value={form.entregador_id as string} onChange={e => set('entregador_id', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm">
+            <select value={form.entregador_id as string} onChange={e => set('entregador_id', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm">
               <option value="">Sem entregador</option>
               {entregadores.map(e => (
                 <option key={e.id} value={e.id}>{e.nome}</option>
@@ -507,14 +507,14 @@ function EditFormCompleto({
         {/* Seção: Status e Flags */}
         <Section titulo="⚙️ Status & Configurações">
           <Field label="Status">
-            <select value={form.status} onChange={e => set('status', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm">
+            <select value={form.status} onChange={e => set('status', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm">
               {STATUS_LIST.map(s => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
           </Field>
           <Field label="Tentativa Atual">
-            <input type="number" value={form.tentativa_atual} onChange={e => set('tentativa_atual', parseInt(e.target.value) || 0)} min={0} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input type="number" value={form.tentativa_atual} onChange={e => set('tentativa_atual', parseInt(e.target.value) || 0)} min={0} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Pago">
             <div className="flex gap-3">
@@ -533,56 +533,56 @@ function EditFormCompleto({
         {/* Seção: Datas */}
         <Section titulo="📅 Datas e Timestamps">
           <Field label="Data de Chegada">
-            <input type="datetime-local" value={form.data_chegada} onChange={e => set('data_chegada', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input type="datetime-local" value={form.data_chegada} onChange={e => set('data_chegada', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Data Limite Entrega">
-            <input type="datetime-local" value={form.data_limite_entrega} onChange={e => set('data_limite_entrega', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input type="datetime-local" value={form.data_limite_entrega} onChange={e => set('data_limite_entrega', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Repassado ao Entregador">
-            <input type="datetime-local" value={form.data_repassado_entregador} onChange={e => set('data_repassado_entregador', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input type="datetime-local" value={form.data_repassado_entregador} onChange={e => set('data_repassado_entregador', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Retirado pelo Entregador">
-            <input type="datetime-local" value={form.data_retirada_central} onChange={e => set('data_retirada_central', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input type="datetime-local" value={form.data_retirada_central} onChange={e => set('data_retirada_central', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Entrega Real">
-            <input type="datetime-local" value={form.data_entrega_real} onChange={e => set('data_entrega_real', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input type="datetime-local" value={form.data_entrega_real} onChange={e => set('data_entrega_real', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Data Pagamento">
-            <input type="datetime-local" value={form.data_pagamento} onChange={e => set('data_pagamento', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input type="datetime-local" value={form.data_pagamento} onChange={e => set('data_pagamento', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Data Validação Admin">
-            <input type="datetime-local" value={form.data_validacao_admin} onChange={e => set('data_validacao_admin', e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input type="datetime-local" value={form.data_validacao_admin} onChange={e => set('data_validacao_admin', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
         </Section>
 
         {/* Seção: Fotos e GPS */}
         <Section titulo="📸 Foto & GPS">
           <Field label="URL da Foto">
-            <input value={form.foto} onChange={e => set('foto', e.target.value)} placeholder="https://..." className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input value={form.foto} onChange={e => set('foto', e.target.value)} placeholder="https://..." className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Coordenadas GPS">
-            <input value={form.gps_foto} onChange={e => set('gps_foto', e.target.value)} placeholder="lat,lng" className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input value={form.gps_foto} onChange={e => set('gps_foto', e.target.value)} placeholder="lat,lng" className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
         </Section>
 
         {/* Seção: Observações */}
         <Section titulo="📝 Observações">
           <Field label="Motivo Devolução" cols={2}>
-            <textarea value={form.motivo_devolucao} onChange={e => set('motivo_devolucao', e.target.value)} rows={2} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <textarea value={form.motivo_devolucao} onChange={e => set('motivo_devolucao', e.target.value)} rows={2} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Observações" cols={2}>
-            <textarea value={form.observacoes} onChange={e => set('observacoes', e.target.value)} rows={3} className="w-full px-3 py-2 border rounded-lg text-sm" />
+            <textarea value={form.observacoes} onChange={e => set('observacoes', e.target.value)} rows={3} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
         </Section>
       </div>
 
       {/* Botões */}
-      <div className="flex gap-3 mt-6 pt-4 border-t">
+      <div className="flex gap-3 mt-6 pt-4 border-t border-white/[0.04]">
         <button onClick={save} disabled={saving}
-          className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50">
+          className="flex-1 py-3 btn-primary rounded-lg font-medium disabled:opacity-50">
           {saving ? 'Salvando...' : '💾 Salvar Todas as Alterações'}
         </button>
-        <button onClick={onCancel} className="px-6 py-3 bg-gray-100 text-gray-600 rounded-lg font-medium hover:bg-gray-200">
+        <button onClick={onCancel} className="px-6 py-3 bg-white/[0.06] text-white/60 rounded-lg font-medium hover:bg-white/[0.12]">
           Cancelar
         </button>
       </div>
@@ -596,8 +596,8 @@ function EditFormCompleto({
 
 function Section({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
-    <div className="border rounded-lg p-4">
-      <h4 className="text-sm font-semibold text-gray-600 mb-3">{titulo}</h4>
+    <div className="content-card p-4">
+      <h4 className="text-sm font-semibold text-white/60 mb-3">{titulo}</h4>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {children}
       </div>
@@ -608,7 +608,7 @@ function Section({ titulo, children }: { titulo: string; children: React.ReactNo
 function Field({ label, cols, children }: { label: string; cols?: number; children: React.ReactNode }) {
   return (
     <div className={cols === 2 ? 'md:col-span-2' : ''}>
-      <label className="block text-xs font-medium text-gray-500 mb-1">{label}</label>
+      <label className="block text-xs font-medium text-white/40 mb-1">{label}</label>
       {children}
     </div>
   )

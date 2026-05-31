@@ -124,34 +124,34 @@ export default function EntregadoresPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Entregadores</h2>
-          <p className="text-sm text-gray-500 mt-1">{entregadores.length} cadastrados · {ativos.length} ativos</p>
+          <h2 className="text-2xl font-bold text-white">Entregadores</h2>
+          <p className="text-sm text-white/40 mt-1">{entregadores.length} cadastrados · {ativos.length} ativos</p>
         </div>
         <button onClick={() => setModal({ tipo: 'novo' })}
-          className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition shadow-sm">
+          className="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-sm">
           + Novo Entregador
         </button>
       </div>
 
       {/* Mensagem flash */}
       {msg && (
-        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200">
+        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-violet-500/10 text-violet-300 border border-violet-500/20">
           {msg}
         </div>
       )}
 
       {/* ============ ATIVOS ============ */}
-      <div className="bg-white rounded-xl shadow-sm border mb-6 overflow-hidden">
-        <div className="px-5 py-3 border-b bg-gray-50 flex items-center justify-between">
-          <h3 className="font-semibold text-gray-700 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-500" />
+      <div className="content-card mb-6 overflow-hidden">
+        <div className="px-5 py-3 border-b border-white/[0.06] bg-white/[0.02] flex items-center justify-between">
+          <h3 className="font-semibold text-white/70 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
             Ativos ({ativos.length})
           </h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-500 border-b bg-gray-50/50">
+              <tr className="text-left text-white/40 border-b border-white/[0.04] bg-white/[0.02]">
                 <th className="p-3 pl-5 font-medium">Nome</th>
                 <th className="p-3 font-medium">Telefone</th>
                 <th className="p-3 font-medium">Senha</th>
@@ -164,7 +164,7 @@ export default function EntregadoresPage() {
             </thead>
             <tbody>
               {ativos.length === 0 ? (
-                <tr><td colSpan={8} className="p-8 text-center text-gray-400">Nenhum entregador ativo cadastrado</td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-white/30">Nenhum entregador ativo cadastrado</td></tr>
               ) : (
                 ativos.map(e => (
                   <LinhaEntregador
@@ -183,17 +183,17 @@ export default function EntregadoresPage() {
 
       {/* ============ INATIVOS ============ */}
       {inativos.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <div className="px-5 py-3 border-b bg-gray-50 flex items-center justify-between">
-            <h3 className="font-semibold text-gray-500 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-gray-400" />
+        <div className="content-card overflow-hidden">
+          <div className="px-5 py-3 border-b border-white/[0.06] bg-white/[0.02] flex items-center justify-between">
+            <h3 className="font-semibold text-white/40 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-white/30" />
               Inativos ({inativos.length})
             </h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500 border-b bg-gray-50/50">
+                <tr className="text-left text-white/40 border-b border-white/[0.04] bg-white/[0.02]">
                   <th className="p-3 pl-5 font-medium">Nome</th>
                   <th className="p-3 font-medium">Telefone</th>
                   <th className="p-3 font-medium">Senha</th>
@@ -227,31 +227,31 @@ export default function EntregadoresPage() {
         <ModalBase titulo="Novo Entregador" onClose={() => setModal(null)}>
           <form action={criar} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Nome *</label>
+              <label className="block text-xs font-medium text-white/40 mb-1">Nome *</label>
               <input name="nome" required placeholder="Nome completo"
                 className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Telefone</label>
+                <label className="block text-xs font-medium text-white/40 mb-1">Telefone</label>
                 <input name="telefone" placeholder="(11) 99999-9999"
                   className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Valor Padrão (R$)</label>
+                <label className="block text-xs font-medium text-white/40 mb-1">Valor Padrão (R$)</label>
                 <input name="valor_padrao" defaultValue="0,50"
                   className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Senha de Acesso</label>
+              <label className="block text-xs font-medium text-white/40 mb-1">Senha de Acesso</label>
               <input name="senha" type="password" placeholder="Mínimo 3 caracteres"
                 className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
-              <p className="text-xs text-gray-400 mt-1">Se não definir agora, o entregador não poderá acessar o sistema</p>
+              <p className="text-xs text-white/30 mt-1">Se não definir agora, o entregador não poderá acessar o sistema</p>
             </div>
             <div className="flex gap-2 pt-2">
-              <button type="submit" className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">Criar Entregador</button>
-              <button type="button" onClick={() => setModal(null)} className="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition">Cancelar</button>
+              <button type="submit" className="btn-primary flex-1 py-2.5 rounded-lg text-sm font-medium transition">Criar Entregador</button>
+              <button type="button" onClick={() => setModal(null)} className="px-5 py-2.5 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12] transition">Cancelar</button>
             </div>
           </form>
         </ModalBase>
@@ -281,7 +281,7 @@ export default function EntregadoresPage() {
         <ModalConfirmacao
           titulo="Inativar Entregador"
           mensagem={`Tem certeza que deseja inativar "${modal.nome}"? Ele não poderá receber novos pacotes, mas os dados serão preservados.`}
-          corBotao="bg-red-600 hover:bg-red-700"
+          corBotao="bg-red-500 hover:bg-red-600"
           labelBotao="Sim, Inativar"
           onConfirm={() => editarCampo(modal.id, 'ativo', false)}
           onClose={() => setModal(null)}
@@ -293,7 +293,7 @@ export default function EntregadoresPage() {
         <ModalConfirmacao
           titulo="Reativar Entregador"
           mensagem={`Tem certeza que deseja reativar "${modal.nome}"? Ele voltará a receber pacotes.`}
-          corBotao="bg-green-600 hover:bg-green-700"
+          corBotao="bg-emerald-600 hover:bg-emerald-700"
           labelBotao="Sim, Reativar"
           onConfirm={() => editarCampo(modal.id, 'ativo', true)}
           onClose={() => setModal(null)}
@@ -309,7 +309,7 @@ export default function EntregadoresPage() {
               ? `"${modal.nome}" possui ${modal.totalPacotes} pacote(s) vinculado(s). Não é possível removê-lo permanentemente. Inative-o em vez de remover.`
               : `Tem certeza que deseja remover permanentemente "${modal.nome}"? Esta ação não pode ser desfeita.`
           }
-          corBotao="bg-red-700 hover:bg-red-800"
+          corBotao="bg-red-600 hover:bg-red-700"
           labelBotao={modal.totalPacotes > 0 ? "Voltar" : "Sim, Remover Permanentemente"}
           onConfirm={() => modal.totalPacotes === 0 && removerEntregador(modal.id)}
           onClose={() => setModal(null)}
@@ -332,17 +332,17 @@ function LinhaEntregador({
   isAtivo: boolean
 }) {
   return (
-    <tr className={`border-b last:border-0 hover:bg-gray-50 transition ${!isAtivo ? 'text-gray-400' : ''}`}>
+    <tr className={`border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02] transition ${!isAtivo ? 'text-white/30' : ''}`}>
       {/* Nome */}
       <td className="p-3 pl-5">
         <div className="flex items-center gap-2">
           <a href={`/admin/entregador/${entregador.id}`}
-            className={`font-medium hover:underline ${isAtivo ? 'text-blue-600' : 'text-gray-400'}`}>
+            className={`font-medium hover:underline ${isAtivo ? 'link-btn-sm' : 'text-white/30'}`}>
             {entregador.nome}
           </a>
           <button
             onClick={() => onOpenModal({ tipo: 'editar', id: entregador.id, campo: 'nome', valorAtual: entregador.nome })}
-            className="text-gray-300 hover:text-blue-500 transition text-xs"
+            className="text-white/20 hover:text-violet-300 transition text-xs"
             title="Editar nome">
             ✏️
           </button>
@@ -355,15 +355,15 @@ function LinhaEntregador({
           {entregador.telefone ? (
             <a href={`https://wa.me/${entregador.telefone.replace(/\D/g, '')}`}
               target="_blank" rel="noopener noreferrer"
-              className="text-green-600 hover:underline flex items-center gap-1">
+              className="text-emerald-400 hover:underline flex items-center gap-1">
               <span>📱</span> {entregador.telefone}
             </a>
           ) : (
-            <span className="text-gray-300">—</span>
+            <span className="text-white/20">—</span>
           )}
           <button
             onClick={() => onOpenModal({ tipo: 'editar', id: entregador.id, campo: 'telefone', valorAtual: entregador.telefone || '' })}
-            className="text-gray-300 hover:text-blue-500 transition text-xs"
+            className="text-white/20 hover:text-violet-300 transition text-xs"
             title="Editar telefone">
             ✏️
           </button>
@@ -374,17 +374,17 @@ function LinhaEntregador({
       <td className="p-3">
         <div className="flex items-center gap-2">
           {entregador.senha_hash ? (
-            <span className="flex items-center gap-1 text-green-600 text-xs font-medium">
+            <span className="flex items-center gap-1 text-emerald-300 text-xs font-medium">
               <span>🔐</span> Definida
             </span>
           ) : (
-            <span className="flex items-center gap-1 text-red-400 text-xs font-medium">
+            <span className="flex items-center gap-1 text-red-300 text-xs font-medium">
               <span>⚠️</span> Sem senha
             </span>
           )}
           <button
             onClick={() => onOpenModal({ tipo: 'senha', id: entregador.id, temSenha: !!entregador.senha_hash })}
-            className="text-gray-300 hover:text-yellow-500 transition text-xs"
+            className="text-white/20 hover:text-amber-400 transition text-xs"
             title={entregador.senha_hash ? 'Alterar senha' : 'Definir senha'}>
             🔑
           </button>
@@ -397,7 +397,7 @@ function LinhaEntregador({
           <span className="font-medium">R$ {entregador.valor_padrao.toFixed(2)}</span>
           <button
             onClick={() => onOpenModal({ tipo: 'editar', id: entregador.id, campo: 'valor_padrao', valorAtual: entregador.valor_padrao.toFixed(2) })}
-            className="text-gray-300 hover:text-blue-500 transition text-xs"
+            className="text-white/20 hover:text-violet-300 transition text-xs"
             title="Editar valor padrão">
             ✏️
           </button>
@@ -407,9 +407,9 @@ function LinhaEntregador({
       {/* Status */}
       <td className="p-3">
         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
-          isAtivo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+          isAtivo ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25' : 'bg-white/[0.05] text-white/40 border border-white/[0.08]'
         }`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${isAtivo ? 'bg-green-500' : 'bg-gray-400'}`} />
+          <span className={`w-1.5 h-1.5 rounded-full ${isAtivo ? 'bg-emerald-400' : 'bg-white/30'}`} />
           {isAtivo ? 'Ativo' : 'Inativo'}
         </span>
       </td>
@@ -417,7 +417,7 @@ function LinhaEntregador({
       {/* Pacotes */}
       <td className="p-3">
         <a href={`/admin/entregador/${entregador.id}`}
-          className={`font-medium hover:underline ${isAtivo ? 'text-gray-700' : 'text-gray-400'}`}>
+          className={`font-medium hover:underline ${isAtivo ? 'text-white/70' : 'text-white/30'}`}>
           {totalPacotes} {totalPacotes === 1 ? 'pacote' : 'pacotes'}
         </a>
       </td>
@@ -433,19 +433,19 @@ function LinhaEntregador({
           {isAtivo ? (
             <button
               onClick={() => onOpenModal({ tipo: 'inativar', id: entregador.id, nome: entregador.nome })}
-              className="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition">
+              className="px-3 py-1.5 bg-red-500/10 text-red-300 rounded-lg text-xs font-medium hover:bg-red-500/15 transition">
               Inativar
             </button>
           ) : (
             <>
               <button
                 onClick={() => onOpenModal({ tipo: 'reativar', id: entregador.id, nome: entregador.nome })}
-                className="px-3 py-1.5 bg-green-50 text-green-600 rounded-lg text-xs font-medium hover:bg-green-100 transition">
+                className="px-3 py-1.5 bg-emerald-500/10 text-emerald-300 rounded-lg text-xs font-medium hover:bg-emerald-500/15 transition">
                 Reativar
               </button>
               <button
                 onClick={() => onOpenModal({ tipo: 'remover', id: entregador.id, nome: entregador.nome, totalPacotes })}
-                className="px-3 py-1.5 bg-red-50 text-red-700 rounded-lg text-xs font-medium hover:bg-red-100 transition">
+                className="px-3 py-1.5 bg-red-500/10 text-red-400 rounded-lg text-xs font-medium hover:bg-red-500/15 transition">
                 Remover
               </button>
             </>
@@ -486,7 +486,7 @@ function ModalEditarCampo({
   return (
     <ModalBase titulo={`Editar ${campo === 'valor_padrao' ? 'Valor Padrão' : campo === 'telefone' ? 'Telefone' : 'Nome'}`} onClose={onClose}>
       <div>
-        <label className="block text-xs font-medium text-gray-500 mb-1">{labels[campo] || campo}</label>
+        <label className="block text-xs font-medium text-white/40 mb-1">{labels[campo] || campo}</label>
         <input
           value={val}
           onChange={e => setVal(e.target.value)}
@@ -498,10 +498,10 @@ function ModalEditarCampo({
         <div className="flex gap-2">
           <button
             onClick={() => onSave(campo === 'valor_padrao' ? val.replace(',', '.') : val)}
-            className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+            className="btn-primary flex-1 py-2.5 rounded-lg text-sm font-medium transition">
             Salvar
           </button>
-          <button onClick={onClose} className="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition">
+          <button onClick={onClose} className="px-5 py-2.5 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12] transition">
             Cancelar
           </button>
         </div>
@@ -539,11 +539,11 @@ function ModalSenha({
   return (
     <ModalBase titulo={temSenha ? 'Alterar Senha' : 'Definir Senha'} onClose={onClose}>
       <div>
-        {erro && <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-3 text-sm">{erro}</div>}
+        {erro && <div className="bg-red-500/10 text-red-300 p-3 rounded-lg mb-3 text-sm">{erro}</div>}
 
         <div className="space-y-3 mb-4">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">
+            <label className="block text-xs font-medium text-white/40 mb-1">
               {temSenha ? 'Nova Senha' : 'Senha de Acesso'} *
             </label>
             <input
@@ -556,7 +556,7 @@ function ModalSenha({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Confirmar Senha *</label>
+            <label className="block text-xs font-medium text-white/40 mb-1">Confirmar Senha *</label>
             <input
               value={confirm}
               onChange={e => setConfirm(e.target.value)}
@@ -569,10 +569,10 @@ function ModalSenha({
 
         <div className="flex gap-2">
           <button onClick={salvar}
-            className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+            className="btn-primary flex-1 py-2.5 rounded-lg text-sm font-medium transition">
             {temSenha ? 'Alterar Senha' : 'Definir Senha'}
           </button>
-          <button onClick={onClose} className="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition">
+          <button onClick={onClose} className="px-5 py-2.5 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12] transition">
             Cancelar
           </button>
         </div>
@@ -598,7 +598,7 @@ function ModalConfirmacao({
   return (
     <ModalBase titulo={titulo} onClose={onClose}>
       <div>
-        <p className="text-sm text-gray-600 mb-5 leading-relaxed">{mensagem}</p>
+        <p className="text-sm text-white/60 mb-5 leading-relaxed">{mensagem}</p>
         <div className="flex gap-2">
           <button
             onClick={onConfirm}
@@ -606,7 +606,7 @@ function ModalConfirmacao({
             className={`flex-1 py-2.5 text-white rounded-lg text-sm font-medium transition ${corBotao} disabled:opacity-50 disabled:cursor-not-allowed`}>
             {labelBotao}
           </button>
-          <button onClick={onClose} className="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition">
+          <button onClick={onClose} className="px-5 py-2.5 bg-white/[0.06] text-white/60 rounded-lg text-sm hover:bg-white/[0.12] transition">
             Cancelar
           </button>
         </div>
@@ -621,10 +621,10 @@ function ModalConfirmacao({
 function ModalBase({ titulo, children, onClose }: { titulo: string; children: React.ReactNode; onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-[#0f0a1a] border border-white/[0.1] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-gray-800">{titulo}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+          <h3 className="text-lg font-bold text-white">{titulo}</h3>
+          <button onClick={onClose} className="text-white/30 hover:text-white/60 text-xl leading-none">&times;</button>
         </div>
         {children}
       </div>
