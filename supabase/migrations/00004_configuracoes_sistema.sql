@@ -13,6 +13,10 @@ CREATE TABLE IF NOT EXISTS configuracoes_sistema (
 INSERT INTO configuracoes_sistema (chave, nome, descricao, grupo, ativo) VALUES
   ('dashboard', 'Dashboard', 'Visão geral com indicadores e métricas', 'Geral', TRUE),
   ('relatorio_diario', 'Relatório Diário', 'Acompanhamento do movimento do dia', 'Geral', TRUE),
+  ('relatorio_consolidado', 'Relatório Consolidado', 'Relatório mensal/semanal/quinzenal por entregador', 'Geral', TRUE),
+  ('financeiro', 'Financeiro', 'Controle centralizado de pagamentos dos entregadores', 'Geral', TRUE),
+  ('ciclos_pagamento', 'Ciclos de Pagamento', 'Pagamento por ciclo desde o último pagamento', 'Geral', TRUE),
+  ('finalizar_dia', 'Finalizar Dia', 'Encerramento do movimento diário com snapshot', 'Geral', TRUE),
   ('pacotes_lista', 'Lista de Pacotes', 'Visualizar todos os pacotes cadastrados', 'Pacotes', TRUE),
   ('pacotes_registrar', 'Registrar Pacote', 'Cadastrar novos pacotes no sistema', 'Pacotes', TRUE),
   ('pacotes_rastrear', 'Rastrear Pacote', 'Buscar pacotes por código, endereço ou destinatário', 'Pacotes', TRUE),

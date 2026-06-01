@@ -31,6 +31,10 @@ export function limparCacheFeatures() {
 export const FEATURES = {
   DASHBOARD: 'dashboard',
   RELATORIO_DIARIO: 'relatorio_diario',
+  RELATORIO_CONSOLIDADO: 'relatorio_consolidado',
+  FINANCEIRO: 'financeiro',
+  CICLOS_PAGAMENTO: 'ciclos_pagamento',
+  FINALIZAR_DIA: 'finalizar_dia',
   PACOTES_LISTA: 'pacotes_lista',
   PACOTES_REGISTRAR: 'pacotes_registrar',
   PACOTES_RASTREAR: 'pacotes_rastrear',

@@ -48,6 +48,14 @@ export default function AdminDashboard() {
       })
   }, [])
 
+  useEffect(() => {
+    fetch('/api/finalizar-dia', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ auto: true }),
+    }).catch(() => {})
+  }, [])
+
   const cards = [
     { label: 'Total de Pacotes', value: stats?.total || 0 },
     { label: 'Pendentes Validação', value: stats?.validar || 0 },
