@@ -7,251 +7,219 @@ import { FEATURES } from '@/lib/features'
 type Transportadora = {
   id: number
   nome: string
+  prazo_entrega_dias: number | null
   criado_em: string
 }
 
 export default function TransportadorasPage() {
   const [transportadoras, setTransportadoras] = useState<Transportadora[]>([])
-  const [modal, setModal] = useState<{ tipo: 'novo' } | { tipo: 'editar'; id: number; nome: string } | { tipo: 'remover'; id: number; nome: string } | null>(null)
-  const [msg, setMsg] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [nome, setNome] = useState('')
+  const [prazoDias, setPrazoDias] = useState('')
+  const [editando, setEditando] = useState<Transportadora | null>(null)
+  const [msg, setMsg] = useState<{ tipo: 'sucesso' | 'erro'; texto: string } | null>(null)
+  const [removendo, setRemovendo] = useState<number | null>(null)
 
-  function carregar() {
-    fetch('/api/transportadoras')
-      .then(r => r.json())
-      .then(data => setTransportadoras(data.transportadoras || []))
+  async function carregar() {
+    try {
+      const res = await fetch('/api/transportadoras')
+      const data = await res.json()
+      setTransportadoras(data.transportadoras || [])
+    } catch {
+      setMsg({ tipo: 'erro', texto: 'Erro ao carregar transportadoras' })
+    }
+    setLoading(false)
   }
 
-  useEffect(carregar, [])
+  useEffect(() => { carregar() }, [])
 
-  function msgTemporaria(texto: string) {
-    setMsg(texto)
-    setTimeout(() => setMsg(''), 3000)
+  function resetForm() {
+    setNome('')
+    setPrazoDias('')
+    setEditando(null)
   }
 
-  async function criar(formData: FormData) {
-    const nome = formData.get('nome') as string
-    if (!nome || nome.trim().length < 2) {
-      msgTemporaria('❌ Nome deve ter no mínimo 2 caracteres')
+  function editar(t: Transportadora) {
+    setEditando(t)
+    setNome(t.nome)
+    setPrazoDias(t.prazo_entrega_dias?.toString() || '')
+    setMsg(null)
+  }
+
+  async function salvar(e: React.FormEvent) {
+    e.preventDefault()
+    setMsg(null)
+
+    const nomeTrim = nome.trim()
+    if (!nomeTrim) {
+      setMsg({ tipo: 'erro', texto: 'Nome da transportadora é obrigatório' })
+      return
+    }
+    const prazo = parseInt(prazoDias, 10)
+    if (isNaN(prazo) || prazo <= 0) {
+      setMsg({ tipo: 'erro', texto: 'Prazo de entrega (dias) é obrigatório e deve ser maior que zero' })
       return
     }
 
-    const res = await fetch('/api/transportadoras', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome: nome.trim() })
-    })
+    try {
+      const url = editando
+        ? `/api/transportadoras/${editando.id}`
+        : '/api/transportadoras'
+      const method = editando ? 'PUT' : 'POST'
 
-    if (res.ok) {
-      setModal(null)
-      msgTemporaria('✅ Transportadora cadastrada com sucesso!')
-      carregar()
-    } else {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: nomeTrim, prazo_entrega_dias: prazo }),
+      })
+
       const data = await res.json()
-      msgTemporaria(`❌ ${data.erro || 'Erro ao cadastrar'}`)
-    }
-  }
+      if (!res.ok) {
+        setMsg({ tipo: 'erro', texto: data.erro || 'Erro ao salvar' })
+        return
+      }
 
-  async function editar(id: number, nome: string) {
-    const res = await fetch(`/api/transportadoras/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome: nome.trim() })
-    })
-
-    if (res.ok) {
-      setModal(null)
-      msgTemporaria('✅ Transportadora atualizada com sucesso!')
+      setMsg({ tipo: 'sucesso', texto: editando
+        ? `Transportadora "${data.transportadora.nome}" atualizada!`
+        : `Transportadora "${data.transportadora.nome}" criada!`
+      })
+      resetForm()
       carregar()
-    } else {
-      const data = await res.json()
-      msgTemporaria(`❌ ${data.erro || 'Erro ao atualizar'}`)
+    } catch {
+      setMsg({ tipo: 'erro', texto: 'Erro de conexão' })
     }
   }
 
   async function remover(id: number) {
-    const res = await fetch(`/api/transportadoras/${id}`, { method: 'DELETE' })
-
-    if (res.ok) {
-      setModal(null)
-      msgTemporaria('✅ Transportadora removida!')
-      carregar()
-    } else {
-      const data = await res.json()
-      msgTemporaria(`❌ ${data.erro || 'Erro ao remover'}`)
+    if (!confirm('Tem certeza que deseja remover esta transportadora?')) return
+    setRemovendo(id)
+    try {
+      const res = await fetch(`/api/transportadoras/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setMsg({ tipo: 'sucesso', texto: 'Transportadora removida!' })
+        carregar()
+      } else {
+        const data = await res.json()
+        setMsg({ tipo: 'erro', texto: data.erro || 'Erro ao remover' })
+      }
+    } catch {
+      setMsg({ tipo: 'erro', texto: 'Erro de conexão' })
     }
+    setRemovendo(null)
   }
 
   return (
     <FeatureGuard feature={FEATURES.TRANSPORTADORAS_CRUD}>
-      <div className="max-w-2xl">
-        {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">🚚 Transportadoras</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            {transportadoras.length} transportadora(s) cadastrada(s)
-          </p>
-        </div>
-        <button
-          onClick={() => setModal({ tipo: 'novo' })}
-          className="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-sm"
-        >
-          + Nova Transportadora
-        </button>
-      </div>
+      <div className="max-w-2xl mx-auto">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">🚚 Transportadoras</h2>
 
-      {/* Mensagem flash */}
-      {msg && (
-        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-violet-50 text-violet-700 border border-violet-200">
-          {msg}
-        </div>
-      )}
-
-      {/* Lista */}
-      <div className="content-card overflow-hidden">
-        {transportadoras.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-4xl mb-3">🚚</p>
-            <p className="text-gray-400 text-sm">Nenhuma transportadora cadastrada</p>
-            <p className="text-xs text-gray-300 mt-1">Clique em "+ Nova Transportadora" para começar</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-gray-100">
-            {transportadoras.map(t => (
-              <div key={t.id} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition">
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">🚚</span>
-                  <div>
-                    <p className="font-medium text-gray-900">{t.nome}</p>
-                    <p className="text-xs text-gray-400">
-                      Cadastrada em {new Date(t.criado_em).toLocaleDateString('pt-BR')}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setModal({ tipo: 'editar', id: t.id, nome: t.nome })}
-                    className="px-3 py-1.5 bg-violet-100 text-violet-600 rounded-lg text-xs font-medium hover:bg-violet-200 transition"
-                  >
-                    ✏️ Editar
-                  </button>
-                  <button
-                    onClick={() => setModal({ tipo: 'remover', id: t.id, nome: t.nome })}
-                    className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-xs font-medium hover:bg-red-200 transition"
-                  >
-                    🗑️ Remover
-                  </button>
-                </div>
-              </div>
-            ))}
+        {msg && (
+          <div className={`mb-4 px-4 py-3 rounded-xl text-sm font-medium ${
+            msg.tipo === 'sucesso'
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              : 'bg-red-50 text-red-700 border border-red-200'
+          }`}>
+            {msg.texto}
+            <button onClick={() => setMsg(null)} className="ml-3 opacity-50 hover:opacity-100">✕</button>
           </div>
         )}
-      </div>
 
-      {/* Modal Novo */}
-      {modal?.tipo === 'novo' && (
-        <ModalBase titulo="Nova Transportadora" onClose={() => setModal(null)}>
-          <form action={criar} className="space-y-4">
+        {/* Formulário */}
+        <div className="content-card p-6 mb-6">
+          <h3 className="font-bold text-gray-900 mb-4">
+            {editando ? `✏️ Editando: ${editando.nome}` : '➕ Nova Transportadora'}
+          </h3>
+          <form onSubmit={salvar} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Nome da Transportadora *</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Nome da transportadora</label>
               <input
-                name="nome"
+                type="text"
+                value={nome}
+                onChange={e => setNome(e.target.value)}
+                placeholder="Ex: Jadlog, Correios, Transportadora X..."
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
                 required
-                placeholder="Ex: Jadlog, Correios, Transportadora ABC..."
-                className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                autoFocus
               />
             </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                Prazo de entrega (dias) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="365"
+                value={prazoDias}
+                onChange={e => setPrazoDias(e.target.value)}
+                placeholder="Ex: 5"
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                required
+              />
+              <p className="text-[10px] text-gray-400 mt-1">Prazo padrão para cálculo automático da data limite de entrega</p>
+            </div>
             <div className="flex gap-2">
-              <button type="submit" className="btn-primary flex-1 py-2.5 rounded-lg text-sm font-medium transition">
-                Cadastrar
+              <button
+                type="submit"
+                className="px-5 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-bold hover:bg-violet-700 transition-all active:scale-[0.97] shadow-md shadow-violet-200"
+              >
+                {editando ? '💾 Salvar Alterações' : '➕ Adicionar'}
               </button>
-              <button type="button" onClick={() => setModal(null)} className="px-5 py-2.5 bg-gray-100 text-gray-500 rounded-lg text-sm hover:bg-gray-200 transition">
-                Cancelar
-              </button>
+              {editando && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all"
+                >
+                  Cancelar
+                </button>
+              )}
             </div>
           </form>
-        </ModalBase>
-      )}
+        </div>
 
-      {/* Modal Editar */}
-      {modal?.tipo === 'editar' && (
-        <ModalEditar
-          nome={modal.nome}
-          onSave={nome => editar(modal.id, nome)}
-          onClose={() => setModal(null)}
-        />
-      )}
-
-      {/* Modal Remover */}
-      {modal?.tipo === 'remover' && (
-        <ModalBase titulo="Remover Transportadora" onClose={() => setModal(null)}>
-          <p className="text-sm text-white/60 mb-5">
-            Tem certeza que deseja remover <strong>{modal.nome}</strong>? Esta ação não pode ser desfeita.
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => remover(modal.id)}
-              className="flex-1 py-2.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition"
-            >
-              Sim, Remover
-            </button>
-            <button onClick={() => setModal(null)} className="px-5 py-2.5 bg-gray-100 text-gray-500 rounded-lg text-sm hover:bg-gray-200 transition">
-              Cancelar
-            </button>
-          </div>
-        </ModalBase>
-      )}
-    </div>
+        {/* Listagem */}
+        <div className="content-card overflow-hidden">
+          <h3 className="section-header px-4 py-3 font-bold text-gray-900 flex items-center gap-2">
+            📋 Lista de Transportadoras
+            <span className="text-xs font-normal text-gray-400">({transportadoras.length})</span>
+          </h3>
+          {loading ? (
+            <div className="p-6 text-center text-sm text-gray-400">Carregando...</div>
+          ) : transportadoras.length === 0 ? (
+            <div className="p-6 text-center text-sm text-gray-400">
+              Nenhuma transportadora cadastrada
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {transportadoras.map(t => (
+                <div key={t.id} className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition">
+                  <div>
+                    <span className="text-sm font-medium text-gray-900">{t.nome}</span>
+                    <span className="ml-3 text-xs text-gray-400">
+                      Prazo: <strong>{t.prazo_entrega_dias || '—'} dias</strong>
+                    </span>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => editar(t)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-500 hover:bg-gray-100 transition"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => remover(t.id)}
+                      disabled={removendo === t.id}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold text-red-400 hover:bg-red-50 transition disabled:opacity-50"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </FeatureGuard>
-  )
-}
-
-// ============================================================
-// MODAL EDITAR
-// ============================================================
-function ModalEditar({ nome, onSave, onClose }: { nome: string; onSave: (nome: string) => void; onClose: () => void }) {
-  const [val, setVal] = useState(nome)
-
-  return (
-    <ModalBase titulo="Editar Transportadora" onClose={onClose}>
-      <div>
-        <label className="block text-xs font-medium text-gray-500 mb-1">Nome</label>
-        <input
-          value={val}
-          onChange={e => setVal(e.target.value)}
-          className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none mb-4"
-          autoFocus
-        />
-        <div className="flex gap-2">
-          <button
-            onClick={() => val.trim().length >= 2 ? onSave(val.trim()) : null}
-            className="btn-primary flex-1 py-2.5 rounded-lg text-sm font-medium transition"
-          >
-            Salvar
-          </button>
-          <button onClick={onClose} className="px-5 py-2.5 bg-gray-100 text-gray-500 rounded-lg text-sm hover:bg-gray-200 transition">
-            Cancelar
-          </button>
-        </div>
-      </div>
-    </ModalBase>
-  )
-}
-
-// ============================================================
-// MODAL BASE
-// ============================================================
-function ModalBase({ titulo, children, onClose }: { titulo: string; children: React.ReactNode; onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-[#1a1240] border border-white/[0.1] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white">{titulo}</h3>
-          <button onClick={onClose} className="text-white/30 hover:text-white/60 text-xl leading-none">&times;</button>
-        </div>
-        {children}
-      </div>
-    </div>
   )
 }
