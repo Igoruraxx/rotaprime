@@ -26,8 +26,10 @@ export async function GET(request: NextRequest) {
   } else if (tipo === 'destinatario') {
     query = query.ilike('destinatario', `%${q}%`)
   } else {
-    // Padrão: busca por código ou NF
-    query = query.or(`codigo.ilike.%${q}%,nf_remessa.ilike.%${q}%`)
+    // Busca por código: usa os ÚLTIMOS DÍGITOS
+    query = query.or(
+      `codigo.ilike.%${q},nf_remessa.ilike.%${q}%`
+    )
   }
 
   const { data } = await query
