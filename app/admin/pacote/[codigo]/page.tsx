@@ -32,6 +32,7 @@ type Pacote = {
   transportadora: string
   foto: string
   gps_foto: string
+  entregador_nome: string
   criado_em: string
   entregadores: { nome: string; telefone: string; valor_padrao: number } | null
 }
