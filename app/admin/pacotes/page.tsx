@@ -61,7 +61,7 @@ export default function PacotesPage() {
       <div className="flex gap-3 mb-4">
         <input
           type="text"
-          placeholder="Buscar por código, NF ou entregador..."
+          placeholder="Buscar por código, NFe ou entregador..."
           value={busca}
           onChange={e => setBusca(e.target.value)}
           className="flex-1 px-4 py-2 rounded-lg text-sm"
@@ -85,7 +85,7 @@ export default function PacotesPage() {
             <tr className="text-left text-gray-500 border-b border-gray-100">
               <th className="p-3">Código</th>
               <th className="p-3">Chegada</th>
-              <th className="p-3">NF</th>
+              <th className="p-3 whitespace-nowrap">Pacote / NFe</th>
               <th className="p-3">Status</th>
               <th className="p-3">Entregador</th>
               <th className="p-3">Repassado</th>

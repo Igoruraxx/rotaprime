@@ -86,7 +86,7 @@ export default function RegistrarPage() {
         <div className="content-card p-4 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-1">NF / Remessa *</label>
+              <label className="block text-sm font-medium text-gray-500 mb-1">Pacote, Nota Fiscal ou Remessa *</label>
               <input name="nf_remessa" required className="w-full px-3 py-2 rounded-lg text-sm" />
             </div>
             <div>

@@ -334,7 +334,7 @@ function Timeline({ pacote }: { pacote: Pacote }) {
 function GridInfo({ pacote }: { pacote: Pacote }) {
   const infos = [
     { label: 'Código', value: pacote.codigo, colspan: 1 },
-    { label: 'NF / Remessa', value: pacote.nf_remessa || '—', colspan: 1 },
+    { label: 'Pacote, Nota Fiscal ou Remessa', value: pacote.nf_remessa || '—', colspan: 1 },
     { label: 'Destinatário', value: (pacote as Record<string, unknown>).destinatario || '—', colspan: 1 },
     { label: 'Status', value: pacote.status, colspan: 1 },
     { label: 'Transportadora', value: pacote.transportadora || '—', colspan: 1 },
@@ -465,7 +465,7 @@ function EditFormCompleto({
       <div className="space-y-6">
         {/* Seção: Identificação */}
         <Section titulo="📋 Identificação">
-          <Field label="NF / Remessa" cols={2}>
+          <Field label="Pacote, Nota Fiscal ou Remessa" cols={2}>
             <input value={form.nf_remessa} onChange={e => set('nf_remessa', e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm" />
           </Field>
           <Field label="Destinatário" cols={2}>
