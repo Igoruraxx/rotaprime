@@ -21,7 +21,6 @@ export async function POST(request: NextRequest) {
 
     const agora = new Date().toISOString()
 
-    // Atualizar todos os pacotes em lote
     const { data, error } = await supabase
       .from('pacotes')
       .update({
@@ -53,11 +52,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
   }
 
+  const { searchParams } = new URL(request.url)
+  const filtroEntregador = searchParams.get('entregador_id')
+
   const hoje = new Date()
   const inicioHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()).toISOString()
   const fimHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59).toISOString()
 
-  // Buscar indicadores em paralelo
   const [
     { count: totalPegosHoje },
     { data: retiradosHoje },
@@ -65,29 +66,32 @@ export async function GET(request: NextRequest) {
     { data: pendentesHoje },
     { data: entregadores }
   ] = await Promise.all([
-    // Total retirados hoje (data_retirada_central = hoje)
+    // Total retirados hoje
     supabase
       .from('pacotes')
       .select('*', { count: 'exact', head: true })
       .gte('data_retirada_central', inicioHoje)
-      .lte('data_retirada_central', fimHoje),
+      .lte('data_retirada_central', fimHoje)
+      .match(filtroEntregador ? { entregador_id: parseInt(filtroEntregador) } : {}),
 
-    // Retirados hoje (com detalhes)
+    // Retirados hoje (detalhes)
     supabase
       .from('pacotes')
       .select('codigo, data_retirada_central, status, entregadores(nome)')
       .not('data_retirada_central', 'is', null)
       .gte('data_retirada_central', inicioHoje)
       .lte('data_retirada_central', fimHoje)
+      .match(filtroEntregador ? { entregador_id: parseInt(filtroEntregador) } : {})
       .order('data_retirada_central', { ascending: false }),
 
-    // Repassados hoje (data_repassado_entregador = hoje)
+    // Repassados hoje
     supabase
       .from('pacotes')
       .select('codigo, data_repassado_entregador, status, entregadores(nome)')
       .not('data_repassado_entregador', 'is', null)
       .gte('data_repassado_entregador', inicioHoje)
       .lte('data_repassado_entregador', fimHoje)
+      .match(filtroEntregador ? { entregador_id: parseInt(filtroEntregador) } : {})
       .order('data_repassado_entregador', { ascending: false }),
 
     // Pendentes hoje (data_limite_entrega = hoje, não entregues)
@@ -98,6 +102,7 @@ export async function GET(request: NextRequest) {
       .gte('data_limite_entrega', inicioHoje)
       .lte('data_limite_entrega', fimHoje)
       .not('status', 'in', '("Entregue","Validado pelo Admin")')
+      .match(filtroEntregador ? { entregador_id: parseInt(filtroEntregador) } : {})
       .order('data_limite_entrega', { ascending: true }),
 
     // Entregadores ativos
@@ -108,7 +113,6 @@ export async function GET(request: NextRequest) {
       .order('nome'),
   ])
 
-  // Repassados hoje count
   const totalRepassadosHoje = repassadosHoje?.length || 0
   const totalPendentesHoje = pendentesHoje?.length || 0
 
@@ -118,6 +122,7 @@ export async function GET(request: NextRequest) {
       totalRepassadosHoje,
       totalPendentesHoje,
     },
+    filtroEntregador: filtroEntregador || null,
     retirados: retiradosHoje || [],
     repassados: repassadosHoje || [],
     pendentes: pendentesHoje || [],
