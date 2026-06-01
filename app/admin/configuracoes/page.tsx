@@ -57,7 +57,7 @@ export default function ConfiguracoesPage() {
     let ok = 0
     let err = 0
 
-    for (const id of alterados) {
+    for (const id of Array.from(alterados)) {
       const f = features.find(x => x.id === id)
       if (!f) continue
       const res = await fetch('/api/configuracoes', {
