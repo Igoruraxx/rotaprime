@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
   const entregador = searchParams.get('entregador_id')
   const dataIni = searchParams.get('data_ini')
   const dataFim = searchParams.get('data_fim')
+  const busca = searchParams.get('busca')
 
   let query = supabase
     .from('pacotes')
@@ -24,6 +25,11 @@ export async function GET(request: NextRequest) {
   if (entregador) query = query.eq('entregador_id', parseInt(entregador))
   if (dataIni) query = query.gte('data_chegada', dataIni)
   if (dataFim) query = query.lte('data_chegada', dataFim)
+  if (busca) {
+    query = query.or(
+      `codigo.ilike.%${busca}%,nf_remessa.ilike.%${busca}%,destinatario.ilike.%${busca}%,endereco_entrega.ilike.%${busca}%`
+    )
+  }
 
   const { data, error, count } = await query
 
