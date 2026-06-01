@@ -8,6 +8,7 @@ import {
   formatCurrency,
   gerarWhatsAppLink,
 } from '@/lib/shared-helpers'
+import RepasseLoteCard from '@/components/repasse-lote-card'
 
 /* ── Tipos ───────────────────────────────────────────────── */
 
@@ -306,6 +307,13 @@ export default function RelatorioPage() {
 
         {/* Conteudo da tab */}
         <div className="p-4">
+          {/* Repasse em Lote (apenas na aba repassado) */}
+          {tabAtiva === 'repassado' && (
+            <div className="mb-4">
+              <RepasseLoteCard />
+            </div>
+          )}
+
           {/* Descricao da tab */}
           <div className="flex items-center justify-between mb-4">
             <p className="text-xs text-gray-500">{TABS.find(t => t.key === tabAtiva)?.desc}</p>

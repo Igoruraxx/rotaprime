@@ -36,23 +36,26 @@ export async function POST(request: NextRequest) {
     const { acao, chave, valor, numero, texto } = body
 
     if (acao === 'criar_tabela') {
-      // Cria a tabela se não existir
-      const { error } = await supabase.rpc('exec_sql', {
-        sql_string: `
-          CREATE TABLE IF NOT EXISTS predefinicoes_sistema (
-            id SERIAL PRIMARY KEY,
-            chave VARCHAR(100) UNIQUE NOT NULL,
-            nome VARCHAR(200) NOT NULL,
-            descricao TEXT,
-            valor TEXT,
-            tipo VARCHAR(20) DEFAULT 'texto',
-            grupo VARCHAR(50) DEFAULT 'Geral',
-            ativo BOOLEAN DEFAULT true,
-            criado_em TIMESTAMP DEFAULT NOW(),
-            atualizado_em TIMESTAMP DEFAULT NOW()
-          );
-        `
-      }).catch(() => ({ error: null }))
+      try {
+        await supabase.rpc('exec_sql', {
+          sql_string: `
+            CREATE TABLE IF NOT EXISTS predefinicoes_sistema (
+              id SERIAL PRIMARY KEY,
+              chave VARCHAR(100) UNIQUE NOT NULL,
+              nome VARCHAR(200) NOT NULL,
+              descricao TEXT,
+              valor TEXT,
+              tipo VARCHAR(20) DEFAULT 'texto',
+              grupo VARCHAR(50) DEFAULT 'Geral',
+              ativo BOOLEAN DEFAULT true,
+              criado_em TIMESTAMP DEFAULT NOW(),
+              atualizado_em TIMESTAMP DEFAULT NOW()
+            );
+          `
+        })
+      } catch {
+        // Tabela pode já existir, ignorar
+      }
 
       return NextResponse.json({ sucesso: true, mensagem: 'Tabela verificada' })
     }
