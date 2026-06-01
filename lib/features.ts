@@ -45,5 +45,7 @@ export const FEATURES = {
   FOTOS_GALERIA: 'fotos_galeria',
   FOTOS_VALIDAR: 'fotos_validar',
   TRANSPORTADORAS_CRUD: 'transportadoras_crud',
+  WHATSAPP_INTEGRACAO: 'whatsapp_integracao',
+  ENTREGADOR_CAMPOS_ADICIONAIS: 'entregador_campos_adicionais',
   CONFIGURACOES: 'configuracoes_sistema',
 } as const

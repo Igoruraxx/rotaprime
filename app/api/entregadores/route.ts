@@ -34,6 +34,10 @@ export async function POST(request: NextRequest) {
       nome,
       valor_padrao: sanitizeFloat(body.valor_padrao) || 0.50,
       telefone: sanitizeText(body.telefone || ''),
+      cpf: sanitizeText(body.cpf || ''),
+      chave_pix: sanitizeText(body.chave_pix || ''),
+      banco_pagamento: sanitizeText(body.banco_pagamento || ''),
+      carteira_motorista: sanitizeText(body.carteira_motorista || ''),
       ativo: true
     }
 

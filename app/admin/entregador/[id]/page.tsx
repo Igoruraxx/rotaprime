@@ -11,6 +11,10 @@ type Entregador = {
   telefone: string
   criado_em: string
   ultimo_pagamento_em: string | null
+  cpf?: string
+  chave_pix?: string
+  banco_pagamento?: string
+  carteira_motorista?: string
   pacotes: Pacote[]
 }
 
@@ -153,6 +157,13 @@ export default function EntregadorDetalhePage() {
                   : 'Nunca'}
               </span>
             </div>
+          </div>
+          <div className="w-full border-t border-gray-100 pt-3 mt-2" />
+          <div className="flex items-center gap-6 text-sm flex-wrap">
+            <div><span className="text-gray-500">CPF:</span><span className="font-medium ml-1">{entregador.cpf || '—'}</span></div>
+            <div><span className="text-gray-500">Chave PIX:</span><span className="font-medium ml-1">{entregador.chave_pix || '—'}</span></div>
+            <div><span className="text-gray-500">Banco:</span><span className="font-medium ml-1">{entregador.banco_pagamento || '—'}</span></div>
+            <div><span className="text-gray-500">CNH:</span><span className="font-medium ml-1">{entregador.carteira_motorista || '—'}</span></div>
           </div>
           {entregador.telefone && (
             <a

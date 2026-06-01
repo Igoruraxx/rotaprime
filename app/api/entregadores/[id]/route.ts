@@ -73,6 +73,10 @@ export async function PUT(
     if (body.nome !== undefined) updates.nome = sanitizeText(body.nome)
     if (body.telefone !== undefined) updates.telefone = sanitizeText(body.telefone)
     if (body.valor_padrao !== undefined) updates.valor_padrao = sanitizeFloat(body.valor_padrao)
+    if (body.cpf !== undefined) updates.cpf = sanitizeText(body.cpf)
+    if (body.chave_pix !== undefined) updates.chave_pix = sanitizeText(body.chave_pix)
+    if (body.banco_pagamento !== undefined) updates.banco_pagamento = sanitizeText(body.banco_pagamento)
+    if (body.carteira_motorista !== undefined) updates.carteira_motorista = sanitizeText(body.carteira_motorista)
     if (body.ativo !== undefined) updates.ativo = body.ativo
     if (body.senha) updates.senha_hash = bcrypt.hashSync(body.senha, 10)
     if (body.ultimo_pagamento_em !== undefined) updates.ultimo_pagamento_em = body.ultimo_pagamento_em

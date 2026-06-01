@@ -8,6 +8,10 @@ type Entregador = {
   ativo: boolean
   valor_padrao: number
   telefone: string
+  cpf: string
+  chave_pix: string
+  banco_pagamento: string
+  carteira_motorista: string
   senha_hash: string | null
   criado_em: string
   ultimo_pagamento_em: string | null
@@ -19,7 +23,7 @@ type Entregador = {
 // ============================================================
 type ModalState =
   | { tipo: 'novo' }
-  | { tipo: 'editar'; id: number; campo: 'nome' | 'telefone' | 'valor_padrao'; valorAtual: string }
+  | { tipo: 'editar'; id: number; campo: 'nome' | 'telefone' | 'valor_padrao' | 'cpf' | 'chave_pix' | 'banco_pagamento' | 'carteira_motorista'; valorAtual: string }
   | { tipo: 'senha'; id: number; temSenha: boolean }
   | { tipo: 'inativar'; id: number; nome: string }
   | { tipo: 'reativar'; id: number; nome: string }
@@ -30,6 +34,7 @@ export default function EntregadoresPage() {
   const [entregadores, setEntregadores] = useState<Entregador[]>([])
   const [modal, setModal] = useState<ModalState>(null)
   const [msg, setMsg] = useState('')
+  const [showCNH, setShowCNH] = useState(false)
 
   function carregar() {
     fetch('/api/entregadores')
@@ -49,6 +54,10 @@ export default function EntregadoresPage() {
       nome: formData.get('nome'),
       valor_padrao: formData.get('valor_padrao'),
       telefone: formData.get('telefone'),
+      cpf: formData.get('cpf'),
+      chave_pix: formData.get('chave_pix'),
+      banco_pagamento: formData.get('banco_pagamento'),
+      carteira_motorista: formData.get('carteira_motorista'),
     }
     const senha = formData.get('senha')
     if (senha) body.senha = senha
@@ -154,8 +163,10 @@ export default function EntregadoresPage() {
               <tr className="text-left text-gray-500 border-b border-gray-100 bg-gray-50">
                 <th className="p-3 pl-5 font-medium">Nome</th>
                 <th className="p-3 font-medium">Telefone</th>
+                <th className="p-3 font-medium">CPF</th>
                 <th className="p-3 font-medium">Senha</th>
                 <th className="p-3 font-medium">Valor Padrão</th>
+                <th className="p-3 font-medium">Chave PIX</th>
                 <th className="p-3 font-medium">Status</th>
                 <th className="p-3 font-medium">Pacotes</th>
                 <th className="p-3 font-medium">Cadastro</th>
@@ -164,7 +175,7 @@ export default function EntregadoresPage() {
             </thead>
             <tbody>
               {ativos.length === 0 ? (
-                <tr><td colSpan={8} className="p-8 text-center text-gray-400">Nenhum entregador ativo cadastrado</td></tr>
+                <tr><td colSpan={10} className="p-8 text-center text-gray-400">Nenhum entregador ativo cadastrado</td></tr>
               ) : (
                 ativos.map(e => (
                   <LinhaEntregador
@@ -196,8 +207,10 @@ export default function EntregadoresPage() {
                 <tr className="text-left text-gray-500 border-b border-gray-100 bg-gray-50">
                   <th className="p-3 pl-5 font-medium">Nome</th>
                   <th className="p-3 font-medium">Telefone</th>
+                  <th className="p-3 font-medium">CPF</th>
                   <th className="p-3 font-medium">Senha</th>
                   <th className="p-3 font-medium">Valor Padrão</th>
+                  <th className="p-3 font-medium">Chave PIX</th>
                   <th className="p-3 font-medium">Status</th>
                   <th className="p-3 font-medium">Pacotes</th>
                   <th className="p-3 font-medium">Cadastro</th>
@@ -241,6 +254,41 @@ export default function EntregadoresPage() {
                 <label className="block text-xs font-medium text-white/40 mb-1">Valor Padrão (R$)</label>
                 <input name="valor_padrao" defaultValue="0,50"
                   className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-white/40 mb-1">CPF</label>
+                <input name="cpf" placeholder="000.000.000-00"
+                  className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-white/40 mb-1">Chave PIX</label>
+                <input name="chave_pix" placeholder="CPF, email ou telefone"
+                  className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-white/40 mb-1">Banco de Pagamento</label>
+                <input name="banco_pagamento" placeholder="Ex: Nubank, Itaú..."
+                  className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-white/40 mb-1">Carteira de Motorista</label>
+                {!showCNH ? (
+                  <button type="button" onClick={() => setShowCNH(true)}
+                    className="w-full px-3 py-2.5 border border-dashed border-white/20 rounded-lg text-sm text-white/30 hover:text-white/50 hover:border-white/40 transition text-left">
+                    + Adicionar CNH
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <input name="carteira_motorista" placeholder="Número da CNH"
+                      className="flex-1 px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                    <button type="button" onClick={() => setShowCNH(false)}
+                      className="text-white/30 hover:text-red-400 transition text-lg leading-none">&times;</button>
+                  </div>
+                )}
               </div>
             </div>
             <div>
@@ -370,6 +418,11 @@ function LinhaEntregador({
         </div>
       </td>
 
+      {/* CPF */}
+      <td className="p-3 text-gray-400">
+        {entregador.cpf || '—'}
+      </td>
+
       {/* Senha */}
       <td className="p-3">
         <div className="flex items-center gap-2">
@@ -402,6 +455,11 @@ function LinhaEntregador({
             ✏️
           </button>
         </div>
+      </td>
+
+      {/* Chave PIX */}
+      <td className="p-3 text-gray-400">
+        {entregador.chave_pix || '—'}
       </td>
 
       {/* Status */}
@@ -473,18 +531,26 @@ function ModalEditarCampo({
     nome: 'Nome do Entregador',
     telefone: 'Telefone para WhatsApp',
     valor_padrao: 'Valor Padrão por Pacote (R$)',
+    cpf: 'CPF',
+    chave_pix: 'Chave PIX',
+    banco_pagamento: 'Banco de Pagamento',
+    carteira_motorista: 'Carteira de Motorista',
   }
 
   const placeholders: Record<string, string> = {
     nome: 'Nome completo',
     telefone: '(11) 99999-9999',
     valor_padrao: '0,50',
+    cpf: '000.000.000-00',
+    chave_pix: 'CPF, email ou telefone',
+    banco_pagamento: 'Ex: Nubank, Itaú...',
+    carteira_motorista: 'Número da CNH',
   }
 
   const inputType = campo === 'valor_padrao' ? 'text' : 'text'
 
   return (
-    <ModalBase titulo={`Editar ${campo === 'valor_padrao' ? 'Valor Padrão' : campo === 'telefone' ? 'Telefone' : 'Nome'}`} onClose={onClose}>
+    <ModalBase titulo={`Editar ${labels[campo] || campo}`} onClose={onClose}>
       <div>
         <label className="block text-xs font-medium text-white/40 mb-1">{labels[campo] || campo}</label>
         <input
