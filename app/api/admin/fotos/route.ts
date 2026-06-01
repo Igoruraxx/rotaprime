@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Busca nomes dos entregadores
-  const entregadorIds = [...new Set(pacotes.map(p => p.entregador_id))]
+  const entregadorIds = Array.from(new Set(pacotes.map(p => p.entregador_id)))
   const { data: entregadores } = await supabase
     .from('entregadores')
     .select('id, nome')
