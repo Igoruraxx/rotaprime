@@ -161,30 +161,7 @@ export default function RegistrarPage() {
           </div>
         </div>
 
-        {/* === CARD DE TOGGLES === */}
-        <div className="content-card overflow-hidden">
-          <div className="px-5 py-3 section-header flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
-              <h3 className="font-semibold text-gray-900 text-sm">Informações adicionais</h3>
-            </div>
-            <span className="text-[10px] text-gray-400 font-medium">Ative conforme necessário</span>
-          </div>
-
-          {/* Lista de toggles */}
-          <div className="divide-y divide-gray-100">
-            <ToggleSwitch ativo={showDestinatario} onClick={() => setShowDestinatario(!showDestinatario)} label="📋 Destinatário" />
-            <ToggleSwitch ativo={showDescricao} onClick={() => setShowDescricao(!showDescricao)} label="📝 Descrição do pacote" />
-            <ToggleSwitch ativo={showQuantidade} onClick={() => setShowQuantidade(!showQuantidade)} label="🔢 Quantidade de itens" />
-            <ToggleSwitch ativo={showValor} onClick={() => setShowValor(!showValor)} label="💰 Valor do frete" />
-            <ToggleSwitch ativo={showEntregador} onClick={() => setShowEntregador(!showEntregador)} label="👤 Atribuir a entregador" />
-            <ToggleSwitch ativo={showPrazo} onClick={() => setShowPrazo(!showPrazo)} label="⏰ Prazo de entrega" />
-            <ToggleSwitch ativo={showTransportadora} onClick={() => setShowTransportadora(!showTransportadora)} label="🚚 Transportadora" />
-            <ToggleSwitch ativo={showObservacoes} onClick={() => setShowObservacoes(!showObservacoes)} label="📌 Observações" />
-          </div>
-        </div>
-
-        {/* === CAMPOS EXPANSÍVEIS (aparecem conforme toggle) === */}
+        {/* === CAMPOS ATIVADOS (aparecem ACIMA dos toggles) === */}
         {(showDestinatario || showDescricao || showQuantidade || showValor || showEntregador || showPrazo || showTransportadora || showObservacoes) && (
           <div className="content-card overflow-hidden">
             <div className="px-5 py-3 section-header flex items-center gap-2">
@@ -281,6 +258,29 @@ export default function RegistrarPage() {
             </div>
           </div>
         )}
+
+        {/* === CARD DE TOGGLES === */}
+        <div className="content-card overflow-hidden">
+          <div className="px-5 py-3 section-header flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500" />
+              <h3 className="font-semibold text-gray-900 text-sm">Informações adicionais</h3>
+            </div>
+            <span className="text-[10px] text-gray-400 font-medium">Ative conforme necessário</span>
+          </div>
+
+          {/* Lista de toggles */}
+          <div className="divide-y divide-gray-100">
+            <ToggleSwitch ativo={showDestinatario} onClick={() => setShowDestinatario(!showDestinatario)} label="📋 Destinatário" />
+            <ToggleSwitch ativo={showDescricao} onClick={() => setShowDescricao(!showDescricao)} label="📝 Descrição do pacote" />
+            <ToggleSwitch ativo={showQuantidade} onClick={() => setShowQuantidade(!showQuantidade)} label="🔢 Quantidade de itens" />
+            <ToggleSwitch ativo={showValor} onClick={() => setShowValor(!showValor)} label="💰 Valor do frete" />
+            <ToggleSwitch ativo={showEntregador} onClick={() => setShowEntregador(!showEntregador)} label="👤 Atribuir a entregador" />
+            <ToggleSwitch ativo={showPrazo} onClick={() => setShowPrazo(!showPrazo)} label="⏰ Prazo de entrega" />
+            <ToggleSwitch ativo={showTransportadora} onClick={() => setShowTransportadora(!showTransportadora)} label="🚚 Transportadora" />
+            <ToggleSwitch ativo={showObservacoes} onClick={() => setShowObservacoes(!showObservacoes)} label="📌 Observações" />
+          </div>
+        </div>
 
         <button
           type="submit"
