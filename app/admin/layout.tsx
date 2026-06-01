@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { href: '/admin/entregadores', icon: '👥', label: 'Entregadores', grupo: 'Operacional' },
   { href: '/admin/fotos', icon: '📸', label: 'Fotos', grupo: 'Operacional' },
   { href: '/admin/transportadoras', icon: '🚚', label: 'Transportadoras', grupo: 'Operacional' },
+  { href: '/admin/predefinicoes', icon: '🎛️', label: 'Predefinições', grupo: 'Operacional' },
   { href: '/admin/configuracoes', icon: '⚙️', label: 'Controle', grupo: 'Sistema' },
 ]
 

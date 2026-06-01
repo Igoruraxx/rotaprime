@@ -32,7 +32,7 @@ type ModalPagar = {
   forma_pagamento: string
 }
 
-const FORMAS_PAGAMENTO = ['Dinheiro', 'Pix', 'Cartão de Crédito', 'Cartão de Débito', 'Transferência', 'Boleto', 'Cheque', 'Outro']
+const FORMAS_PAGAMENTO = ['Pix', 'Dinheiro']
 
 function formatBRL(val: string | number) {
   const num = typeof val === 'string' ? parseFloat(val) : val

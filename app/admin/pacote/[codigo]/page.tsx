@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import SelectTransportadora from '@/components/select-transportadora'
 import WhatsAppButton from '@/components/whatsapp-button'
+import MapaRota from '@/components/mapa-rota'
+import BotaoComprovante from '@/components/comprovante-pdf'
 
 type Pacote = {
   codigo: string
@@ -272,19 +274,51 @@ export default function PacoteDetalhePage() {
             </div>
           </div>
 
-          {/* Foto */}
+          {/* Foto + Mapa */}
           {pacote.foto && (
             <div className="content-card p-4">
               <h3 className="font-semibold text-gray-900 mb-2">📸 Foto da Entrega</h3>
               <img src={pacote.foto} alt="Foto da entrega" className="w-full rounded-lg mb-2 object-cover max-h-64" />
               {pacote.gps_foto && (
-                <a href={`https://www.google.com/maps?q=${pacote.gps_foto}`} target="_blank" rel="noopener noreferrer"
-                  className="text-violet-600 text-sm hover:underline flex items-center gap-1">
-                  📍 Ver no Google Maps
-                </a>
+                <div className="mt-3">
+                  <MapaRota
+                    pontos={[{ lat: Number(pacote.gps_foto.split(',')[0]), lng: Number(pacote.gps_foto.split(',')[1]), codigo: pacote.codigo }]}
+                    single={true}
+                    altura="180px"
+                  />
+                  <a href={`https://www.google.com/maps?q=${pacote.gps_foto}`} target="_blank" rel="noopener noreferrer"
+                    className="text-violet-600 text-sm hover:underline flex items-center gap-1 mt-2">
+                    📍 Ver no Google Maps
+                  </a>
+                </div>
               )}
             </div>
           )}
+
+          {/* Comprovante PDF */}
+          <div className="content-card p-4">
+            <BotaoComprovante
+              dados={{
+                codigo: pacote.codigo,
+                status: pacote.status,
+                destinatario: pacote.destinatario || '',
+                endereco_entrega: pacote.endereco_entrega || '',
+                data_entrega: pacote.data_entrega_real,
+                data_chegada: pacote.data_chegada || '',
+                data_limite_entrega: pacote.data_limite_entrega || '',
+                descricao: pacote.descricao,
+                quantidade: pacote.quantidade,
+                valor_pacote: Number(pacote.valor_pacote || 0),
+                transportadora: pacote.transportadora,
+                nf_remessa: pacote.nf_remessa,
+                foto: pacote.foto,
+                gps_foto: pacote.gps_foto,
+                entregador_nome: pacote.entregador_nome,
+                observacoes: pacote.observacoes,
+              }}
+              className="w-full justify-center bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-200"
+            />
+          </div>
         </div>
       </div>
     </div>

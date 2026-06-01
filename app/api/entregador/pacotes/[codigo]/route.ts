@@ -1,85 +1,168 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/db'
 import { getSessionFromRequest } from '@/lib/auth'
-import { transicaoValida, camposParaTransicao, statusAcoes } from '@/lib/maquina-estados'
+import { supabase } from '@/lib/db'
+import {
+  transicaoValida,
+  camposParaTransicao,
+} from '@/lib/maquina-estados'
+import { validarTokenCSRF } from '@/lib/csrf'
 import { sanitizeText } from '@/lib/utils'
+
+// Whitelist de colunas que o entregador pode alterar
+const COLUNAS_PERMITIDAS_ENTREGADOR = [
+  'foto',
+  'gps_foto',
+  'motivo_devolucao',
+  'observacoes',
+  'status',
+  'data_retirada_central',
+  'data_entrega_real',
+  'tentativa_atual',
+] as const
+
+function sanitizarAtualizacao(body: Record<string, unknown>) {
+  const limpo: Record<string, unknown> = {}
+  for (const chave of Object.keys(body)) {
+    if ((COLUNAS_PERMITIDAS_ENTREGADOR as readonly string[]).includes(chave)) {
+      const valor = body[chave]
+      if (typeof valor === 'string') {
+        limpo[chave] = sanitizeText(valor)
+      } else {
+        limpo[chave] = valor
+      }
+    }
+  }
+  return limpo
+}
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { codigo: string } }
+  { params }: { params: Promise<{ codigo: string }> }
 ) {
   const session = await getSessionFromRequest(request)
   if (!session || session.tipo !== 'entregador') {
     return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
   }
 
-  const entregadorId = session.id
+  const { codigo } = await params
 
-  // Buscar pacote e verificar se pertence ao entregador
+  // Busca o pacote e verifica se pertence ao entregador
   const { data: pacote, error: errBusca } = await supabase
     .from('pacotes')
     .select('*')
-    .eq('codigo', params.codigo)
-    .eq('entregador_id', entregadorId)
+    .eq('codigo', codigo)
+    .eq('entregador_id', session.id)
     .single()
 
   if (errBusca || !pacote) {
-    return NextResponse.json({ erro: 'Pacote não encontrado ou não pertence a você' }, { status: 404 })
+    return NextResponse.json({ erro: 'Pacote não encontrado' }, { status: 404 })
   }
 
-  try {
-    const body = await request.json()
-    const { acao } = body
+  const body = await request.json()
+  const { acao, csrf_token, ...dados } = body
 
-    if (!acao) {
-      return NextResponse.json({ erro: 'Ação é obrigatória' }, { status: 400 })
-    }
-
-    // Mapear ações para transições
-    const mapaAcoes: Record<string, string> = {
-      'retirar': 'Retirado pelo Entregador',
-      'rota': 'Em Rota',
-      'entregar': 'Entregue',
-      'devolver': 'Retornado a Central',
-    }
-
-    const novoStatus = mapaAcoes[acao]
-    if (!novoStatus) {
-      return NextResponse.json({ erro: 'Ação inválida' }, { status: 400 })
-    }
-
-    // Validar transição
-    const validacao = transicaoValida(pacote.status, novoStatus, 'entregador')
-    if (!validacao.valida) {
-      return NextResponse.json({ erro: validacao.erro }, { status: 400 })
-    }
-
-    // Preparar campos
-    const updates = camposParaTransicao(pacote.status, novoStatus)
-
-    // Se for entregar, aceitar foto e GPS
-    if (acao === 'entregar') {
-      if (body.foto) updates.foto = body.foto
-      if (body.gps_foto) updates.gps_foto = body.gps_foto
-      if (body.motivo_devolucao) updates.motivo_devolucao = sanitizeText(body.motivo_devolucao)
-    }
-
-    if (acao === 'devolver') {
-      if (body.motivo_devolucao) updates.motivo_devolucao = sanitizeText(body.motivo_devolucao)
-      updates.tentativa_atual = (pacote.tentativa_atual || 0) + 1
-    }
-
-    const { data, error } = await supabase
-      .from('pacotes')
-      .update(updates)
-      .eq('codigo', params.codigo)
-      .select()
-      .single()
-
-    if (error) return NextResponse.json({ erro: error.message }, { status: 500 })
-    return NextResponse.json({ pacote: data })
-
-  } catch {
-    return NextResponse.json({ erro: 'Erro ao processar ação' }, { status: 500 })
+  if (!acao) {
+    return NextResponse.json({ erro: 'Ação não informada' }, { status: 400 })
   }
+
+  // Valida CSRF para ações críticas (entregar, devolver)
+  if (['entregar', 'devolver'].includes(acao)) {
+    if (!csrf_token) {
+      return NextResponse.json(
+        { erro: 'Token CSRF não fornecido' },
+        { status: 403 }
+      )
+    }
+    const csrfValido = await validarTokenCSRF(csrf_token, session.id)
+    if (!csrfValido) {
+      return NextResponse.json(
+        { erro: 'Token CSRF inválido. Recarregue a página e tente novamente.' },
+        { status: 403 }
+      )
+    }
+  }
+
+  // Mapeia ação para novo status
+  const mapaAcoes: Record<string, string> = {
+    retirar: 'Retirado pelo Entregador',
+    rota: 'Em Rota',
+    entregar: 'Entregue',
+    devolver: 'Retornado a Central',
+    tentar_novamente: 'Aguardando Retirada',
+  }
+
+  const novoStatus = mapaAcoes[acao]
+  if (!novoStatus) {
+    return NextResponse.json({ erro: 'Ação inválida' }, { status: 400 })
+  }
+
+  // Valida transição na máquina de estados
+  const validacao = transicaoValida(pacote.status, novoStatus, 'entregador')
+  if (!validacao.valida) {
+    return NextResponse.json(
+      { erro: validacao.erro || 'Transição não permitida' },
+      { status: 400 }
+    )
+  }
+
+  // Prepara campos da transição + sanitização
+  const camposTransicao = camposParaTransicao(pacote.status, novoStatus)
+  const camposSolicitados = sanitizarAtualizacao(dados)
+
+  // Validações específicas
+  if (acao === 'entregar') {
+    if (!camposSolicitados.foto) {
+      return NextResponse.json(
+        { erro: 'Foto da entrega é obrigatória' },
+        { status: 400 }
+      )
+    }
+    if (!camposSolicitados.gps_foto) {
+      return NextResponse.json(
+        { erro: 'GPS da entrega é obrigatório' },
+        { status: 400 }
+      )
+    }
+  }
+
+  if (acao === 'devolver' && !camposSolicitados.motivo_devolucao) {
+    return NextResponse.json(
+      { erro: 'Motivo da devolução é obrigatório' },
+      { status: 400 }
+    )
+  }
+
+  // Incrementa tentativa se for devolução
+  if (acao === 'devolver') {
+    camposSolicitados.tentativa_atual = (pacote.tentativa_atual || 0) + 1
+  }
+
+  // Monta atualização final
+  const atualizacao = {
+    ...camposTransicao,
+    ...camposSolicitados,
+    status: novoStatus,
+  }
+
+  const { error: errUpdate } = await supabase
+    .from('pacotes')
+    .update(atualizacao)
+    .eq('codigo', codigo)
+    .eq('entregador_id', session.id)
+
+  if (errUpdate) {
+    console.error('Erro ao atualizar pacote:', errUpdate)
+    return NextResponse.json({ erro: 'Erro ao atualizar pacote' }, { status: 500 })
+  }
+
+  return NextResponse.json({
+    sucesso: true,
+    status: novoStatus,
+    mensagem:
+      acao === 'entregar'
+        ? '✅ Entrega registrada com sucesso!'
+        : acao === 'devolver'
+          ? '📦 Pacote devolvido à central'
+          : `✅ Status atualizado para "${novoStatus}"`,
+  })
 }

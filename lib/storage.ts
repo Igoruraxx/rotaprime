@@ -1,30 +1,29 @@
 import sharp from 'sharp'
 import { supabase } from './db'
 
-const MAX_KB = 300
+const MAX_KB = 200
 
 export async function uploadFoto(
   base64: string,
   pasta: string = 'entregas'
 ): Promise<string | null> {
   try {
-    // Extrair base64 e tipo do data URL
-    const matches = base64.match(/^data:(image\/(\w+));base64,(.+)$/)
+    // Extrair base64 do data URL
+    const matches = base64.match(/^data:image\/\w+;base64,(.+)$/)
     if (!matches) return null
 
-    const extension = matches[2] === 'jpeg' ? 'jpg' : matches[2]
-    const buffer = Buffer.from(matches[3], 'base64')
+    const buffer = Buffer.from(matches[1], 'base64')
 
-    // Comprimir para no máximo 300 KB
+    // Comprimir para WebP no máximo 200 KB
     const comprimido = await comprimirImagem(buffer)
     if (!comprimido) return null
 
-    const filename = `${pasta}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`
+    const filename = `${pasta}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.webp`
 
     const { data, error } = await supabase.storage
       .from('fotos')
       .upload(filename, comprimido, {
-        contentType: 'image/jpeg',
+        contentType: 'image/webp',
         upsert: false
       })
 
@@ -50,15 +49,15 @@ async function comprimirImagem(buffer: Buffer): Promise<Buffer | null> {
     let qualidade = 85
     let resultado = await sharp(buffer)
       .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: qualidade })
+      .webp({ quality: qualidade })
       .toBuffer()
 
-    // Reduzir qualidade progressivamente até caber em 300KB
-    while (resultado.length > MAX_KB * 1024 && qualidade > 20) {
+    // Reduzir qualidade progressivamente até caber em 200KB
+    while (resultado.length > MAX_KB * 1024 && qualidade > 15) {
       qualidade -= 10
       resultado = await sharp(buffer)
         .resize(1024, 1024, { fit: 'inside', withoutEnlargement: true })
-        .jpeg({ quality: qualidade })
+        .webp({ quality: qualidade })
         .toBuffer()
     }
 

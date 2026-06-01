@@ -22,6 +22,7 @@ export const STATUS_ORDEM: Record<string, number> = {
 }
 
 // Quem pode executar cada transição
+// Formato: 'statusAtual->novoStatus' : { quem, logs? }
 const PERMISSOES: Record<string, { quem: string; logs?: string }> = {
   'Aguardando Retirada':        { quem: 'admin', logs: 'data_repassado_entregador' },
   'Retirado pelo Entregador':   { quem: 'entregador', logs: 'data_retirada_central' },
@@ -30,6 +31,11 @@ const PERMISSOES: Record<string, { quem: string; logs?: string }> = {
   'Retornado a Central':        { quem: 'entregador' },
   'Validado pelo Admin':        { quem: 'admin', logs: 'data_validacao_admin' },
   'Recebido pela Central':      { quem: 'admin' },
+}
+
+// Transições específicas que sobrescrevem a permissão padrão
+const TRANSICOES_PERMITIDAS: Record<string, string> = {
+  'Retornado a Central->Aguardando Retirada': 'entregador', // Entregador pode tentar novamente
 }
 
 export type StatusPacote = keyof typeof TRANSICOES
@@ -43,6 +49,11 @@ export function transicoesValidas(statusAtual: string): string[] {
 }
 
 export function quemPode(statusAtual: string, novoStatus: string): string | null {
+  // Verifica primeiro se há uma transição específica permitida
+  const chaveTransicao = `${statusAtual}->${novoStatus}`
+  if (TRANSICOES_PERMITIDAS[chaveTransicao]) {
+    return TRANSICOES_PERMITIDAS[chaveTransicao]
+  }
   const permissao = PERMISSOES[novoStatus]
   return permissao?.quem || null
 }
