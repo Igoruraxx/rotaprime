@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import SelectTransportadora from '@/components/select-transportadora'
+import WhatsAppButton from '@/components/whatsapp-button'
 
 type Pacote = {
   codigo: string
@@ -60,11 +61,17 @@ export default function PacoteDetalhePage() {
   const [showEdit, setShowEdit] = useState(false)
   const [showTimeline, setShowTimeline] = useState(true)
   const [acaoMsg, setAcaoMsg] = useState('')
+  const [whatsappLog, setWhatsappLog] = useState<{ id: number; data_envio: string; entregador_id: number }[]>([])
 
   function carregar() {
     fetch(`/api/pacotes/${params.codigo}`)
       .then(r => r.json())
       .then(data => setPacote(data.pacote))
+
+    fetch(`/api/whatsapp?pacote_codigo=${params.codigo}`)
+      .then(r => r.json())
+      .then(data => setWhatsappLog(data.log || []))
+      .catch(() => setWhatsappLog([]))
 
     fetch('/api/admin/stats')
       .then(r => r.json())
@@ -232,6 +239,36 @@ export default function PacoteDetalhePage() {
               <button onClick={() => setShowTimeline(!showTimeline)} className="w-full py-2 bg-gray-100 text-gray-500 rounded-lg text-sm hover:bg-gray-200">
                 {showTimeline ? '🙈 Ocultar' : '👁️ Mostrar'} Timeline
               </button>
+
+              {/* WhatsApp */}
+              {pacote.entregadores && (
+                <>
+                  <hr className="my-2 border-gray-200" />
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-xs font-medium text-gray-500">📱 WhatsApp</h4>
+                      <WhatsAppButton
+                        entregadorNome={(pacote.entregadores as { nome: string; telefone: string } | null)?.nome || ''}
+                        entregadorId={pacote.entregador_id}
+                        entregadorTelefone={(pacote.entregadores as { nome: string; telefone: string } | null)?.telefone}
+                        pacoteCodigo={pacote.codigo}
+                        endereco={pacote.endereco_entrega}
+                        className="w-8 h-8 rounded-lg"
+                      />
+                    </div>
+                    {/* Histórico de contatos */}
+                    {whatsappLog.length > 0 && (
+                      <div className="space-y-1 mt-2">
+                        {whatsappLog.map(log => (
+                          <p key={log.id} className="text-[10px] text-gray-400 leading-tight">
+                            📞 {new Date(log.data_envio).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

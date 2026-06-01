@@ -2,13 +2,16 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import WhatsAppButton from '@/components/whatsapp-button'
 
 type Pacote = {
   codigo: string
   nf_remessa: string
   status: string
   destinatario: string | null
-  entregadores: { nome: string } | null
+  endereco_entrega: string | null
+  entregadores: { nome: string; telefone: string } | null
+  entregador_id: number | null
   data_chegada: string
   data_limite_entrega: string | null
   pago: boolean
@@ -326,6 +329,7 @@ export default function PacotesPage() {
                   <th className="p-3 font-medium whitespace-nowrap">Prazo</th>
                   <th className="p-3 font-medium whitespace-nowrap">Transportadora</th>
                   <th className="p-3 font-medium text-center">Pago</th>
+                  <th className="p-3 font-medium text-center w-10">📱</th>
                 </tr>
               </thead>
               <tbody>
@@ -376,6 +380,17 @@ export default function PacotesPage() {
                         <span className="text-emerald-500 text-xs font-medium">✅</span>
                       ) : (
                         <span className="text-gray-300">—</span>
+                      )}
+                    </td>
+                    <td className="p-3 text-center" onClick={e => e.stopPropagation()}>
+                      {p.entregadores && (
+                        <WhatsAppButton
+                          entregadorNome={(p.entregadores as { nome: string; telefone: string } | null)?.nome || ''}
+                          entregadorId={p.entregador_id}
+                          entregadorTelefone={(p.entregadores as { nome: string; telefone: string } | null)?.telefone}
+                          pacoteCodigo={p.codigo}
+                          endereco={p.endereco_entrega}
+                        />
                       )}
                     </td>
                   </tr>

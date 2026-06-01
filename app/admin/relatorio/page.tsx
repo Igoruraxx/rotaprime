@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import WhatsAppButton from '@/components/whatsapp-button'
 
 type ItemTabela = {
   codigo: string
   status: string
-  entregadores: { nome: string } | null
+  entregadores: { nome: string; telefone: string } | null
+  entregador_id?: number | null
+  endereco_entrega?: string | null
   data_retirada_central?: string
   data_repassado_entregador?: string
   data_limite_entrega?: string
@@ -408,6 +411,7 @@ function TabelaSection({
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-gray-500 border-b border-gray-100 bg-gray-50">
+                <th className="p-3 font-medium text-center w-10">📱</th>
                 {colunas.map(c => (
                   <th key={c.label} className="p-3 font-medium whitespace-nowrap">{c.label}</th>
                 ))}
@@ -420,6 +424,15 @@ function TabelaSection({
                   onClick={() => onRowClick(p)}
                   className="border-b border-gray-100 last:border-0 hover:bg-violet-50 transition cursor-pointer"
                 >
+                  <td className="p-3 text-center" onClick={e => e.stopPropagation()}>
+                    <WhatsAppButton
+                      entregadorNome={p.entregadores?.nome || ''}
+                      entregadorId={null}
+                      entregadorTelefone={p.entregadores?.telefone}
+                      pacoteCodigo={p.codigo}
+                      className="mx-auto"
+                    />
+                  </td>
                   {colunas.map(c => (
                     <td key={c.label} className="p-3 whitespace-nowrap">{c.render(p)}</td>
                   ))}
