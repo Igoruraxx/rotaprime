@@ -83,6 +83,8 @@ export default function EntregadorDetalhePage() {
   const [entregador, setEntregador] = useState<Entregador | null>(null)
   const [loading, setLoading] = useState(true)
   const [filtro, setFiltro] = useState<FiltroData>('tudo')
+  const [aplicandoValor, setAplicandoValor] = useState(false)
+  const [msgValor, setMsgValor] = useState('')
 
   function carregar(f: FiltroData) {
     setLoading(true)
@@ -104,6 +106,25 @@ export default function EntregadorDetalhePage() {
 
   function selecionarFiltro(f: FiltroData) {
     setFiltro(f)
+  }
+
+  async function aplicarValorPadrao() {
+    setAplicandoValor(true)
+    setMsgValor('')
+    try {
+      const res = await fetch(`/api/entregadores/${params.id}/aplicar-valor`, { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        setMsgValor(`✅ ${data.atualizados} pacotes atualizados para R$ ${Number(data.valor).toFixed(2)}!`)
+        carregar(filtro)
+      } else {
+        setMsgValor(`❌ ${data.erro || 'Erro'}`)
+      }
+    } catch {
+      setMsgValor('❌ Erro de conexão')
+    }
+    setAplicandoValor(false)
+    setTimeout(() => setMsgValor(''), 4000)
   }
 
   if (!entregador) {
@@ -174,6 +195,19 @@ export default function EntregadorDetalhePage() {
             >
               <span>📱</span> WhatsApp
             </a>
+          )}
+          <button
+            onClick={aplicarValorPadrao}
+            disabled={aplicandoValor}
+            className="px-4 py-2 bg-violet-50 text-violet-700 border border-violet-200 rounded-xl text-sm font-medium hover:bg-violet-100 transition disabled:opacity-50 flex items-center gap-2"
+            title="Atualiza o valor de TODOS os pacotes deste entregador para o valor padrão definido acima"
+          >
+            {aplicandoValor ? '⏳ Aplicando...' : '💰 Aplicar Valor Padrão em Todos os Pacotes'}
+          </button>
+          {msgValor && (
+            <div className={`w-full text-sm font-medium ${msgValor.startsWith('✅') ? 'text-emerald-600' : 'text-red-500'}`}>
+              {msgValor}
+            </div>
           )}
         </div>
       </div>

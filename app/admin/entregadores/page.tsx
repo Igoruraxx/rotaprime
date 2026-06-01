@@ -49,6 +49,20 @@ export default function EntregadoresPage() {
     setTimeout(() => setMsg(''), 3000)
   }
 
+  async function aplicarValorPadrao(id: number) {
+    try {
+      const res = await fetch(`/api/entregadores/${id}/aplicar-valor`, { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        msgTemporaria(`✅ ${data.atualizados} pacotes atualizados para R$ ${Number(data.valor).toFixed(2)}!`)
+      } else {
+        msgTemporaria(`❌ ${data.erro || 'Erro'}`)
+      }
+    } catch {
+      msgTemporaria('❌ Erro de conexão')
+    }
+  }
+
   async function criar(formData: FormData) {
     const body: Record<string, unknown> = {
       nome: formData.get('nome'),
@@ -183,6 +197,7 @@ export default function EntregadoresPage() {
                     entregador={e}
                     totalPacotes={contarPacotes(e)}
                     onOpenModal={setModal}
+                    onAplicarValor={aplicarValorPadrao}
                     isAtivo={true}
                   />
                 ))
@@ -224,6 +239,7 @@ export default function EntregadoresPage() {
                     entregador={e}
                     totalPacotes={contarPacotes(e)}
                     onOpenModal={setModal}
+                    onAplicarValor={aplicarValorPadrao}
                     isAtivo={false}
                   />
                 ))}
@@ -372,11 +388,12 @@ export default function EntregadoresPage() {
 // LINHA DA TABELA
 // ============================================================
 function LinhaEntregador({
-  entregador, totalPacotes, onOpenModal, isAtivo
+  entregador, totalPacotes, onOpenModal, onAplicarValor, isAtivo
 }: {
   entregador: Entregador
   totalPacotes: number
   onOpenModal: (m: ModalState) => void
+  onAplicarValor: (id: number) => void
   isAtivo: boolean
 }) {
   return (
@@ -453,6 +470,12 @@ function LinhaEntregador({
             className="text-gray-300 hover:text-violet-600 transition text-xs"
             title="Editar valor padrão">
             ✏️
+          </button>
+          <button
+            onClick={() => { if (confirm('Aplicar R$ ' + entregador.valor_padrao.toFixed(2) + ' em todos os pacotes de ' + entregador.nome + '?')) onAplicarValor(entregador.id) }}
+            className="text-gray-300 hover:text-violet-600 transition text-xs"
+            title="Aplicar este valor em todos os pacotes">
+            ↻
           </button>
         </div>
       </td>
