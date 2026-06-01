@@ -4,6 +4,7 @@ import { getSession } from '@/lib/auth'
 const NAV_ITEMS = [
   { href: '/admin', icon: '📊', label: 'Dashboard', grupo: 'Gestão' },
   { href: '/admin/relatorio', icon: '📋', label: 'Relatório', grupo: 'Gestão' },
+  { href: '/admin/relatorio-mensal', icon: '📊', label: 'Consolidado', grupo: 'Gestão' },
   { href: '/admin/pacotes', icon: '📦', label: 'Pacotes', grupo: 'Gestão' },
   { href: '/admin/registrar', icon: '➕', label: 'Registrar', grupo: 'Gestão' },
   { href: '/admin/rastrear', icon: '🔍', label: 'Rastrear', grupo: 'Gestão' },
@@ -16,6 +17,7 @@ const NAV_ITEMS = [
 const MOBILE_ITEMS = [
   { href: '/admin', icon: '📊', label: 'Dash' },
   { href: '/admin/relatorio', icon: '📋', label: 'Relatório' },
+  { href: '/admin/relatorio-mensal', icon: '📊', label: 'Consolid.' },
   { href: '/admin/pacotes', icon: '📦', label: 'Pacotes' },
   { href: '/admin/registrar', icon: '➕', label: 'Novo' },
   { href: '/admin/rastrear', icon: '🔍', label: 'Buscar' },
