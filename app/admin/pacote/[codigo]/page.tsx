@@ -28,6 +28,7 @@ type Pacote = {
   validacao_admin: boolean
   data_validacao_admin: string
   observacoes: string
+  destinatario: string
   transportadora: string
   foto: string
   gps_foto: string
