@@ -44,7 +44,7 @@ type DashboardData = {
 type SessionInfo = {
   nome: string
   tipo: string
-  exp?: number
+  exp: number | null
   id?: number
   entregador_id?: number
 }
@@ -299,10 +299,11 @@ export default function EntregadorDashboard() {
   // ── Session Timeout Countdown ────────────────────────────────
   useEffect(() => {
     if (!session?.exp) return
+    const exp = session.exp
 
     function updateTime() {
       const now = Math.floor(Date.now() / 1000)
-      const remaining = Math.max(0, session.exp! - now)
+      const remaining = Math.max(0, exp - now)
       setTempoRestante(remaining)
     }
 

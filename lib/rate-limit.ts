@@ -12,7 +12,7 @@ const store = new Map<string, RateLimitEntry>()
 // Limpeza periódica a cada 5 minutos
 setInterval(() => {
   const now = Date.now()
-  for (const [key, entry] of store.entries()) {
+  for (const [key, entry] of Array.from(store.entries())) {
     if (entry.resetAt < now) store.delete(key)
   }
 }, 5 * 60 * 1000)
