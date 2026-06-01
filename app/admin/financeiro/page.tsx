@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 type Pacote = {
   codigo: string
@@ -172,9 +174,10 @@ export default function FinanceiroPage() {
   ) || []
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-6">
+    <FeatureGuard feature={FEATURES.DASHBOARD_FINANCEIRO}>
+      <div className="max-w-7xl mx-auto">
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 tracking-tight">💰 Financeiro</h2>
           <p className="text-sm text-gray-500 mt-0.5">Controle centralizado de pagamentos</p>
@@ -531,6 +534,7 @@ export default function FinanceiroPage() {
         </div>
       )}
     </div>
+    </FeatureGuard>
   )
 }
 

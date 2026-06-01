@@ -3,6 +3,8 @@
 import { useEffect, useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import SelectTransportadora from '@/components/select-transportadora'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 type Entregador = { id: number; nome: string; valor_padrao: number }
 
@@ -45,6 +47,7 @@ export default function RegistrarPage() {
   const [showPrazo, setShowPrazo] = useState(false)
   const [showTransportadora, setShowTransportadora] = useState(false)
   const [showObservacoes, setShowObservacoes] = useState(false)
+  const [showEndereco, setShowEndereco] = useState(true)
 
   const [valor, setValor] = useState('0,50')
   const [prazoAtivo, setPrazoAtivo] = useState(false)
@@ -65,8 +68,8 @@ export default function RegistrarPage() {
     const form = new FormData(e.currentTarget)
     const body: Record<string, unknown> = {
       nf_remessa: form.get('nf_remessa'),
-      endereco_entrega: form.get('endereco_entrega'),
     }
+    if (showEndereco) body.endereco_entrega = form.get('endereco_entrega')
 
     if (showDestinatario) body.destinatario = form.get('destinatario')
     if (showDescricao) body.descricao = form.get('descricao')
@@ -112,13 +115,14 @@ export default function RegistrarPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">➕ Registrar Pacote</h2>
-          <p className="text-sm text-gray-500 mt-0.5">Preencha os campos obrigatórios e ative toggle para mais opções</p>
-        </div>
+    <FeatureGuard feature={FEATURES.PACOTES_CRUD}>
+      <div className="max-w-3xl mx-auto">
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">➕ Registrar Pacote</h2>
+            <p className="text-sm text-gray-500 mt-0.5">Preencha os campos obrigatórios e ative toggle para mais opções</p>
+          </div>
         <a href="/admin/pacotes" className="text-sm text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1">
           ← Voltar
         </a>
@@ -144,25 +148,17 @@ export default function RegistrarPage() {
             <h3 className="font-semibold text-gray-900 text-sm">Campos obrigatórios</h3>
           </div>
           <div className="p-5 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Pacote, Nota Fiscal ou Remessa <span className="text-red-400">*</span>
-                </label>
-                <input name="nf_remessa" required className="w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Ex: NF-12345" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Endereço de Entrega <span className="text-red-400">*</span>
-                </label>
-                <input name="endereco_entrega" required className="w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Rua, número, bairro..." />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Pacote, Nota Fiscal ou Remessa <span className="text-red-400">*</span>
+              </label>
+              <input name="nf_remessa" required className="w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Ex: NF-12345" />
             </div>
           </div>
         </div>
 
         {/* === CAMPOS ATIVADOS (aparecem ACIMA dos toggles) === */}
-        {(showDestinatario || showDescricao || showQuantidade || showValor || showEntregador || showPrazo || showTransportadora || showObservacoes) && (
+        {(showDestinatario || showDescricao || showQuantidade || showValor || showEntregador || showPrazo || showTransportadora || showObservacoes || showEndereco) && (
           <div className="content-card overflow-hidden">
             <div className="px-5 py-3 section-header flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
@@ -173,6 +169,13 @@ export default function RegistrarPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Destinatário</label>
                   <input name="destinatario" className="w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Nome do destinatário" />
+                </div>
+              )}
+
+              {showEndereco && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Endereço de Entrega</label>
+                  <input name="endereco_entrega" className="w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Rua, número, bairro..." />
                 </div>
               )}
 
@@ -272,6 +275,7 @@ export default function RegistrarPage() {
           {/* Lista de toggles */}
           <div className="divide-y divide-gray-100">
             <ToggleSwitch ativo={showDestinatario} onClick={() => setShowDestinatario(!showDestinatario)} label="📋 Destinatário" />
+            <ToggleSwitch ativo={showEndereco} onClick={() => setShowEndereco(!showEndereco)} label="📫 Endereço de entrega" />
             <ToggleSwitch ativo={showDescricao} onClick={() => setShowDescricao(!showDescricao)} label="📝 Descrição do pacote" />
             <ToggleSwitch ativo={showQuantidade} onClick={() => setShowQuantidade(!showQuantidade)} label="🔢 Quantidade de itens" />
             <ToggleSwitch ativo={showValor} onClick={() => setShowValor(!showValor)} label="💰 Valor do frete" />
@@ -295,6 +299,7 @@ export default function RegistrarPage() {
           ) : '📦 Registrar Pacote'}
         </button>
       </form>
-    </div>
+      </div>
+    </FeatureGuard>
   )
 }

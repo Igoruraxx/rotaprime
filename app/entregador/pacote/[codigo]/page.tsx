@@ -22,6 +22,7 @@ import {
 } from '@/lib/shared-helpers';
 
 import { useFeature, FEATURES } from '@/lib/features';
+import FeatureGuard from '@/components/feature-guard';
 
 /* ============================================================
    TIPOS
@@ -802,63 +803,65 @@ export default function PacoteDetalhePage() {
 
   /* ========== Render ========== */
   return (
-    <div className="admin-content min-h-screen">
-      <div className="max-w-lg mx-auto pb-24">
-        {/* ══════════ HEADER ══════════ */}
-        <header className="sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-gray-100/60 px-4 py-4">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.push('/entregador/meus-pacotes')}
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-90 transition-all"
-              aria-label="Voltar"
-            >
-              <Icons.ChevronLeft width={20} height={20} />
-            </button>
+    <FeatureGuard feature={FEATURES.MEUS_PACOTES_AVANCADO}>
+      <div className="admin-content min-h-screen">
+        <div className="max-w-lg mx-auto pb-24">
+          {/* ══════════ HEADER ══════════ */}
+          <header className="sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-gray-100/60 px-4 py-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => router.push('/entregador/meus-pacotes')}
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-90 transition-all"
+                aria-label="Voltar"
+              >
+                <Icons.ChevronLeft width={20} height={20} />
+              </button>
 
-            <div className="flex-1 min-w-0">
-              <h1 className="font-mono font-bold text-base text-gray-900 truncate">
-                #{pacote.codigo}
-              </h1>
+              <div className="flex-1 min-w-0">
+                <h1 className="font-mono font-bold text-base text-gray-900 truncate">
+                  #{pacote.codigo}
+                </h1>
+              </div>
+
+              <span
+                className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold shrink-0 ${statusBadgeClass(
+                  pacote.status,
+                )}`}
+              >
+                {statusLabel(pacote.status)}
+              </span>
             </div>
+          </header>
 
-            <span
-              className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold shrink-0 ${statusBadgeClass(
-                pacote.status,
-              )}`}
-            >
-              {statusLabel(pacote.status)}
-            </span>
+          {/* ══════════ CONTEÚDO ══════════ */}
+          <div className="px-4 pt-5 space-y-4">
+            {/* 1. Informações do Pacote */}
+            <InfoSection pacote={pacote} />
+
+            {/* 2. Rastreamento (Timeline) */}
+            <TimelineSection pacote={pacote} />
+
+            {/* 3. Foto e GPS (se existir) */}
+            <FotoSection pacote={pacote} />
+
+            {/* 3.1. Mapa da Localização (se tiver GPS) */}
+            <MapaSection pacote={pacote} />
+
+            {/* 4. Ações Rápidas (se aplicável) */}
+            <AcoesSection
+              pacote={pacote}
+              onAcao={executarAcao}
+              acaoLoading={acaoLoading}
+            />
+
+            {/* 5. Comprovante PDF */}
+            <ComprovanteSection pacote={pacote} />
+
+            {/* 6. WhatsApp */}
+            <WhatsAppSection pacote={pacote} />
           </div>
-        </header>
-
-        {/* ══════════ CONTEÚDO ══════════ */}
-        <div className="px-4 pt-5 space-y-4">
-          {/* 1. Informações do Pacote */}
-          <InfoSection pacote={pacote} />
-
-          {/* 2. Rastreamento (Timeline) */}
-          <TimelineSection pacote={pacote} />
-
-          {/* 3. Foto e GPS (se existir) */}
-          <FotoSection pacote={pacote} />
-
-          {/* 3.1. Mapa da Localização (se tiver GPS) */}
-          <MapaSection pacote={pacote} />
-
-          {/* 4. Ações Rápidas (se aplicável) */}
-          <AcoesSection
-            pacote={pacote}
-            onAcao={executarAcao}
-            acaoLoading={acaoLoading}
-          />
-
-          {/* 5. Comprovante PDF */}
-          <ComprovanteSection pacote={pacote} />
-
-          {/* 6. WhatsApp */}
-          <WhatsAppSection pacote={pacote} />
         </div>
       </div>
-    </div>
+    </FeatureGuard>
   );
 }

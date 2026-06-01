@@ -6,6 +6,8 @@ import SelectTransportadora from '@/components/select-transportadora'
 import WhatsAppButton from '@/components/whatsapp-button'
 import MapaRota from '@/components/mapa-rota'
 import BotaoComprovante from '@/components/comprovante-pdf'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 type Pacote = {
   codigo: string
@@ -132,10 +134,11 @@ export default function PacoteDetalhePage() {
     }
   }
 
-  if (!pacote) return <div className="text-gray-400 text-center py-12">Carregando...</div>
+  if (!pacote) return <FeatureGuard feature={FEATURES.PACOTES_CRUD}><div className="text-gray-400 text-center py-12">Carregando...</div></FeatureGuard>
 
   return (
-    <div>
+    <FeatureGuard feature={FEATURES.PACOTES_CRUD}>
+      <div>
       {/* Header */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
         <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700 text-sm">← Voltar</button>
@@ -324,6 +327,7 @@ export default function PacoteDetalhePage() {
         </div>
       </div>
     </div>
+    </FeatureGuard>
   )
 }
 

@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useFeature } from '@/lib/features'
+import { FEATURES } from '@/lib/feature-keys'
 
 type Stats = {
   total: number
@@ -56,6 +58,9 @@ export default function AdminDashboard() {
     }).catch(() => {})
   }, [])
 
+  const featureAtiva = useFeature(FEATURES.MODULO_ADMIN)
+  if (featureAtiva === false) return null
+
   const cards = [
     { label: 'Total de Pacotes', value: stats?.total || 0 },
     { label: 'Pendentes Validação', value: stats?.validar || 0 },
@@ -64,10 +69,10 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
 
-      {/* Cards */}
+        {/* Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {cards.map(card => (
           <div key={card.label} className="content-card p-4">

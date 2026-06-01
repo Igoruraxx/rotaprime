@@ -1,14 +1,35 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
+import { getAllFeaturesServer } from '@/lib/features-server'
+import { FEATURES } from '@/lib/feature-keys'
 
-const NAV_ITEMS = [
+// ═══════════════════════════════════════════
+// Cada item do nav → feature toggle vinculada
+// ═══════════════════════════════════════════
+const NAV_FEATURE_MAP: Record<string, string> = {
+  '/entregador': FEATURES.DASHBOARD_ENTREGADOR,
+  '/entregador/meus-pacotes': FEATURES.MEUS_PACOTES_AVANCADO,
+  '/entregador/meus-dados': FEATURES.ENTREGADOR_DETALHE,
+  '/entregador/financeiro': FEATURES.MODULO_FINANCEIRO,
+}
+
+const ALL_NAV_ITEMS = [
   { href: '/entregador', icon: '📊', label: 'Dashboard', grupo: 'Gestão' },
   { href: '/entregador/meus-pacotes', icon: '📦', label: 'Meus Pacotes', grupo: 'Gestão' },
   { href: '/entregador/meus-dados', icon: '👤', label: 'Meus Dados', grupo: 'Pessoal' },
   { href: '/entregador/financeiro', icon: '💰', label: 'Financeiro', grupo: 'Pessoal' },
 ]
 
-const GRUPOS = Array.from(new Set(NAV_ITEMS.map(i => i.grupo)))
+function filtrarItens<T extends { href: string }>(
+  itens: T[],
+  features: Record<string, boolean>
+): T[] {
+  return itens.filter(item => {
+    const chave = NAV_FEATURE_MAP[item.href]
+    if (!chave) return true
+    return features[chave] !== false
+  })
+}
 
 export default async function EntregadorLayout({
   children,
@@ -17,6 +38,10 @@ export default async function EntregadorLayout({
 }) {
   const session = await getSession()
   if (!session || session.tipo !== 'entregador') redirect('/login')
+
+  const features = await getAllFeaturesServer()
+  const NAV_ITEMS = filtrarItens(ALL_NAV_ITEMS, features)
+  const GRUPOS = Array.from(new Set(NAV_ITEMS.map(i => i.grupo)))
 
   return (
     <div className="min-h-screen flex">
@@ -35,7 +60,7 @@ export default async function EntregadorLayout({
           </div>
         </a>
 
-        {/* Navigation */}
+        {/* Navigation — filtra por feature */}
         <nav className="flex-1 overflow-y-auto no-scrollbar px-3 py-4 space-y-5">
           {GRUPOS.map(grupo => (
             <div key={grupo}>
@@ -92,7 +117,7 @@ export default async function EntregadorLayout({
           </div>
         </header>
 
-        {/* Mobile nav */}
+        {/* Mobile nav — filtra por feature */}
         <nav className="md:hidden overflow-x-auto border-b border-gray-200 bg-gray-50 no-scrollbar">
           <div className="flex px-2 py-1.5 gap-1 text-xs">
             {NAV_ITEMS.map(item => (
@@ -107,7 +132,7 @@ export default async function EntregadorLayout({
           </div>
         </nav>
 
-        {/* Content — IDENTICO ao padrão admin */}
+        {/* Content */}
         <main className="admin-content flex-1 p-4 md:p-8">
           <div className="animate-fade-in-up">
             {children}

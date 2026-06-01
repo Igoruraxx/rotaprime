@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 type Transportadora = {
   id: number
@@ -80,8 +82,9 @@ export default function TransportadorasPage() {
   }
 
   return (
-    <div className="max-w-2xl">
-      {/* Header */}
+    <FeatureGuard feature={FEATURES.TRANSPORTADORAS_CRUD}>
+      <div className="max-w-2xl">
+        {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">🚚 Transportadoras</h2>
@@ -200,6 +203,7 @@ export default function TransportadorasPage() {
         </ModalBase>
       )}
     </div>
+    </FeatureGuard>
   )
 }
 

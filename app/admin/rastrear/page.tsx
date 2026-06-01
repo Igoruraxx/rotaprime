@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 type Resultado = {
   codigo: string
@@ -69,8 +71,9 @@ export default function RastrearPage() {
   }
 
   return (
-    <div className="max-w-2xl">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Rastrear Pacote</h2>
+    <FeatureGuard feature={FEATURES.RASTREAMENTO_AVANCADO}>
+      <div className="max-w-2xl">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Rastrear Pacote</h2>
 
       {/* 3 Campos de busca idênticos */}
       <div className="space-y-3 mb-6">
@@ -144,6 +147,7 @@ export default function RastrearPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </FeatureGuard>
   )
 }

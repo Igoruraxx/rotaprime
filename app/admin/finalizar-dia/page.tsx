@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { formatCurrency } from '@/lib/shared-helpers'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 /* ── Tipos ───────────────────────────────────────────────── */
 
@@ -196,9 +198,10 @@ export default function FinalizarDiaPage() {
   /* ── Render ────────────────────────────────────────────── */
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+    <FeatureGuard feature={FEATURES.FINALIZAR_DIA}>
+      <div className="max-w-7xl mx-auto">
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 tracking-tight">🔒 Finalizar Dia</h2>
           <p className="text-sm text-gray-500 mt-0.5">Consolide e finalize as entregas do dia atual</p>
@@ -463,5 +466,6 @@ export default function FinalizarDiaPage() {
         )}
       </div>
     </div>
+    </FeatureGuard>
   )
 }

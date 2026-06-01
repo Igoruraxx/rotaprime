@@ -93,7 +93,6 @@ export async function POST(request: NextRequest) {
       const { data: atualizados } = await supabase
         .from('pacotes')
         .update({ valor_pacote: valorNumerico })
-        .neq('status', 'Validado pelo Admin')
         .select('codigo')
 
       return NextResponse.json({
@@ -131,7 +130,6 @@ export async function POST(request: NextRequest) {
           .from('pacotes')
           .update({ valor_pacote: valorNumerico })
           .eq('entregador_id', id)
-          .neq('status', 'Validado pelo Admin')
           .select('codigo')
         total += (pac || []).length
       }

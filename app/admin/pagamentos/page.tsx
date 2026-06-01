@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 type CicloEntregador = {
   id: number
@@ -130,9 +132,10 @@ export default function PagamentosPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-6">
+    <FeatureGuard feature={FEATURES.CONTROLE_PAGAMENTOS}>
+      <div className="max-w-7xl mx-auto">
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 tracking-tight">🔄 Ciclos de Pagamento</h2>
           <p className="text-sm text-gray-500 mt-0.5">Calcula entregas desde o último pagamento de cada entregador</p>
@@ -438,6 +441,7 @@ export default function PagamentosPage() {
         </div>
       )}
     </div>
+    </FeatureGuard>
   )
 }
 

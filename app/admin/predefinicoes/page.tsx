@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 export default function PredefinicoesPage() {
   const [msg, setMsg] = useState<{ tipo: 'sucesso' | 'erro'; texto: string } | null>(null)
@@ -33,7 +35,8 @@ export default function PredefinicoesPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <FeatureGuard feature={FEATURES.VALOR_PADRAO_ENTREGA}>
+      <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900">🎛️ Predefinições</h2>
@@ -60,7 +63,7 @@ export default function PredefinicoesPage() {
           💰 Valor Padrão de Entrega
         </h3>
         <p className="text-sm text-gray-500 mb-4">
-          Define um valor padrão que será aplicado a TODOS os pacotes (ativos, não validados).
+          Define um valor padrão que será aplicado a TODOS os pacotes do sistema (incluindo entregues e finalizados).
         </p>
 
         <div className="flex items-end gap-3">
@@ -206,5 +209,6 @@ export default function PredefinicoesPage() {
         </div>
       </div>
     </div>
+    </FeatureGuard>
   )
 }

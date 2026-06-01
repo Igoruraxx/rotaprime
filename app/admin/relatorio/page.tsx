@@ -9,6 +9,8 @@ import {
   gerarWhatsAppLink,
 } from '@/lib/shared-helpers'
 import RepasseLoteCard from '@/components/repasse-lote-card'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 /* ── Tipos ───────────────────────────────────────────────── */
 
@@ -184,12 +186,14 @@ export default function RelatorioPage() {
 
   if (carregandoInicial) {
     return (
-      <div className="max-w-7xl mx-auto text-center py-16">
-        <div className="inline-flex items-center gap-2 text-gray-400">
-          <span className="w-5 h-5 rounded-full border-2 border-gray-300 border-t-violet-500 animate-spin" />
-          Carregando relatorio...
+      <FeatureGuard feature={FEATURES.RELATORIO_DIARIO}>
+        <div className="max-w-7xl mx-auto text-center py-16">
+          <div className="inline-flex items-center gap-2 text-gray-400">
+            <span className="w-5 h-5 rounded-full border-2 border-gray-300 border-t-violet-500 animate-spin" />
+            Carregando relatorio...
+          </div>
         </div>
-      </div>
+      </FeatureGuard>
     )
   }
 
@@ -201,8 +205,9 @@ export default function RelatorioPage() {
   /* ── Render ────────────────────────────────────────────── */
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* HEADER */}
+    <FeatureGuard feature={FEATURES.RELATORIO_DIARIO}>
+      <div className="max-w-7xl mx-auto">
+        {/* HEADER */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 tracking-tight">📋 Relatorio Diario</h2>
@@ -364,7 +369,8 @@ export default function RelatorioPage() {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </FeatureGuard>
   )
 }
 

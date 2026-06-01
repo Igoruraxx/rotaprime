@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import WhatsAppButton from '@/components/whatsapp-button'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 type Pacote = {
   codigo: string
@@ -167,9 +169,10 @@ export default function PacotesPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-6">
+    <FeatureGuard feature={FEATURES.PACOTES_CRUD}>
+      <div className="max-w-7xl mx-auto">
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 tracking-tight">📦 Pacotes</h2>
           <p className="text-sm text-gray-500 mt-0.5">{pacotes.length} pacote(s) no total</p>
@@ -400,6 +403,7 @@ export default function PacotesPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </FeatureGuard>
   )
 }

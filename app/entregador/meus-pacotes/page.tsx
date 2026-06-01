@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import MapaRota from '@/components/mapa-rota';
 import {
@@ -1105,7 +1105,7 @@ export default function MeusPacotesPage() {
   /* ========== Estado de carregamento inicial ========== */
   if (loading) {
     return (
-      <div className="min-h-screen">
+    <div className="min-h-screen">
         <div className="max-w-lg mx-auto">
           <HeaderSkeleton />
           <div className="px-4 mb-4">
@@ -1150,177 +1150,179 @@ export default function MeusPacotesPage() {
   }
 
   return (
+    <React.Fragment>
     <div className="min-h-screen">
       <div className="max-w-lg mx-auto pb-24">
-        {/* Header */}
-        <HeaderCompleto
-          total={pacotes.length}
-          onVoltar={() => router.push('/entregador')}
-        />
+          {/* Header */}
+          <HeaderCompleto
+            total={pacotes.length}
+            onVoltar={() => router.push('/entregador')}
+          />
 
-        {/* Abas */}
-        <div className="px-4 mb-4 overflow-x-auto scrollbar-hide">
-          <div className="flex gap-2 min-w-max">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setTabAtiva(tab.id)}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold whitespace-nowrap transition-all ${
-                  tabAtiva === tab.id
-                    ? 'bg-gray-900 text-white shadow-md'
-                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                }`}
-              >
-                <span>{tab.icon}</span>
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Filtro por periodo */}
-        <div className="px-4 mb-4">
-          <div className="flex items-center gap-2 flex-wrap">
-            {PERIODOS.map((p) => (
-              <button
-                key={p.key}
-                onClick={() => setPeriodoKey(p.key)}
-                className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
-                  periodoKey === p.key
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-            {/* Toggle agrupar */}
-            <button
-              onClick={() => setAgruparRota((v) => !v)}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold border transition-all ${
-                agruparRota
-                  ? 'bg-indigo-100 border-indigo-300 text-indigo-700'
-                  : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-100'
-              }`}
-            >
-              <span
-                className={agruparRota ? 'text-indigo-600' : 'text-gray-400'}
-              >
-                <Icons.Layered width={18} height={18} />
-              </span>
-              Rotas
-            </button>
-            {/* Toggle mapa */}
-            <button
-              onClick={() => setMostrarMapa((v) => !v)}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold border transition-all ${
-                mostrarMapa
-                  ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
-                  : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-100'
-              }`}
-            >
-              <span>{'\u{1F5FA}\uFE0F'}</span>
-              Mapa
-            </button>
+          {/* Abas */}
+          <div className="px-4 mb-4 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-2 min-w-max">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setTabAtiva(tab.id)}
+                  className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold whitespace-nowrap transition-all ${
+                    tabAtiva === tab.id
+                      ? 'bg-gray-900 text-white shadow-md'
+                      : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  <span>{tab.icon}</span>
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Inputs de data para Personalizado */}
-          {periodoKey === 'personalizado' && (
-            <div className="flex items-center gap-3 mt-3">
-              <div className="flex-1">
-                <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wide">
-                  Inicio
-                </label>
-                <input
-                  type="date"
-                  value={dataInicio}
-                  onChange={(e) => setDataInicio(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none"
-                />
+          {/* Filtro por periodo */}
+          <div className="px-4 mb-4">
+            <div className="flex items-center gap-2 flex-wrap">
+              {PERIODOS.map((p) => (
+                <button
+                  key={p.key}
+                  onClick={() => setPeriodoKey(p.key)}
+                  className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                    periodoKey === p.key
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+              {/* Toggle agrupar */}
+              <button
+                onClick={() => setAgruparRota((v) => !v)}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold border transition-all ${
+                  agruparRota
+                    ? 'bg-indigo-100 border-indigo-300 text-indigo-700'
+                    : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-100'
+                }`}
+              >
+                <span
+                  className={agruparRota ? 'text-indigo-600' : 'text-gray-400'}
+                >
+                  <Icons.Layered width={18} height={18} />
+                </span>
+                Rotas
+              </button>
+              {/* Toggle mapa */}
+              <button
+                onClick={() => setMostrarMapa((v) => !v)}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold border transition-all ${
+                  mostrarMapa
+                    ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
+                    : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-100'
+                }`}
+              >
+                <span>{'\u{1F5FA}\uFE0F'}</span>
+                Mapa
+              </button>
+            </div>
+
+            {/* Inputs de data para Personalizado */}
+            {periodoKey === 'personalizado' && (
+              <div className="flex items-center gap-3 mt-3">
+                <div className="flex-1">
+                  <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wide">
+                    Inicio
+                  </label>
+                  <input
+                    type="date"
+                    value={dataInicio}
+                    onChange={(e) => setDataInicio(e.target.value)}
+                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wide">
+                    Fim
+                  </label>
+                  <input
+                    type="date"
+                    value={dataFim}
+                    onChange={(e) => setDataFim(e.target.value)}
+                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none"
+                  />
+                </div>
               </div>
-              <div className="flex-1">
-                <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wide">
-                  Fim
-                </label>
-                <input
-                  type="date"
-                  value={dataFim}
-                  onChange={(e) => setDataFim(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none"
+            )}
+          </div>
+
+          {/* Mapa */}
+          {mostrarMapa && pacotes.length > 0 && (
+            <div className="px-4 mb-4">
+              <MapaRota
+                pontos={pacotes.map((p) => ({
+                  lat: 0,
+                  lng: 0,
+                  codigo: p.codigo,
+                  endereco: p.endereco_entrega,
+                  destinatario: p.destinatario,
+                  status: p.status,
+                }))}
+                altura="350px"
+              />
+              <p className="text-[10px] text-gray-400 mt-1.5 text-center">
+                {'\u{1F5FA}\uFE0F'} Mapa com {pacotes.length} pacote(s) — Os
+                pontos sao aproximados por endereco
+              </p>
+            </div>
+          )}
+
+          {/* Lista de Pacotes */}
+          {pacotes.length === 0 ? (
+            <EmptyState />
+          ) : agruparRota ? (
+            // Agrupado por rota
+            <div className="px-4 space-y-4">
+              {grupos.map((g) => (
+                <GrupoRotaCard
+                  key={g.endereco}
+                  grupo={g}
+                  onRetirar={(p) => handleRetirar(p)}
+                  onIniciarRota={handleIniciarRota}
+                  onEntregar={(p) => setEntregaModalPacote(p)}
+                  onDevolver={(p) => setDevolucaoModalPacote(p)}
+                  onVerFoto={handleVerFoto}
                 />
-              </div>
+              ))}
+            </div>
+          ) : (
+            /* Lista simples */
+            <div className="px-4 space-y-3">
+              {pacotes.map((p) => (
+                <PackageCard
+                  key={p.codigo}
+                  pacote={p}
+                  onRetirar={(pkg) => handleRetirar(pkg)}
+                  onIniciarRota={handleIniciarRota}
+                  onEntregar={(pkg) => setEntregaModalPacote(pkg)}
+                  onDevolver={(pkg) => setDevolucaoModalPacote(pkg)}
+                  onVerFoto={handleVerFoto}
+                />
+              ))}
             </div>
           )}
         </div>
 
-        {/* Mapa */}
-        {mostrarMapa && pacotes.length > 0 && (
-          <div className="px-4 mb-4">
-            <MapaRota
-              pontos={pacotes.map((p) => ({
-                lat: 0,
-                lng: 0,
-                codigo: p.codigo,
-                endereco: p.endereco_entrega,
-                destinatario: p.destinatario,
-                status: p.status,
-              }))}
-              altura="350px"
-            />
-            <p className="text-[10px] text-gray-400 mt-1.5 text-center">
-              {'\u{1F5FA}\uFE0F'} Mapa com {pacotes.length} pacote(s) — Os
-              pontos sao aproximados por endereco
-            </p>
-          </div>
-        )}
-
-        {/* Lista de Pacotes */}
-        {pacotes.length === 0 ? (
-          <EmptyState />
-        ) : agruparRota ? (
-          /* Agrupado por rota */
-          <div className="px-4 space-y-4">
-            {grupos.map((g) => (
-              <GrupoRotaCard
-                key={g.endereco}
-                grupo={g}
-                onRetirar={(p) => handleRetirar(p)}
-                onIniciarRota={handleIniciarRota}
-                onEntregar={(p) => setEntregaModalPacote(p)}
-                onDevolver={(p) => setDevolucaoModalPacote(p)}
-                onVerFoto={handleVerFoto}
-              />
-            ))}
-          </div>
-        ) : (
-          /* Lista simples */
-          <div className="px-4 space-y-3">
-            {pacotes.map((p) => (
-              <PackageCard
-                key={p.codigo}
-                pacote={p}
-                onRetirar={(pkg) => handleRetirar(pkg)}
-                onIniciarRota={handleIniciarRota}
-                onEntregar={(pkg) => setEntregaModalPacote(pkg)}
-                onDevolver={(pkg) => setDevolucaoModalPacote(pkg)}
-                onVerFoto={handleVerFoto}
-              />
-            ))}
-          </div>
-        )}
+        {/* Modais */}
+        <EntregaModal
+          pacote={entregaModalPacote}
+          onClose={() => setEntregaModalPacote(null)}
+          onConfirm={handleEntregar}
+        />
+        <DevolucaoModal
+          pacote={devolucaoModalPacote}
+          onClose={() => setDevolucaoModalPacote(null)}
+          onConfirm={handleDevolver}
+        />
       </div>
-
-      {/* Modais */}
-      <EntregaModal
-        pacote={entregaModalPacote}
-        onClose={() => setEntregaModalPacote(null)}
-        onConfirm={handleEntregar}
-      />
-      <DevolucaoModal
-        pacote={devolucaoModalPacote}
-        onClose={() => setDevolucaoModalPacote(null)}
-        onConfirm={handleDevolver}
-      />
-    </div>
+    </React.Fragment>
   );
 }

@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 interface FotoPacote {
   codigo: string
@@ -107,8 +109,9 @@ export default function AdminFotosPage() {
   const totalPendentes = fotos.filter(f => f.tem_foto && !f.validacao_admin).length
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7]">
-      {/* Header */}
+    <FeatureGuard feature={FEATURES.GESTAO_FOTOS_ADMIN}>
+      <div className="min-h-screen bg-[#f5f5f7]">
+        {/* Header */}
       <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-xl border-b border-gray-200/80">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
@@ -316,5 +319,6 @@ export default function AdminFotosPage() {
         </div>
       )}
     </div>
+    </FeatureGuard>
   )
 }

@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 type DesempenhoEntregador = {
   id: number
@@ -102,11 +104,12 @@ export default function RelatorioMensalPage() {
   ]
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* HEADER */}
+    <FeatureGuard feature={FEATURES.RELATORIO_CONSOLIDADO}>
+      <div className="max-w-7xl mx-auto">
+        {/* HEADER */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">📊 Relatório Consolidado</h2>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">📊 Métricas de Desempenho</h2>
           <p className="text-sm text-gray-500 mt-0.5">Desempenho por entregador em períodos personalizáveis</p>
         </div>
         <button
@@ -393,6 +396,7 @@ export default function RelatorioMensalPage() {
           </div>
         </>
       )}
-    </div>
+      </div>
+    </FeatureGuard>
   )
 }

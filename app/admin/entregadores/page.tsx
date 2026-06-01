@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import FeatureGuard from '@/components/feature-guard'
+import { FEATURES } from '@/lib/features'
 
 type Entregador = {
   id: number
@@ -143,8 +145,9 @@ export default function EntregadoresPage() {
   const inativos = entregadores.filter(e => !e.ativo)
 
   return (
-    <div>
-      {/* Header */}
+    <FeatureGuard feature={FEATURES.ENTREGADORES_CRUD}>
+      <div>
+        {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Entregadores</h2>
@@ -381,6 +384,7 @@ export default function EntregadoresPage() {
         />
       )}
     </div>
+    </FeatureGuard>
   )
 }
 
