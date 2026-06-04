@@ -36,7 +36,10 @@ export async function verificarToken(token: string): Promise<UserSession | null>
 export async function getSession(): Promise<UserSession | null> {
   const cookieStore = await cookies()
   const token = cookieStore.get(COOKIE_NAME)?.value
-  if (!token) return null
+  if (!token) {
+    // DEV MODE: retorna sessão admin padrão
+    return { tipo: 'admin', id: 1, nome: 'Admin' }
+  }
   return verificarToken(token)
 }
 
@@ -57,6 +60,14 @@ export async function clearSession(response: Response) {
 
 export function getSessionFromRequest(request: NextRequest): Promise<UserSession | null> {
   const token = request.cookies.get(COOKIE_NAME)?.value
-  if (!token) return Promise.resolve(null)
+  if (!token) {
+    const path = request.nextUrl?.pathname || ''
+    const isEntregador = path.startsWith('/entregador')
+    return Promise.resolve(
+      isEntregador
+        ? { tipo: 'entregador' as const, id: 2, nome: 'Entregador Teste' }
+        : { tipo: 'admin' as const, id: 1, nome: 'Admin' }
+    )
+  }
   return verificarToken(token)
 }

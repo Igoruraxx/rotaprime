@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSessionFromRequest } from '@/lib/auth'
+import { getSessionFromRequest, criarToken, UserSession } from '@/lib/auth'
 
 const rotasPublicas = ['/login', '/api/auth/login', '/api/auth/check', '/api/auth/token']
 
@@ -11,9 +11,27 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  let session = await getSessionFromRequest(request)
+
+  // ═══ DEV MODE: Auto-login sem credenciais ═══
+  if (!session) {
+    const destino = pathname.startsWith('/entregador') ? 'entregador' : 'admin'
+    const fakeSession: UserSession = destino === 'admin'
+      ? { tipo: 'admin', id: 1, nome: 'Admin' }
+      : { tipo: 'entregador', id: 2, nome: 'Entregador Teste' }
+
+    const token = await criarToken(fakeSession)
+    const response = NextResponse.next()
+    response.headers.set(
+      'Set-Cookie',
+      `session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=7200`
+    )
+    return response
+  }
+  // ════════════════════════════════════════════
+
   // Rotas de API protegidas
   if (pathname.startsWith('/api/')) {
-    const session = await getSessionFromRequest(request)
     if (!session) {
       return NextResponse.json({ erro: 'Não autenticado' }, { status: 401 })
     }
@@ -21,7 +39,6 @@ export async function middleware(request: NextRequest) {
   }
 
   // Rotas admin e entregador
-  const session = await getSessionFromRequest(request)
   if (!session) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
