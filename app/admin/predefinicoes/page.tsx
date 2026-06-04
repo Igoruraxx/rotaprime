@@ -9,7 +9,6 @@ export default function PredefinicoesPage() {
   const [executando, setExecutando] = useState<string | null>(null)
   const [valorGlobal, setValorGlobal] = useState('')
   const [diasFotos, setDiasFotos] = useState('30')
-  const [percentualMulta, setPercentualMulta] = useState('10')
   const [percentualReajuste, setPercentualReajuste] = useState('')
   const [diasCongelar, setDiasCongelar] = useState('30')
   const [previsaoData, setPrevisaoData] = useState<any[] | null>(null)
@@ -151,25 +150,17 @@ export default function PredefinicoesPage() {
               <div>
                 <p className="font-semibold text-gray-900 text-sm">💰 Aplicar Multa por Atraso</p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Aplica um percentual de multa sobre o valor dos pacotes atrasados
+                  Aplica <strong>R$ 1,00 por dia</strong> de atraso no valor dos pacotes vencidos.
+                  O desconto aparece no financeiro do entregador com o motivo e o pacote de origem.
                 </p>
               </div>
-              <div className="flex items-end gap-2">
-                <input
-                  type="number" step="0.1" min="0"
-                  value={percentualMulta}
-                  onChange={e => setPercentualMulta(e.target.value)}
-                  className="w-20 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all"
-                />
-                <span className="text-xs text-gray-500 pb-2">%</span>
-                <button
-                  onClick={() => executar('aplicar_multa_atraso', { numero: percentualMulta })}
-                  disabled={executando !== null || !percentualMulta || Number(percentualMulta) <= 0}
-                  className="px-4 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.97] shadow-md shadow-orange-200"
-                >
-                  {executando === 'aplicar_multa_atraso' ? '⏳' : '💲 Multar'}
-                </button>
-              </div>
+              <button
+                onClick={() => executar('aplicar_multa_atraso')}
+                disabled={executando !== null}
+                className="px-4 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.97] shadow-md shadow-orange-200 whitespace-nowrap"
+              >
+                {executando === 'aplicar_multa_atraso' ? '⏳' : '💰 R$ 1/dia Multar'}
+              </button>
             </div>
 
             {/* Resetar Retornados */}
@@ -228,7 +219,7 @@ export default function PredefinicoesPage() {
               <div>
                 <p className="font-semibold text-gray-900 text-sm">💳 Marcar Pendentes de Pagamento</p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Marca pacotes <strong>Entregues/Finalizados</strong> com pagamento não realizado
+                  Marca pacotes com <strong>status "Validado pelo Admin"</strong> e pagamento não realizado
                 </p>
               </div>
               <button

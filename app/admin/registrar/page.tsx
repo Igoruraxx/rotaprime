@@ -227,21 +227,165 @@ export default function RegistrarPage() {
             )}
           </div>
 
-          {/* ========== TOGGLES ========== */}
+          {/* ========== CAMPOS ATIVOS (abrem acima dos toggles) ========== */}
+          <div className="space-y-4">
+            {showQuantidade && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                  Quantidade de pacotes [AGRUPAR]
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={quantidade}
+                  onChange={e => setQuantidade(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-24 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                />
+                <p className="text-[10px] text-amber-600 mt-1">
+                  ⚡ [AGRUPAR] Serão criados {quantidade} pacote(s) no mesmo fluxo — use o biper
+                </p>
+
+                {/* Linhas NF/Remessa/Código */}
+                <div className="mt-3 space-y-2">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">
+                    NF / Remessa / Código <span className="text-red-500">*</span> (preencha ao menos 1 campo por linha):
+                  </p>
+                  {linhasPacote.map((linha, i) => (
+                    <div key={i} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={linha.nf_remessa}
+                        onChange={e => {
+                          const novos = [...linhasPacote]
+                          novos[i] = { ...novos[i], nf_remessa: e.target.value }
+                          setLinhasPacote(novos)
+                        }}
+                        placeholder={`NF/Remessa #${i + 1}`}
+                        className="flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                      />
+                      <input
+                        type="text"
+                        value={linha.codigo}
+                        onChange={e => {
+                          const novos = [...linhasPacote]
+                          novos[i] = { ...novos[i], codigo: e.target.value }
+                          setLinhasPacote(novos)
+                        }}
+                        placeholder={`Código #${i + 1} (vazio = automático)`}
+                        className="flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {showEntregador && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                  Atribuir a entregador
+                </label>
+                <select
+                  value={entregadorId}
+                  onChange={e => setEntregadorId(e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                >
+                  <option value="">Selecionar entregador...</option>
+                  {entregadores.map(e => (
+                    <option key={e.id} value={e.id}>{e.nome}</option>
+                  ))}
+                </select>
+                {entregadorId && (
+                  <p className="text-[10px] text-emerald-600 mt-1">
+                    ⚡ Ao selecionar, o pacote já será liberado direto para o entregador (pula a Central)
+                  </p>
+                )}
+              </div>
+            )}
+
+            {showDestinatario && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Destinatário</label>
+                <input name="destinatario" type="text" placeholder="Nome do destinatário"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                />
+              </div>
+            )}
+
+            {showDescricao && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Descrição</label>
+                <textarea name="descricao" rows={2} placeholder="Descrição do conteúdo..."
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                />
+              </div>
+            )}
+
+            {showEndereco && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Endereço de entrega</label>
+                <input name="endereco_entrega" type="text" placeholder="Rua, número, bairro, cidade..."
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                />
+              </div>
+            )}
+
+            {showValor && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Valor por pacote (R$)</label>
+                <input
+                  type="number" step="0.01" min="0"
+                  value={valor}
+                  onChange={e => setValor(e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                />
+              </div>
+            )}
+
+            {showPrazo && (
+              <div>
+                <label className="flex items-center gap-2 mb-1.5">
+                  <input
+                    type="checkbox"
+                    checked={prazoAtivo}
+                    onChange={e => setPrazoAtivo(e.target.checked)}
+                    className="rounded"
+                  />
+                  <span className="text-xs font-semibold text-gray-700">Definir prazo de entrega</span>
+                </label>
+                {prazoAtivo && (
+                  <input
+                    name="data_limite_entrega"
+                    type="datetime-local"
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                  />
+                )}
+              </div>
+            )}
+
+            {showObservacoes && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Observações</label>
+                <textarea name="observacoes" rows={2} placeholder="Observações adicionais..."
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* ========== LISTA DE TOGGLES FIXA (sempre no mesmo lugar) ========== */}
           <div className="border border-gray-100 rounded-xl bg-gray-50/50 divide-y divide-gray-100">
-            {/* 1º Quantidade */}
             <ToggleSwitch
               ativo={showQuantidade}
               onClick={() => setShowQuantidade(!showQuantidade)}
               label="📦 Quantidade [AGRUPAR]"
             />
-            {/* 2º Entregador */}
             <ToggleSwitch
               ativo={showEntregador}
               onClick={() => setShowEntregador(!showEntregador)}
               label="👤 Atribuir Entregador"
             />
-            {/* Demais toggles */}
             <ToggleSwitch
               ativo={showDestinatario}
               onClick={() => setShowDestinatario(!showDestinatario)}
@@ -273,153 +417,6 @@ export default function RegistrarPage() {
               label="📋 Observações"
             />
           </div>
-
-          {/* ========== QUANTIDADE + LINHAS NF/REMESSA/CÓDIGO (1º) ========== */}
-          {showQuantidade && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-                Quantidade de pacotes [AGRUPAR]
-              </label>
-              <input
-                type="number"
-                min="1"
-                max="50"
-                value={quantidade}
-                onChange={e => setQuantidade(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-24 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
-              />
-              <p className="text-[10px] text-amber-600 mt-1">
-                ⚡ [AGRUPAR] Serão criados {quantidade} pacote(s) no mesmo fluxo — use o biper
-              </p>
-
-              {/* Linhas NF/Remessa/Código */}
-              <div className="mt-3 space-y-2">
-                <p className="text-xs font-semibold text-gray-600 mb-1">
-                  NF / Remessa / Código <span className="text-red-500">*</span> (preencha ao menos 1 campo por linha):
-                </p>
-                {linhasPacote.map((linha, i) => (
-                  <div key={i} className="flex gap-2">
-                    <input
-                      type="text"
-                      value={linha.nf_remessa}
-                      onChange={e => {
-                        const novos = [...linhasPacote]
-                        novos[i] = { ...novos[i], nf_remessa: e.target.value }
-                        setLinhasPacote(novos)
-                      }}
-                      placeholder={`NF/Remessa #${i + 1}`}
-                      className="flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
-                    />
-                    <input
-                      type="text"
-                      value={linha.codigo}
-                      onChange={e => {
-                        const novos = [...linhasPacote]
-                        novos[i] = { ...novos[i], codigo: e.target.value }
-                        setLinhasPacote(novos)
-                      }}
-                      placeholder={`Código #${i + 1} (vazio = automático)`}
-                      className="flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ========== ENTREGADOR (2º) ========== */}
-          {showEntregador && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-                Atribuir a entregador
-              </label>
-              <select
-                value={entregadorId}
-                onChange={e => setEntregadorId(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
-              >
-                <option value="">Selecionar entregador...</option>
-                {entregadores.map(e => (
-                  <option key={e.id} value={e.id}>{e.nome}</option>
-                ))}
-              </select>
-              {entregadorId && (
-                <p className="text-[10px] text-emerald-600 mt-1">
-                  ⚡ Ao selecionar, o pacote já será liberado direto para o entregador (pula a Central)
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* ========== DEMAIS CAMPOS ========== */}
-          {showDestinatario && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Destinatário</label>
-              <input name="destinatario" type="text" placeholder="Nome do destinatário"
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
-              />
-            </div>
-          )}
-
-          {showDescricao && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Descrição</label>
-              <textarea name="descricao" rows={2} placeholder="Descrição do conteúdo..."
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
-              />
-            </div>
-          )}
-
-          {showEndereco && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Endereço de entrega</label>
-              <input name="endereco_entrega" type="text" placeholder="Rua, número, bairro, cidade..."
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
-              />
-            </div>
-          )}
-
-          {showValor && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Valor por pacote (R$)</label>
-              <input
-                type="number" step="0.01" min="0"
-                value={valor}
-                onChange={e => setValor(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
-              />
-            </div>
-          )}
-
-          {showPrazo && (
-            <div>
-              <label className="flex items-center gap-2 mb-1.5">
-                <input
-                  type="checkbox"
-                  checked={prazoAtivo}
-                  onChange={e => setPrazoAtivo(e.target.checked)}
-                  className="rounded"
-                />
-                <span className="text-xs font-semibold text-gray-700">Definir prazo de entrega</span>
-              </label>
-              {prazoAtivo && (
-                <input
-                  name="data_limite_entrega"
-                  type="datetime-local"
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
-                />
-              )}
-            </div>
-          )}
-
-          {showObservacoes && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Observações</label>
-              <textarea name="observacoes" rows={2} placeholder="Observações adicionais..."
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
-              />
-            </div>
-          )}
 
           {/* ========== SUBMIT ========== */}
           <button

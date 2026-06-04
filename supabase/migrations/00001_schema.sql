@@ -115,7 +115,19 @@ CREATE TABLE IF NOT EXISTS whatsapp_log (
   entregador_id INTEGER REFERENCES entregadores(id) ON DELETE SET NULL,
   pacote_codigo VARCHAR(30),
   data_envio TIMESTAMP DEFAULT NOW(),
-  tipo VARCHAR(50) DEFAULT 'consulta'
+  tipo VARCHAR(30)
+);
+
+-- ============================================
+-- 8. MULTAS (Descontos por atraso)
+-- ============================================
+CREATE TABLE IF NOT EXISTS multas (
+  id SERIAL PRIMARY KEY,
+  pacote_codigo VARCHAR(30) REFERENCES pacotes(codigo) ON DELETE CASCADE,
+  entregador_id INTEGER REFERENCES entregadores(id) ON DELETE SET NULL,
+  dias_atraso INTEGER NOT NULL DEFAULT 0,
+  valor_multa DECIMAL(10,2) NOT NULL DEFAULT 0,
+  criado_em TIMESTAMP DEFAULT NOW()
 );
 
 -- ============================================

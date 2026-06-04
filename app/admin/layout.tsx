@@ -23,19 +23,18 @@ const NAV_FEATURE_MAP: Record<string, string> = {
 }
 
 const ALL_NAV_ITEMS = [
-  { href: '/admin', icon: '📊', label: 'Dashboard', grupo: 'Gestão' },
-  { href: '/admin/registrar', icon: '➕', label: 'Registrar', grupo: 'Gestão' },
-  { href: '/admin/pacotes', icon: '📦', label: 'Pacotes', grupo: 'Gestão' },
-  { href: '/admin/rastrear', icon: '🔍', label: 'Rastrear', grupo: 'Gestão' },
+  { href: '/admin', icon: '📊', label: 'Dashboard', grupo: 'Início' },
+  { href: '/admin/registrar', icon: '➕', label: 'Registrar', grupo: 'Início' },
+  { href: '/admin/pacotes', icon: '📦', label: 'Pacotes', grupo: 'Início' },
+  { href: '/admin/rastrear', icon: '🔍', label: 'Rastrear', grupo: 'Início' },
+  { href: '/admin/fotos', icon: '📸', label: 'Fotos', grupo: 'Início' },
   { href: '/admin/relatorio', icon: '📋', label: 'Relatório', grupo: 'Gestão' },
   { href: '/admin/financeiro', icon: '💰', label: 'Financeiro', grupo: 'Gestão' },
-  { href: '/admin/pagamentos', icon: '🔄', label: 'Ciclos', grupo: 'Gestão' },
   { href: '/admin/finalizar-dia', icon: '🔒', label: 'Finalizar', grupo: 'Gestão' },
   { href: '/admin/relatorio-mensal', icon: '📊', label: 'Métricas', grupo: 'Gestão' },
-  { href: '/admin/entregadores', icon: '👥', label: 'Entregadores', grupo: 'Operacional' },
-  { href: '/admin/fotos', icon: '📸', label: 'Fotos', grupo: 'Operacional' },
-  { href: '/admin/transportadoras', icon: '🚚', label: 'Transportadoras', grupo: 'Operacional' },
-  { href: '/admin/predefinicoes', icon: '🎛️', label: 'Predefinições', grupo: 'Operacional' },
+  { href: '/admin/transportadoras', icon: '🚚', label: 'Transportadoras', grupo: 'Sistema' },
+  { href: '/admin/entregadores', icon: '👥', label: 'Entregadores', grupo: 'Sistema' },
+  { href: '/admin/predefinicoes', icon: '🎛️', label: 'Predefinições', grupo: 'Sistema' },
   { href: '/admin/configuracoes', icon: '⚙️', label: 'Controle', grupo: 'Sistema' },
 ]
 
@@ -46,12 +45,12 @@ const ALL_MOBILE_ITEMS = [
   { href: '/admin/rastrear', icon: '🔍', label: 'Buscar' },
   { href: '/admin/relatorio', icon: '📋', label: 'Relatório' },
   { href: '/admin/financeiro', icon: '💰', label: 'Finance' },
-  { href: '/admin/pagamentos', icon: '🔄', label: 'Ciclos' },
   { href: '/admin/finalizar-dia', icon: '🔒', label: 'Finaliz.' },
   { href: '/admin/relatorio-mensal', icon: '📊', label: 'Métric.' },
-  { href: '/admin/entregadores', icon: '👥', label: 'Entreg.' },
   { href: '/admin/fotos', icon: '📸', label: 'Fotos' },
   { href: '/admin/transportadoras', icon: '🚚', label: 'Transp.' },
+  { href: '/admin/entregadores', icon: '👥', label: 'Entreg.' },
+  { href: '/admin/predefinicoes', icon: '🎛️', label: 'Predef.' },
   { href: '/admin/configuracoes', icon: '⚙️', label: 'Ctrl' },
 ]
 

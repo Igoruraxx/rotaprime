@@ -13,6 +13,14 @@ ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS chave_pix VARCHAR(100);
 ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS banco_pagamento VARCHAR(60);
 ALTER TABLE entregadores ADD COLUMN IF NOT EXISTS carteira_motorista VARCHAR(20);
 ALTER TABLE pagamentos_entregador ADD COLUMN IF NOT EXISTS forma_pagamento VARCHAR(30) DEFAULT 'Dinheiro';
+CREATE TABLE IF NOT EXISTS multas (
+  id SERIAL PRIMARY KEY,
+  pacote_codigo VARCHAR(30) REFERENCES pacotes(codigo) ON DELETE CASCADE,
+  entregador_id INTEGER REFERENCES entregadores(id) ON DELETE SET NULL,
+  dias_atraso INTEGER NOT NULL DEFAULT 0,
+  valor_multa DECIMAL(10,2) NOT NULL DEFAULT 0,
+  criado_em TIMESTAMP DEFAULT NOW()
+);
 
 -- ============================================
 -- 1. LIMPAR TODOS OS DADOS (desativando FK temporariamente)

@@ -171,52 +171,69 @@ export async function POST(request: NextRequest) {
 
     // ─────────────────────────────────────────────────
     // APLICAR MULTA POR ATRASO
-    // Aplica um percentual de multa sobre o valor dos
-    // pacotes que estão atrasados
+    // Aplica R$ 1,00 por dia de atraso no valor do pacote
+    // Reduz o valor do pacote e registra na tabela multas
     // ─────────────────────────────────────────────────
     if (acao === 'aplicar_multa_atraso') {
-      const percentual = Number(numero || 0)
-      if (!percentual || percentual <= 0) {
-        return NextResponse.json({ erro: 'Percentual inválido' }, { status: 400 })
-      }
-
-      const agora = new Date().toISOString()
+      const agora = new Date()
       const statusAtivos = [
         'Recebido', 'Aguardando Retirada',
         'Retirado pelo Entregador', 'Em Rota',
       ]
-      const fator = 1 + (percentual / 100)
 
-      // Busca pacotes atrasados e aplica multa
+      // Busca pacotes atrasados com entregador
       const { data: atrasados } = await supabase
         .from('pacotes')
-        .select('codigo, valor_pacote')
+        .select('codigo, valor_pacote, entregador_id, data_limite_entrega')
         .in('status', statusAtivos)
-        .lt('data_limite_entrega', agora)
+        .lt('data_limite_entrega', agora.toISOString())
+        .not('entregador_id', 'is', null)
+
+      if (!atrasados || atrasados.length === 0) {
+        return NextResponse.json({ erro: 'Nenhum pacote atrasado com entregador encontrado' }, { status: 400 })
+      }
 
       let totalMulta = 0
       let count = 0
+      const multasInserir: any[] = []
 
-      for (const p of (atrasados || [])) {
-        const valorOriginal = Number(p.valor_pacote || 0)
-        const novoValor = valorOriginal * fator
-        const multa = novoValor - valorOriginal
-        if (multa > 0) {
-          const { error } = await supabase
-            .from('pacotes')
-            .update({ valor_pacote: Math.round(novoValor * 100) / 100 })
-            .eq('codigo', p.codigo)
-          if (!error) {
-            totalMulta += multa
-            count++
-          }
+      for (const p of atrasados) {
+        const dataLimite = new Date(p.data_limite_entrega)
+        const diffMs = agora.getTime() - dataLimite.getTime()
+        const diasAtraso = Math.max(1, Math.floor(diffMs / (1000 * 60 * 60 * 24)))
+        const valorMulta = Math.min(diasAtraso * 1, Number(p.valor_pacote || 0)) // max = valor do pacote
+        const novoValor = Math.max(0, Number(p.valor_pacote || 0) - valorMulta)
+
+        if (valorMulta <= 0) continue
+
+        // Atualiza valor do pacote (reduz)
+        const { error } = await supabase
+          .from('pacotes')
+          .update({ valor_pacote: Math.round(novoValor * 100) / 100 })
+          .eq('codigo', p.codigo)
+
+        if (!error) {
+          multasInserir.push({
+            pacote_codigo: p.codigo,
+            entregador_id: p.entregador_id,
+            dias_atraso: diasAtraso,
+            valor_multa: Math.round(valorMulta * 100) / 100,
+          })
+          totalMulta += valorMulta
+          count++
         }
+      }
+
+      // Insere registros na tabela multas
+      if (multasInserir.length > 0) {
+        await supabase.from('multas').insert(multasInserir)
       }
 
       return NextResponse.json({
         sucesso: true,
-        mensagem: `💰 ${count} pacotes multados em ${percentual}% — R$ ${totalMulta.toFixed(2)} em multas aplicadas`,
+        mensagem: `💰 ${count} pacote(s) multado(s) — R$ ${totalMulta.toFixed(2)} em descontos (R$ 1/dia de atraso)`,
         quantidade: count,
+        valor_total: Math.round(totalMulta * 100) / 100,
       })
     }
 
@@ -324,8 +341,7 @@ export async function POST(request: NextRequest) {
     // ─────────────────────────────────────────────────
     if (acao === 'marcar_pendentes_pagamento') {
       const statusParaPendente = [
-        'Entregue',
-        'Finalizado',
+        'Validado pelo Admin',
       ]
 
       // Marca observacao e tenta setar pendente_pagamento = true
@@ -481,7 +497,7 @@ export async function POST(request: NextRequest) {
       const qtdAtrasados = atrasados?.length || 0
 
       // Passo 2: Marca PENDENTES DE PAGAMENTO
-      const statusPendente = ['Entregue', 'Finalizado']
+      const statusPendente = ['Validado pelo Admin']
       const { data: pendentes } = await supabase
         .from('pacotes')
         .update({ observacao: '[PENDENTE] Pagamento nao realizado' })

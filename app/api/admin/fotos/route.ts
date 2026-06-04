@@ -9,28 +9,23 @@ export async function GET(request: NextRequest) {
   }
 
   const { searchParams } = new URL(request.url)
-  const periodo = searchParams.get('periodo') || '7d'
-  const dataInicio = searchParams.get('data_inicio')
-  const status = searchParams.get('status') || 'todos'
+  const periodo = searchParams.get('periodo') || 'hoje'
+  const status = searchParams.get('status') || 'pendentes_validacao'
 
   let query = supabase
     .from('pacotes')
-    .select('codigo, destinatario, endereco_entrega, status, foto, gps_foto, data_entrega_real, data_chegada, entregador_id, valor_pacote')
+    .select('codigo, destinatario, endereco_entrega, status, foto, gps_foto, data_entrega_real, data_chegada, entregador_id, valor_pacote, validacao_admin')
 
-  // Filtrar apenas quem tem foto ou já está entregue
-  if (status === 'com_foto') {
-    query = query.not('foto', 'is', null)
-  } else if (status === 'sem_foto') {
-    query = query.is('foto', null)
-  } else if (status === 'entregues') {
+  // Status filter
+  if (status === 'pendentes_validacao') {
     query = query.in('status', ['Entregue', 'Validado pelo Admin'])
+      .not('foto', 'is', null)
+      .eq('validacao_admin', false)
   } else if (status === 'validados') {
     query = query.eq('validacao_admin', true)
-  } else if (status === 'pendentes_validacao') {
-    query = query.in('status', ['Entregue', 'Validado pelo Admin']).not('foto', 'is', null).eq('validacao_admin', false)
   }
 
-  // Filtro por período (data_entrega_real)
+  // Period filter
   if (periodo && periodo !== 'tudo') {
     const hoje = new Date()
     hoje.setHours(23, 59, 59, 999)
@@ -40,20 +35,15 @@ export async function GET(request: NextRequest) {
     switch (periodo) {
       case 'hoje': break
       case '7d': inicio.setDate(inicio.getDate() - 7); break
-      case '30d': inicio.setDate(inicio.getDate() - 30); break
-      case '90d': inicio.setDate(inicio.getDate() - 90); break
+      case '15d': inicio.setDate(inicio.getDate() - 15); break
+      case '60d': inicio.setDate(inicio.getDate() - 60); break
     }
 
     query = query.gte('data_entrega_real', inicio.toISOString())
     query = query.lte('data_entrega_real', hoje.toISOString())
   }
 
-  if (dataInicio) {
-    query = query.gte('data_entrega_real', new Date(dataInicio).toISOString())
-  }
-
-  // Busca nomes dos entregadores
-  const { data: pacotes } = await query.order('data_entrega_real', { ascending: false }).limit(100)
+  const { data: pacotes } = await query.order('data_entrega_real', { ascending: false }).limit(200)
 
   if (!pacotes) {
     return NextResponse.json({ fotos: [] })
@@ -102,8 +92,8 @@ export async function POST(request: NextRequest) {
         switch (periodo) {
           case 'hoje': break
           case '7d': inicio.setDate(inicio.getDate() - 7); break
-          case '30d': inicio.setDate(inicio.getDate() - 30); break
-          case '90d': inicio.setDate(inicio.getDate() - 90); break
+          case '15d': inicio.setDate(inicio.getDate() - 15); break
+          case '60d': inicio.setDate(inicio.getDate() - 60); break
         }
 
         query = query.gte('data_entrega_real', inicio.toISOString()).lte('data_entrega_real', hoje.toISOString())
@@ -115,16 +105,13 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ erro: 'Erro ao limpar fotos', detalhe: error.message }, { status: 500 })
       }
 
-      // Também limpa do storage (em background)
+      // Limpa storage em background
       if (data && data.length > 0) {
-        // Tenta remover do storage (não blocking)
         for (const p of data) {
           if (p.codigo) {
-            // Delete do storage bucket em lote
             const { data: pacote } = await supabase.from('pacotes').select('foto').eq('codigo', p.codigo).single()
             if (pacote?.foto) {
-              const pathParts = pacote.foto.split('/')
-              const filename = pathParts[pathParts.length - 1]
+              const filename = pacote.foto.split('/').pop()
               if (filename) {
                 supabase.storage.from('fotos').remove([`entregas/${filename}`]).catch(() => {})
               }
@@ -145,9 +132,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ erro: 'Nenhum pacote selecionado' }, { status: 400 })
       }
 
+      const agora = new Date().toISOString()
+
       const { data, error } = await supabase
         .from('pacotes')
-        .update({ validacao_admin: true })
+        .update({ validacao_admin: true, data_validacao_admin: agora, status: 'Validado pelo Admin' })
         .in('codigo', codigos)
         .select('codigo')
 
@@ -157,7 +146,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         sucesso: true,
-        mensagem: `✅ ${data?.length || 0} pacote(s) validado(s)!`,
+        mensagem: `✅ ${data?.length || 0} pacote(s) validado(s)! Status alterado para "Validado pelo Admin".`,
         quantidade: data?.length || 0,
       })
     }

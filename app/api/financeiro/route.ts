@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/db'
 import { getSessionFromRequest } from '@/lib/auth'
 
+// ═══════════════════════════════════════════════════════════════
+// GET  → Ciclo de pagamento (desde o ÚLTIMO pagamento)
+//
+// ?entregador_id=N  → pacotes detalhados daquele entregador
+// (sem param)       → resumo de todos os entregadores
+// ═══════════════════════════════════════════════════════════════
+
 export async function GET(request: NextRequest) {
   const session = await getSessionFromRequest(request)
   if (!session || session.tipo !== 'admin') {
@@ -9,101 +16,137 @@ export async function GET(request: NextRequest) {
   }
 
   const { searchParams } = new URL(request.url)
-  const dataIni = searchParams.get('data_ini') || ''
-  const dataFim = searchParams.get('data_fim') || ''
+  const entregadorId = searchParams.get('entregador_id')
 
-  const inicio = dataIni ? new Date(dataIni).toISOString() : ''
-  const fim = dataFim ? new Date(dataFim + 'T23:59:59').toISOString() : ''
-
-  function dateFilter(q: any) {
-    if (inicio && fim) return q.gte('data_chegada', inicio).lte('data_chegada', fim)
-    return q
+  // ── Se pediu UM entregador específico ───────────────────────
+  if (entregadorId) {
+    return await getPacotesEntregador(parseInt(entregadorId))
   }
 
+  // ── Senão, resumo de TODOS os entregadores ──────────────────
+  return await getResumoTodosEntregadores()
+}
+
+async function getPacotesEntregador(entregadorId: number) {
+  // 1. Dados do entregador + último pagamento
+  const { data: entregador } = await supabase
+    .from('entregadores')
+    .select('id, nome, valor_padrao, ultimo_pagamento_em')
+    .eq('id', entregadorId)
+    .single()
+
+  if (!entregador) {
+    return NextResponse.json({ erro: 'Entregador não encontrado' }, { status: 404 })
+  }
+
+  const inicioCiclo = entregador.ultimo_pagamento_em
+    ? new Date(entregador.ultimo_pagamento_em)
+    : new Date(0)
+
+  // 2. Pacotes entregues/validados desde o último pagamento
+  const { data: pacotes } = await supabase
+    .from('pacotes')
+    .select('codigo, status, valor_pacote, pago, data_pagamento, data_entrega_real, data_chegada, endereco_entrega, destinatario, entregador_id')
+    .eq('entregador_id', entregadorId)
+    .in('status', ['Entregue', 'Validado pelo Admin'])
+    .order('data_entrega_real', { ascending: false })
+
+  const pacotesCiclo = (pacotes || []).filter(p => {
+    const dataEntrega = p.data_entrega_real || p.data_chegada
+    if (!dataEntrega) return false
+    return new Date(dataEntrega) >= inicioCiclo
+  })
+
+  // Buscar multas deste entregador no ciclo
+  const { data: multas } = await supabase
+    .from('multas')
+    .select('pacote_codigo, dias_atraso, valor_multa, criado_em')
+    .eq('entregador_id', entregadorId)
+
+  const totalMultas = (multas || []).reduce((acc, m) => acc + Number(m.valor_multa || 0), 0)
+
+  const totalPacotes = pacotesCiclo.length
+  const valorTotal = pacotesCiclo.reduce((acc, p) => acc + parseFloat(p.valor_pacote || '0'), 0)
+  const jaPago = pacotesCiclo.filter(p => p.pago).reduce((acc, p) => acc + parseFloat(p.valor_pacote || '0'), 0)
+  const pendente = valorTotal - jaPago
+
+  return NextResponse.json({
+    entregador: {
+      id: entregador.id,
+      nome: entregador.nome,
+      valor_padrao: entregador.valor_padrao,
+      ultimo_pagamento_em: entregador.ultimo_pagamento_em,
+      inicio_ciclo: inicioCiclo.getTime() === 0 ? null : inicioCiclo.toISOString(),
+    },
+    stats: { totalPacotes, valorTotal: valorTotal.toFixed(2), jaPago: jaPago.toFixed(2), pendente: pendente.toFixed(2), descontos: totalMultas.toFixed(2) },
+    pacotes: pacotesCiclo,
+    multas: multas || [],
+  })
+}
+
+async function getResumoTodosEntregadores() {
   const [
     { data: entregadores },
     { data: pacotes },
   ] = await Promise.all([
-    supabase.from('entregadores').select('id, nome, valor_padrao').eq('ativo', true).order('nome'),
-    dateFilter(
-      supabase
-        .from('pacotes')
-        .select('codigo, status, valor_pacote, pago, data_pagamento, data_chegada, entregador_id, entregadores(nome)')
-    ) as Promise<{ data: any[] | null }>,
+    supabase.from('entregadores').select('id, nome, valor_padrao, ultimo_pagamento_em').eq('ativo', true).order('nome'),
+    supabase.from('pacotes').select('codigo, status, valor_pacote, pago, entregador_id, data_entrega_real, data_chegada')
+      .not('entregador_id', 'is', null)
+      .in('status', ['Entregue', 'Validado pelo Admin']),
   ])
 
-  const lista = pacotes || []
+  const listaPacotes = pacotes || []
   const listaEntregadores = entregadores || []
 
-  // Cards
-  let totalPendenteR$ = 0
-  let totalPagoR$ = 0
+  let totalGeralPendente = 0
+  let totalGeralPago = 0
 
-  for (const p of lista) {
-    const valor = parseFloat(p.valor_pacote || '0')
-    if (p.status === 'Entregue' || p.status === 'Validado pelo Admin') {
-      if (p.pago) totalPagoR$ += valor
-      else totalPendenteR$ += valor
-    }
-  }
+  const resumo = listaEntregadores.map(e => {
+    const ultimoPagamento = e.ultimo_pagamento_em ? new Date(e.ultimo_pagamento_em) : new Date(0)
+    const inicioCiclo = e.ultimo_pagamento_em ? ultimoPagamento.toISOString() : null
 
-  // Resumo por entregador
-  const entregadorMap = new Map<number, {
-    id: number
-    nome: string
-    valor_padrao: number
-    total: number
-    entregues: number
-    valorTotal: number
-    pago: number
-    pendente: number
-  }>()
+    const pacotesCiclo = listaPacotes.filter(p => {
+      if (p.entregador_id !== e.id) return false
+      const dataEntrega = p.data_entrega_real || p.data_chegada
+      if (!dataEntrega) return false
+      return new Date(dataEntrega) >= ultimoPagamento
+    })
 
-  for (const e of listaEntregadores) {
-    entregadorMap.set(e.id, {
+    const total = pacotesCiclo.length
+    const valorTotal = pacotesCiclo.reduce((acc, p) => acc + parseFloat(p.valor_pacote || '0'), 0)
+    const pago = pacotesCiclo.filter(p => p.pago).reduce((acc, p) => acc + parseFloat(p.valor_pacote || '0'), 0)
+    const pendente = valorTotal - pago
+
+    totalGeralPendente += pendente
+    totalGeralPago += pago
+
+    return {
       id: e.id,
       nome: e.nome,
       valor_padrao: e.valor_padrao || 0,
-      total: 0,
-      entregues: 0,
-      valorTotal: 0,
-      pago: 0,
-      pendente: 0,
-    })
-  }
-
-  for (const p of lista) {
-    const eid = p.entregador_id
-    if (!eid || !entregadorMap.has(eid)) continue
-    const entry = entregadorMap.get(eid)!
-    entry.total++
-    const valor = parseFloat(p.valor_pacote || '0')
-    if (p.status === 'Entregue' || p.status === 'Validado pelo Admin') {
-      entry.entregues++
-      entry.valorTotal += valor
-      if (p.pago) entry.pago += valor
-      else entry.pendente += valor
+      ultimo_pagamento_em: e.ultimo_pagamento_em,
+      inicio_ciclo: inicioCiclo,
+      total,
+      valor_total: valorTotal.toFixed(2),
+      pago: pago.toFixed(2),
+      pendente: pendente.toFixed(2),
+      tem_pendencia: pendente > 0,
     }
-  }
-
-  const resumoEntregadores = Array.from(entregadorMap.values())
-    .filter(e => e.total > 0 || e.entregues > 0)
-    .sort((a, b) => b.total - a.total)
+  })
 
   return NextResponse.json({
-    data_ini: inicio,
-    data_fim: fim,
     stats: {
-      totalPendente: totalPendenteR$.toFixed(2),
-      totalPago: totalPagoR$.toFixed(2),
+      totalPendente: totalGeralPendente.toFixed(2),
+      totalPago: totalGeralPago.toFixed(2),
+      totalEntregadores: resumo.length,
     },
-    resumoEntregadores,
-    pacotes: lista,
-    entregadores: listaEntregadores,
+    resumo: resumo.filter(e => e.total > 0 || e.ultimo_pagamento_em),
   })
 }
 
-// ==================== POST ====================
+// ═══════════════════════════════════════════════════════════════
+// POST → Pagar (entregador específico ou lote)
+// ═══════════════════════════════════════════════════════════════
 
 export async function POST(request: NextRequest) {
   const session = await getSessionFromRequest(request)
@@ -113,25 +156,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { acao } = body
+    const { acao, entregador_id, valor_pago, forma_pagamento } = body
 
-    if (acao === 'pagar-periodo') {
-      return await pagarPeriodo(body)
-    }
     if (acao === 'pagar-entregador') {
-      return await pagarEntregador(body)
-    }
-    if (acao === 'pagar-pacote') {
-      return await pagarPacote(body)
+      return await pagarEntregador(entregador_id, valor_pago, forma_pagamento)
     }
     if (acao === 'pagar-lote') {
       return await pagarLote(body)
-    }
-    if (acao === 'estornar') {
-      return await estornar(body)
-    }
-    if (acao === 'editar-valor') {
-      return await editarValor(body)
     }
 
     return NextResponse.json({ erro: 'Ação inválida' }, { status: 400 })
@@ -140,124 +171,124 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function pagarPeriodo(body: any) {
-  const { data_ini, data_fim } = body
-  if (!data_ini || !data_fim) {
-    return NextResponse.json({ erro: 'Informe data início e fim' }, { status: 400 })
+async function pagarEntregador(entregadorId: number, valorPago?: string, formaPagamento?: string) {
+  if (!entregadorId) {
+    return NextResponse.json({ erro: 'Informe o entregador' }, { status: 400 })
   }
 
-  const inicio = new Date(data_ini).toISOString()
-  const fim = new Date(data_fim + 'T23:59:59').toISOString()
-  const agora = new Date().toISOString()
+  // 1. Buscar entregador + último pagamento
+  const { data: entregador } = await supabase
+    .from('entregadores')
+    .select('id, nome, valor_padrao, ultimo_pagamento_em')
+    .eq('id', entregadorId)
+    .single()
 
-  const { data, error } = await supabase
+  if (!entregador) {
+    return NextResponse.json({ erro: 'Entregador não encontrado' }, { status: 404 })
+  }
+
+  const inicioCiclo = entregador.ultimo_pagamento_em
+    ? new Date(entregador.ultimo_pagamento_em)
+    : new Date(0)
+
+  const agora = new Date()
+  const agoraISO = agora.toISOString()
+
+  // 2. Buscar pacotes do ciclo que ainda NÃO foram pagos
+  const { data: todosPacotes } = await supabase
     .from('pacotes')
-    .update({ pago: true, data_pagamento: agora })
+    .select('codigo, status, valor_pacote, pago, data_entrega_real, data_chegada')
+    .eq('entregador_id', entregadorId)
     .in('status', ['Entregue', 'Validado pelo Admin'])
     .eq('pago', false)
-    .gte('data_chegada', inicio)
-    .lte('data_chegada', fim)
-    .select()
+    .order('data_entrega_real', { ascending: false })
 
-  if (error) return NextResponse.json({ erro: error.message }, { status: 500 })
-
-  return NextResponse.json({
-    ok: true,
-    atualizados: data?.length || 0,
-    mensagem: `${data?.length || 0} pacote(s) pagos com sucesso!`
+  const pacotesPagar = (todosPacotes || []).filter(p => {
+    const dataEntrega = p.data_entrega_real || p.data_chegada
+    if (!dataEntrega) return false
+    return new Date(dataEntrega) >= inicioCiclo
   })
-}
 
-async function pagarEntregador(body: any) {
-  const { entregador_id, data_ini, data_fim } = body
-  if (!entregador_id || !data_ini || !data_fim) {
-    return NextResponse.json({ erro: 'Informe entregador, data início e fim' }, { status: 400 })
+  if (pacotesPagar.length === 0) {
+    return NextResponse.json({ erro: 'Nenhum pacote pendente para este entregador' }, { status: 400 })
   }
 
-  const inicio = new Date(data_ini).toISOString()
-  const fim = new Date(data_fim + 'T23:59:59').toISOString()
-  const agora = new Date().toISOString()
+  const totalEntregues = pacotesPagar.length
+  const totalValor = pacotesPagar.reduce((acc, p) => acc + parseFloat(p.valor_pacote || '0'), 0)
+  const valorEfetivo = valorPago ? parseFloat(valorPago.replace(',', '.')) : totalValor
 
-  const { data, error } = await supabase
+  // 3. Marcar pacotes como pago
+  const codigos = pacotesPagar.map(p => p.codigo)
+  const { error: errPagar } = await supabase
     .from('pacotes')
-    .update({ pago: true, data_pagamento: agora })
-    .eq('entregador_id', parseInt(entregador_id))
-    .in('status', ['Entregue', 'Validado pelo Admin'])
-    .eq('pago', false)
-    .gte('data_chegada', inicio)
-    .lte('data_chegada', fim)
-    .select()
-
-  if (error) return NextResponse.json({ erro: error.message }, { status: 500 })
-
-  return NextResponse.json({
-    ok: true,
-    atualizados: data?.length || 0,
-    mensagem: `${data?.length || 0} pacote(s) pagos para o entregador!`
-  })
-}
-
-async function pagarPacote(body: any) {
-  const { codigos } = body
-  if (!codigos || !Array.isArray(codigos) || codigos.length === 0) {
-    return NextResponse.json({ erro: 'Informe pelo menos um código' }, { status: 400 })
-  }
-
-  const agora = new Date().toISOString()
-  const { data, error } = await supabase
-    .from('pacotes')
-    .update({ pago: true, data_pagamento: agora })
+    .update({ pago: true, data_pagamento: agoraISO })
     .in('codigo', codigos)
-    .in('status', ['Entregue', 'Validado pelo Admin'])
-    .eq('pago', false)
-    .select()
 
-  if (error) return NextResponse.json({ erro: error.message }, { status: 500 })
+  if (errPagar) {
+    return NextResponse.json({ erro: errPagar.message }, { status: 500 })
+  }
+
+  // 4. Registrar no histórico pagamentos_entregador
+  const { error: errInsert } = await supabase
+    .from('pagamentos_entregador')
+    .insert({
+      entregador_id: entregadorId,
+      data_inicio: inicioCiclo.getTime() === 0
+        ? agora.toISOString().split('T')[0]
+        : inicioCiclo.toISOString().split('T')[0],
+      data_fim: agora.toISOString().split('T')[0],
+      total_entregues: totalEntregues,
+      total_valor: totalValor,
+      valor_pago: valorEfetivo,
+      forma_pagamento: formaPagamento || 'Dinheiro',
+      data_pagamento: agoraISO,
+    })
+
+  if (errInsert) {
+    return NextResponse.json({ erro: errInsert.message }, { status: 500 })
+  }
+
+  // 5. Atualizar ultimo_pagamento_em do entregador → RESETA O CICLO
+  const { error: errUpdate } = await supabase
+    .from('entregadores')
+    .update({ ultimo_pagamento_em: agoraISO })
+    .eq('id', entregadorId)
+
+  if (errUpdate) {
+    return NextResponse.json({ erro: errUpdate.message }, { status: 500 })
+  }
 
   return NextResponse.json({
     ok: true,
-    atualizados: data?.length || 0,
-    mensagem: `${data?.length || 0} pacote(s) pagos!`
+    mensagem: `💰 Pagamento registrado! ${totalEntregues} entrega(s) · ${valorEfetivo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`,
+    atualizados: totalEntregues,
+    valor_pago: valorEfetivo.toFixed(2),
   })
 }
 
 async function pagarLote(body: any) {
-  return await pagarPacote(body)
-}
-
-async function estornar(body: any) {
+  // Ação em lote: múltiplos códigos (legado / individual)
   const { codigos } = body
   if (!codigos || !Array.isArray(codigos) || codigos.length === 0) {
     return NextResponse.json({ erro: 'Informe pelo menos um código' }, { status: 400 })
   }
 
+  const agora = new Date().toISOString()
   const { data, error } = await supabase
     .from('pacotes')
-    .update({ pago: false, data_pagamento: null })
+    .update({ pago: true, data_pagamento: agora })
     .in('codigo', codigos)
+    .in('status', ['Entregue', 'Validado pelo Admin'])
+    .eq('pago', false)
     .select()
 
-  if (error) return NextResponse.json({ erro: error.message }, { status: 500 })
+  if (error) {
+    return NextResponse.json({ erro: error.message }, { status: 500 })
+  }
 
   return NextResponse.json({
     ok: true,
     atualizados: data?.length || 0,
-    mensagem: `${data?.length || 0} estorno(s) realizado(s)!`
+    mensagem: `${data?.length || 0} pacote(s) pagos!`,
   })
-}
-
-async function editarValor(body: any) {
-  const { codigo, valor_pacote } = body
-  if (!codigo || !valor_pacote) {
-    return NextResponse.json({ erro: 'Informe código e valor' }, { status: 400 })
-  }
-
-  const { error } = await supabase
-    .from('pacotes')
-    .update({ valor_pacote: parseFloat(valor_pacote) })
-    .eq('codigo', codigo)
-
-  if (error) return NextResponse.json({ erro: error.message }, { status: 500 })
-
-  return NextResponse.json({ ok: true, mensagem: 'Valor atualizado!' })
 }
