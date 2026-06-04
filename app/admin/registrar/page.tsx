@@ -31,19 +31,20 @@ function ToggleSwitch({ ativo, onClick, label }: { ativo: boolean; onClick: () =
   )
 }
 
+// Linha do biper: NF/Remessa + Código
+type LinhaPacote = { nf_remessa: string; codigo: string }
+
 export default function RegistrarPage() {
   const router = useRouter()
-  const [entregadores, setEntregadores] = useState<Entregador[]>([])
-  const [transportadoras, setTransportadoras] = useState<any[]>([])
+  const [entregadores, setEntregadores] = useState<Entregador[]>([] as Entregador[])
+  const [transportadoras, setTransportadoras] = useState<any[]>([] as any[])
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
 
-  // === Toggles na ORDEM correta ===
-  const [showTransportadora, setShowTransportadora] = useState(true)  // 1º
-  const [showQuantidade, setShowQuantidade] = useState(true)          // 2º
-  const [showEntregador, setShowEntregador] = useState(true)          // 3º
-  // Demais toggles (fora de ordem)
+  // === Toggles ===
+  const [showQuantidade, setShowQuantidade] = useState(true)          // 1º
+  const [showEntregador, setShowEntregador] = useState(true)          // 2º
   const [showDestinatario, setShowDestinatario] = useState(false)
   const [showDescricao, setShowDescricao] = useState(false)
   const [showValor, setShowValor] = useState(false)
@@ -51,30 +52,30 @@ export default function RegistrarPage() {
   const [showObservacoes, setShowObservacoes] = useState(false)
   const [showEndereco, setShowEndereco] = useState(true)
 
-  // === Campos do formulário ===
+  // === Campos ===
   const [valor, setValor] = useState('0,50')
   const [transportadora, setTransportadora] = useState('')
   const [quantidade, setQuantidade] = useState(1)
-  const [codigosPacote, setCodigosPacote] = useState<string[]>([''])
+  const [linhasPacote, setLinhasPacote] = useState<LinhaPacote[]>([{ nf_remessa: '', codigo: '' }])
   const [entregadorId, setEntregadorId] = useState('')
   const [prazoAtivo, setPrazoAtivo] = useState(false)
 
-  // Calcula prazo automático baseado na transportadora
+  // Prazo automático baseado na transportadora
   useEffect(() => {
     if (transportadora) {
       const t = transportadoras.find((t: any) => t.nome === transportadora)
       if (t?.prazo_entrega_dias) {
-        const data = new Date()
-        data.setDate(data.getDate() + t.prazo_entrega_dias)
         setPrazoAtivo(true)
       }
     }
   }, [transportadora, transportadoras])
 
-  // Quando a quantidade muda, ajusta o número de campos de código
+  // Quando a quantidade muda, ajusta as linhas (biper)
   useEffect(() => {
-    setCodigosPacote(prev => {
-      const nova = Array.from({ length: quantidade }, (_, i) => prev[i] || '')
+    setLinhasPacote(prev => {
+      const nova: LinhaPacote[] = Array.from({ length: quantidade }, (_, i) =>
+        prev[i] || { nf_remessa: '', codigo: '' }
+      )
       return nova
     })
   }, [quantidade])
@@ -100,27 +101,40 @@ export default function RegistrarPage() {
 
     const form = new FormData(e.currentTarget)
 
-    // Filtra códigos vazios
-    const codigosValidos = codigosPacote.map(c => c.trim()).filter(Boolean)
-
-    if (codigosValidos.length === 0) {
-      setErro('Informe pelo menos 1 código de pacote')
+    // Transportadora é obrigatória
+    if (!transportadora) {
+      setErro('Selecione uma transportadora')
       setLoading(false)
       return
     }
 
-    const nf_remessa = form.get('nf_remessa')?.toString().trim() || ''
+    // Monta array de pacotes a partir das linhas do biper
+    const pacotesParaCriar = linhasPacote
+      .filter(l => l.codigo.trim() || l.nf_remessa.trim()) // pelo menos 1 campo preenchido
+      .map(l => ({
+        nf_remessa: l.nf_remessa.trim(),
+        codigo: l.codigo.trim() || undefined, // undefined = gera automático
+      }))
 
-    // Monta payload base
-    const payloadBase: Record<string, unknown> = {
-      nf_remessa,
-      quantidade: quantidade,
+    if (pacotesParaCriar.length === 0) {
+      setErro('Preencha pelo menos 1 linha (NF/Remessa ou Código)')
+      setLoading(false)
+      return
     }
-    if (showEndereco) payloadBase.endereco_entrega = form.get('endereco_entrega')
+
+    // Payload base
+    const payloadBase: Record<string, unknown> = {
+      transportadora,
+      quantidade: pacotesParaCriar.length,
+    }
+
+    if (showEndereco) {
+      const endereco = form.get('endereco_entrega')?.toString().trim()
+      if (endereco) payloadBase.endereco_entrega = endereco
+    }
     if (showDestinatario) payloadBase.destinatario = form.get('destinatario')
     if (showDescricao) payloadBase.descricao = form.get('descricao')
     if (showValor) payloadBase.valor_pacote = valor.replace(',', '.')
-    if (showTransportadora && transportadora) payloadBase.transportadora = transportadora
     if (showObservacoes) payloadBase.observacoes = form.get('observacoes')
 
     // Entregador
@@ -130,7 +144,6 @@ export default function RegistrarPage() {
 
     // Prazo automático ou manual
     if (showPrazo && prazoAtivo) {
-      // Se tem transportadora com prazo, calcula automático
       if (transportadora) {
         const t = transportadoras.find((t: any) => t.nome === transportadora)
         if (t?.prazo_entrega_dias) {
@@ -139,7 +152,6 @@ export default function RegistrarPage() {
           payloadBase.data_limite_entrega = data.toISOString()
         }
       }
-      // Se o formulário tem data manual, usa ela
       const dataManual = form.get('data_limite_entrega')?.toString()
       if (dataManual) {
         payloadBase.data_limite_entrega = dataManual
@@ -152,7 +164,8 @@ export default function RegistrarPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...payloadBase,
-          codigos: codigosValidos,
+          codigos: pacotesParaCriar.map(l => l.codigo).filter(Boolean),
+          nfs_remessa: pacotesParaCriar.map(l => l.nf_remessa).filter(Boolean),
         })
       })
       const data = await res.json()
@@ -193,42 +206,41 @@ export default function RegistrarPage() {
         )}
 
         <form onSubmit={handleSubmit} className="content-card p-6 space-y-6">
-          {/* ========== NF / Código Principal ========== */}
+          {/* ========== TRANSPORTADORA (OBRIGATÓRIO) ========== */}
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-              NF de Remessa
+              🚚 Transportadora <span className="text-red-500">*</span>
             </label>
-            <input
-              name="nf_remessa"
-              type="text"
-              placeholder="Número da NF (opcional)"
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+            <SelectTransportadora
+              value={transportadora}
+              onChange={setTransportadora}
             />
+            {transportadora && (
+              <p className="text-[10px] text-gray-400 mt-1">
+                Prazo automático será calculado com base nos dias da transportadora
+              </p>
+            )}
+            {!transportadora && (
+              <p className="text-[10px] text-red-400 mt-1">
+                Selecione uma transportadora cadastrada
+              </p>
+            )}
           </div>
 
-          {/* ========== TOGGLES NA ORDEM: Transp → Qtd → Entregador ========== */}
+          {/* ========== TOGGLES ========== */}
           <div className="border border-gray-100 rounded-xl bg-gray-50/50 divide-y divide-gray-100">
-            {/* 1º Transportadora */}
-            <ToggleSwitch
-              ativo={showTransportadora}
-              onClick={() => setShowTransportadora(!showTransportadora)}
-              label="🚚 Transportadora"
-            />
-
-            {/* 2º Quantidade */}
+            {/* 1º Quantidade */}
             <ToggleSwitch
               ativo={showQuantidade}
               onClick={() => setShowQuantidade(!showQuantidade)}
               label="📦 Quantidade [AGRUPAR]"
             />
-
-            {/* 3º Entregador */}
+            {/* 2º Entregador */}
             <ToggleSwitch
               ativo={showEntregador}
               onClick={() => setShowEntregador(!showEntregador)}
               label="👤 Atribuir Entregador"
             />
-
             {/* Demais toggles */}
             <ToggleSwitch
               ativo={showDestinatario}
@@ -262,25 +274,7 @@ export default function RegistrarPage() {
             />
           </div>
 
-          {/* ========== TRANSPORTADORA (1º) ========== */}
-          {showTransportadora && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-                Transportadora
-              </label>
-              <SelectTransportadora
-                value={transportadora}
-                onChange={setTransportadora}
-              />
-              {transportadora && (
-                <p className="text-[10px] text-gray-400 mt-1">
-                  Prazo automático será calculado com base nos dias da transportadora
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* ========== QUANTIDADE + CÓDIGOS [AGRUPAR] (2º) ========== */}
+          {/* ========== QUANTIDADE + LINHAS NF/REMESSA/CÓDIGO (1º) ========== */}
           {showQuantidade && (
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1.5">
@@ -295,35 +289,45 @@ export default function RegistrarPage() {
                 className="w-24 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
               />
               <p className="text-[10px] text-amber-600 mt-1">
-                ⚡ [AGRUPAR] Serão criados {quantidade} pacote(s) no mesmo fluxo
+                ⚡ [AGRUPAR] Serão criados {quantidade} pacote(s) no mesmo fluxo — use o biper
               </p>
 
-              {/* Campos de código para cada pacote */}
-              {quantidade > 1 && (
-                <div className="mt-3 space-y-2">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">
-                    Códigos dos pacotes (automático se vazio):
-                  </p>
-                  {codigosPacote.map((cod, i) => (
+              {/* Linhas NF/Remessa/Código */}
+              <div className="mt-3 space-y-2">
+                <p className="text-xs font-semibold text-gray-600 mb-1">
+                  NF / Remessa / Código <span className="text-red-500">*</span> (preencha ao menos 1 campo por linha):
+                </p>
+                {linhasPacote.map((linha, i) => (
+                  <div key={i} className="flex gap-2">
                     <input
-                      key={i}
                       type="text"
-                      value={cod}
+                      value={linha.nf_remessa}
                       onChange={e => {
-                        const novos = [...codigosPacote]
-                        novos[i] = e.target.value
-                        setCodigosPacote(novos)
+                        const novos = [...linhasPacote]
+                        novos[i] = { ...novos[i], nf_remessa: e.target.value }
+                        setLinhasPacote(novos)
                       }}
-                      placeholder={`Código pacote #${i + 1} (deixe vazio para automático)`}
-                      className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                      placeholder={`NF/Remessa #${i + 1}`}
+                      className="flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
                     />
-                  ))}
-                </div>
-              )}
+                    <input
+                      type="text"
+                      value={linha.codigo}
+                      onChange={e => {
+                        const novos = [...linhasPacote]
+                        novos[i] = { ...novos[i], codigo: e.target.value }
+                        setLinhasPacote(novos)
+                      }}
+                      placeholder={`Código #${i + 1} (vazio = automático)`}
+                      className="flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
-          {/* ========== ENTREGADOR (3º) ========== */}
+          {/* ========== ENTREGADOR (2º) ========== */}
           {showEntregador && (
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1.5">
@@ -371,7 +375,6 @@ export default function RegistrarPage() {
               <label className="block text-xs font-semibold text-gray-700 mb-1.5">Endereço de entrega</label>
               <input name="endereco_entrega" type="text" placeholder="Rua, número, bairro, cidade..."
                 className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
-                required
               />
             </div>
           )}
@@ -421,19 +424,21 @@ export default function RegistrarPage() {
           {/* ========== SUBMIT ========== */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !transportadora}
             className="w-full py-3 rounded-xl bg-violet-600 text-white font-bold hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-lg shadow-violet-200"
           >
             {loading
               ? '⏳ Registrando...'
-              : quantidade > 1
-                ? `📦 Registrar ${quantidade} Pacotes [AGRUPAR]`
-                : '📦 Registrar Pacote'
+              : !transportadora
+                ? '⚠️ Selecione uma transportadora'
+                : quantidade > 1
+                  ? `📦 Registrar ${quantidade} Pacotes [AGRUPAR]`
+                  : '📦 Registrar Pacote'
             }
           </button>
 
-          {/* Resumo do que vai acontecer */}
-          {showEntregador && entregadorId && codigosPacote.filter(c => c.trim()).length > 0 && (
+          {/* Resumo do fluxo automático */}
+          {showEntregador && entregadorId && linhasPacote.filter(l => l.codigo.trim() || l.nf_remessa.trim()).length > 0 && (
             <div className="px-4 py-3 rounded-xl bg-violet-50 border border-violet-100 text-xs text-violet-700">
               ⚡ <strong>Fluxo automático:</strong> Os pacotes serão registrados e já liberados para o entregador,
               pulando o status &quot;Recebido pela Central&quot; — mesma data e hora para entrada e liberação.

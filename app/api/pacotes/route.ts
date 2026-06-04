@@ -60,6 +60,11 @@ export async function POST(request: NextRequest) {
       ? (body.codigos as string[]).filter((c: string) => c.trim())
       : []
 
+    // Suporta array de NF por pacote (biper) ou NF única (legado)
+    const nfsRemessa: string[] = Array.isArray(body.nfs_remessa)
+      ? (body.nfs_remessa as string[])
+      : []
+
     const pacotesACriar: any[] = []
 
     const agora = new Date()
@@ -74,9 +79,12 @@ export async function POST(request: NextRequest) {
       const codigo = codigosCustom[i] || gerarCodigoPacote()
       codigosFinais.push(codigo)
 
+      // NF por índice (biper) ou NF única (legado)
+      const nf = nfsRemessa[i] || sanitizeText(body.nf_remessa || '')
+
       const pacote: Record<string, any> = {
         codigo,
-        nf_remessa: sanitizeText(body.nf_remessa || ''),
+        nf_remessa: nf,
         destinatario: sanitizeText(body.destinatario || ''),
         descricao: sanitizeText(body.descricao || ''),
         quantidade: parseInt(body.quantidade) || 1,
