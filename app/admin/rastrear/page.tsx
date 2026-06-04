@@ -21,7 +21,7 @@ type CampoBusca = {
 }
 
 const CAMPOS: CampoBusca[] = [
-  { id: 'codigo', label: 'Código / NF', placeholder: 'Buscar por código ou NF...', tipo: 'codigo' },
+  { id: 'codigo', label: 'Código (últimos dígitos) / NF', placeholder: 'Buscar pelos últimos dígitos do código...', tipo: 'codigo' },
   { id: 'endereco', label: 'Endereço', placeholder: 'Buscar por endereço de entrega...', tipo: 'endereco' },
   { id: 'destinatario', label: 'Destinatário', placeholder: 'Buscar por nome do destinatário...', tipo: 'destinatario' },
 ]

@@ -5,36 +5,41 @@ import { getSessionFromRequest } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   const session = await getSessionFromRequest(request)
-  if (!session || session.tipo !== 'admin') {
+  if (!session) {
     return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 })
   }
 
   const { searchParams } = new URL(request.url)
-  const status = searchParams.get('status')
-  const entregador = searchParams.get('entregador_id')
-  const dataIni = searchParams.get('data_ini')
-  const dataFim = searchParams.get('data_fim')
   const busca = searchParams.get('busca')
+  const status = searchParams.get('status')
 
   let query = supabase
     .from('pacotes')
-    .select('*, entregadores(nome, telefone)', { count: 'exact' })
+    .select('*, entregadores(nome, telefone)')
     .order('data_chegada', { ascending: false })
+    .limit(500)
 
-  if (status) query = query.eq('status', status)
-  if (entregador) query = query.eq('entregador_id', parseInt(entregador))
-  if (dataIni) query = query.gte('data_chegada', dataIni)
-  if (dataFim) query = query.lte('data_chegada', dataFim)
   if (busca) {
+    // Busca por código (últimos dígitos) ou NF
     query = query.or(
-      `codigo.ilike.%${busca}%,nf_remessa.ilike.%${busca}%,destinatario.ilike.%${busca}%,endereco_entrega.ilike.%${busca}%`
+      `codigo.ilike.%${busca},nf_remessa.ilike.%${busca}%,destinatario.ilike.%${busca}%`
     )
   }
+  if (status) {
+    query = query.eq('status', status)
+  }
 
-  const { data, error, count } = await query
+  if (session.tipo === 'entregador') {
+    query = query.eq('entregador_id', session.id)
+  }
 
-  if (error) return NextResponse.json({ erro: error.message }, { status: 500 })
-  return NextResponse.json({ pacotes: data, total: count })
+  const { data, error } = await query
+
+  if (error) {
+    return NextResponse.json({ erro: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ pacotes: data || [] })
 }
 
 export async function POST(request: NextRequest) {
@@ -45,32 +50,78 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const codigo = gerarCodigoPacote()
 
-    const pacote = {
-      codigo,
-      nf_remessa: sanitizeText(body.nf_remessa || ''),
-      destinatario: sanitizeText(body.destinatario || ''),
-      descricao: sanitizeText(body.descricao || ''),
-      quantidade: parseInt(body.quantidade) || 1,
-      endereco_entrega: sanitizeText(body.endereco_entrega || ''),
-      data_limite_entrega: body.data_limite_entrega || null,
-      entregador_id: body.entregador_id ? parseInt(body.entregador_id) : null,
-      valor_pacote: sanitizeFloat(body.valor_pacote) || 0.50,
-      observacoes: sanitizeText(body.observacoes || ''),
-      transportadora: sanitizeText(body.transportadora || ''),
-      status: 'Recebido pela Central'
+    // Suporta: array de códigos OU código único
+    const codigosInput: string[] = body.codigos || [body.nf_remessa]
+    const codigosFinais: string[] = []
+
+    // Se tem códigos custom, usa eles; senão gera automático
+    const codigosCustom = Array.isArray(body.codigos)
+      ? (body.codigos as string[]).filter((c: string) => c.trim())
+      : []
+
+    const pacotesACriar: any[] = []
+
+    const agora = new Date()
+    const agoraISO = agora.toISOString()
+
+    // Tem entregador? Se sim, auto-advance status
+    const temEntregador = body.entregador_id && parseInt(body.entregador_id) > 0
+
+    const quantidade = Math.max(1, codigosCustom.length || (parseInt(body.quantidade) || 1))
+
+    for (let i = 0; i < quantidade; i++) {
+      const codigo = codigosCustom[i] || gerarCodigoPacote()
+      codigosFinais.push(codigo)
+
+      const pacote: Record<string, any> = {
+        codigo,
+        nf_remessa: sanitizeText(body.nf_remessa || ''),
+        destinatario: sanitizeText(body.destinatario || ''),
+        descricao: sanitizeText(body.descricao || ''),
+        quantidade: parseInt(body.quantidade) || 1,
+        endereco_entrega: sanitizeText(body.endereco_entrega || ''),
+        data_limite_entrega: body.data_limite_entrega || null,
+        valor_pacote: sanitizeFloat(body.valor_pacote) || 0.50,
+        observacoes: sanitizeText(body.observacoes || ''),
+        transportadora: sanitizeText(body.transportadora || ''),
+      }
+
+      if (temEntregador) {
+        // Status vai direto para "Aguardando Retirada" (pula Central)
+        pacote.status = 'Aguardando Retirada'
+        pacote.entregador_id = parseInt(body.entregador_id)
+        // Mesma data/hora tanto para chegada quanto para liberação
+        pacote.data_chegada = agoraISO
+        pacote.data_repassado_entregador = agoraISO
+      } else {
+        pacote.status = 'Recebido pela Central'
+        pacote.data_chegada = agoraISO
+      }
+
+      pacotesACriar.push(pacote)
     }
 
     const { data, error } = await supabase
       .from('pacotes')
-      .insert(pacote)
+      .insert(pacotesACriar)
       .select()
-      .single()
 
-    if (error) return NextResponse.json({ erro: error.message }, { status: 500 })
-    return NextResponse.json({ pacote: data })
+    if (error) {
+      return NextResponse.json({ erro: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      pacotes: data,
+      codigos: codigosFinais,
+      quantidade: data?.length || 0,
+      fluxo_automatico: temEntregador,
+      mensagem: temEntregador
+        ? `${data?.length || 0} pacotes registrados e já liberados para o entregador (pulou a Central)`
+        : `${data?.length || 0} pacotes registrados com sucesso`,
+    })
   } catch (err) {
+    console.error('Erro registrar:', err)
     return NextResponse.json({ erro: 'Erro ao registrar pacote' }, { status: 500 })
   }
 }

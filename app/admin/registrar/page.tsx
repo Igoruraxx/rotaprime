@@ -34,29 +34,62 @@ function ToggleSwitch({ ativo, onClick, label }: { ativo: boolean; onClick: () =
 export default function RegistrarPage() {
   const router = useRouter()
   const [entregadores, setEntregadores] = useState<Entregador[]>([])
+  const [transportadoras, setTransportadoras] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
 
-  // Estados dos toggles
+  // === Toggles na ORDEM correta ===
+  const [showTransportadora, setShowTransportadora] = useState(true)  // 1º
+  const [showQuantidade, setShowQuantidade] = useState(true)          // 2º
+  const [showEntregador, setShowEntregador] = useState(true)          // 3º
+  // Demais toggles (fora de ordem)
   const [showDestinatario, setShowDestinatario] = useState(false)
   const [showDescricao, setShowDescricao] = useState(false)
-  const [showQuantidade, setShowQuantidade] = useState(false)
   const [showValor, setShowValor] = useState(false)
-  const [showEntregador, setShowEntregador] = useState(false)
   const [showPrazo, setShowPrazo] = useState(false)
-  const [showTransportadora, setShowTransportadora] = useState(false)
   const [showObservacoes, setShowObservacoes] = useState(false)
   const [showEndereco, setShowEndereco] = useState(true)
 
+  // === Campos do formulário ===
   const [valor, setValor] = useState('0,50')
-  const [prazoAtivo, setPrazoAtivo] = useState(false)
   const [transportadora, setTransportadora] = useState('')
+  const [quantidade, setQuantidade] = useState(1)
+  const [codigosPacote, setCodigosPacote] = useState<string[]>([''])
+  const [entregadorId, setEntregadorId] = useState('')
+  const [prazoAtivo, setPrazoAtivo] = useState(false)
+
+  // Calcula prazo automático baseado na transportadora
+  useEffect(() => {
+    if (transportadora) {
+      const t = transportadoras.find((t: any) => t.nome === transportadora)
+      if (t?.prazo_entrega_dias) {
+        const data = new Date()
+        data.setDate(data.getDate() + t.prazo_entrega_dias)
+        setPrazoAtivo(true)
+      }
+    }
+  }, [transportadora, transportadoras])
+
+  // Quando a quantidade muda, ajusta o número de campos de código
+  useEffect(() => {
+    setCodigosPacote(prev => {
+      const nova = Array.from({ length: quantidade }, (_, i) => prev[i] || '')
+      return nova
+    })
+  }, [quantidade])
 
   useEffect(() => {
     fetch('/api/admin/stats')
       .then(r => r.json())
-      .then(data => setEntregadores(data.entregadores || []))
+      .then(data => {
+        setEntregadores(data.entregadores || [])
+      })
+    fetch('/api/transportadoras')
+      .then(r => r.json())
+      .then(data => {
+        setTransportadoras(data.transportadoras || [])
+      })
   }, [])
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -66,39 +99,76 @@ export default function RegistrarPage() {
     setSucesso('')
 
     const form = new FormData(e.currentTarget)
-    const body: Record<string, unknown> = {
-      nf_remessa: form.get('nf_remessa'),
+
+    // Filtra códigos vazios
+    const codigosValidos = codigosPacote.map(c => c.trim()).filter(Boolean)
+
+    if (codigosValidos.length === 0) {
+      setErro('Informe pelo menos 1 código de pacote')
+      setLoading(false)
+      return
     }
-    if (showEndereco) body.endereco_entrega = form.get('endereco_entrega')
 
-    if (showDestinatario) body.destinatario = form.get('destinatario')
-    if (showDescricao) body.descricao = form.get('descricao')
-    if (showQuantidade) body.quantidade = form.get('quantidade') || 1
-    if (showValor) body.valor_pacote = valor.replace(',', '.')
-    if (showTransportadora) body.transportadora = form.get('transportadora')
-    if (showObservacoes) body.observacoes = form.get('observacoes')
+    const nf_remessa = form.get('nf_remessa')?.toString().trim() || ''
 
-    const entregadorId = form.get('entregador_id')
-    if (showEntregador && entregadorId) body.entregador_id = entregadorId
+    // Monta payload base
+    const payloadBase: Record<string, unknown> = {
+      nf_remessa,
+      quantidade: quantidade,
+    }
+    if (showEndereco) payloadBase.endereco_entrega = form.get('endereco_entrega')
+    if (showDestinatario) payloadBase.destinatario = form.get('destinatario')
+    if (showDescricao) payloadBase.descricao = form.get('descricao')
+    if (showValor) payloadBase.valor_pacote = valor.replace(',', '.')
+    if (showTransportadora && transportadora) payloadBase.transportadora = transportadora
+    if (showObservacoes) payloadBase.observacoes = form.get('observacoes')
 
-    if (showPrazo && prazoAtivo && form.get('data_limite_entrega')) {
-      body.data_limite_entrega = form.get('data_limite_entrega')
+    // Entregador
+    if (showEntregador && entregadorId) {
+      payloadBase.entregador_id = parseInt(entregadorId)
+    }
+
+    // Prazo automático ou manual
+    if (showPrazo && prazoAtivo) {
+      // Se tem transportadora com prazo, calcula automático
+      if (transportadora) {
+        const t = transportadoras.find((t: any) => t.nome === transportadora)
+        if (t?.prazo_entrega_dias) {
+          const data = new Date()
+          data.setDate(data.getDate() + t.prazo_entrega_dias)
+          payloadBase.data_limite_entrega = data.toISOString()
+        }
+      }
+      // Se o formulário tem data manual, usa ela
+      const dataManual = form.get('data_limite_entrega')?.toString()
+      if (dataManual) {
+        payloadBase.data_limite_entrega = dataManual
+      }
     }
 
     try {
       const res = await fetch('/api/pacotes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify({
+          ...payloadBase,
+          codigos: codigosValidos,
+        })
       })
       const data = await res.json()
       if (!res.ok) {
         setErro(data.erro || 'Erro ao registrar')
         return
       }
-      setSucesso(`✅ Pacote ${data.pacote.codigo} registrado com sucesso!`)
-      // Recarregar após 2s
-      setTimeout(() => router.push(`/admin/pacote/${data.pacote.codigo}`), 1500)
+      const qtd = data.pacotes?.length || 1
+      setSucesso(`${qtd} pacote(s) registrado(s) com sucesso!`)
+      setTimeout(() => {
+        if (data.pacotes?.[0]?.codigo) {
+          router.push(`/admin/pacote/${data.pacotes[0].codigo}`)
+        } else {
+          router.push('/admin/pacotes')
+        }
+      }, 1500)
     } catch {
       setErro('Erro de conexao')
     } finally {
@@ -106,199 +176,270 @@ export default function RegistrarPage() {
     }
   }
 
-  function handleEntregadorChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const id = parseInt(e.target.value)
-    const ent = entregadores.find(e => e.id === id)
-    if (ent) {
-      setValor(ent.valor_padrao.toFixed(2).replace('.', ','))
-    }
-  }
-
   return (
-    <FeatureGuard feature={FEATURES.PACOTES_CRUD}>
-      <div className="max-w-3xl mx-auto">
-        {/* HEADER */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">➕ Registrar Pacote</h2>
-            <p className="text-sm text-gray-500 mt-0.5">Preencha os campos obrigatórios e ative toggle para mais opções</p>
+    <FeatureGuard feature={FEATURES.VALOR_PADRAO_ENTREGA}>
+      <div className="max-w-2xl mx-auto">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">📦 Registrar Pacote</h2>
+
+        {erro && (
+          <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-red-50 text-red-700 border border-red-200">
+            ❌ {erro}
           </div>
-        <a href="/admin/pacotes" className="text-sm text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1">
-          ← Voltar
-        </a>
-      </div>
-
-      {erro && (
-        <div className="bg-red-50 text-red-700 border border-red-200 p-3 rounded-xl mb-4 text-sm flex items-center gap-2">
-          <span>❌</span> {erro}
-        </div>
-      )}
-
-      {sucesso && (
-        <div className="bg-emerald-50 text-emerald-700 border border-emerald-200 p-3 rounded-xl mb-4 text-sm flex items-center gap-2">
-          <span>{sucesso}</span>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* === CARD OBRIGATÓRIO === */}
-        <div className="content-card overflow-hidden">
-          <div className="px-5 py-3 section-header flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-violet-500" />
-            <h3 className="font-semibold text-gray-900 text-sm">Campos obrigatórios</h3>
-          </div>
-          <div className="p-5 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Pacote, Nota Fiscal ou Remessa <span className="text-red-400">*</span>
-              </label>
-              <input name="nf_remessa" required className="w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Ex: NF-12345" />
-            </div>
-          </div>
-        </div>
-
-        {/* === CAMPOS ATIVADOS (aparecem ACIMA dos toggles) === */}
-        {(showDestinatario || showDescricao || showQuantidade || showValor || showEntregador || showPrazo || showTransportadora || showObservacoes || showEndereco) && (
-          <div className="content-card overflow-hidden">
-            <div className="px-5 py-3 section-header flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <h3 className="font-semibold text-gray-900 text-sm">Campos ativados</h3>
-            </div>
-            <div className="p-5 space-y-4">
-              {showDestinatario && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Destinatário</label>
-                  <input name="destinatario" className="w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Nome do destinatário" />
-                </div>
-              )}
-
-              {showEndereco && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Endereço de Entrega</label>
-                  <input name="endereco_entrega" className="w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Rua, número, bairro..." />
-                </div>
-              )}
-
-              {showDescricao && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Descrição</label>
-                  <input name="descricao" className="w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Ex: Caixa de eletrônicos" />
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {showQuantidade && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Quantidade</label>
-                    <input name="quantidade" type="number" defaultValue={1} min={1} className="w-full px-3 py-2.5 rounded-lg text-sm" />
-                  </div>
-                )}
-
-                {showValor && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Valor (R$)</label>
-                    <input
-                      value={valor}
-                      onChange={e => setValor(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded-lg text-sm"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {showEntregador && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Entregador</label>
-                  <select name="entregador_id" onChange={handleEntregadorChange} className="w-full px-3 py-2.5 rounded-lg text-sm">
-                    <option value="">Sem atribuição</option>
-                    {entregadores.map(e => (
-                      <option key={e.id} value={e.id}>{e.nome}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {showPrazo && (
-                <div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <label className="text-sm font-medium text-gray-700">Ativar prazo</label>
-                    <button
-                      type="button"
-                      onClick={() => setPrazoAtivo(!prazoAtivo)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-                        prazoAtivo ? 'bg-violet-500' : 'bg-gray-200'
-                      }`}
-                    >
-                      <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ${
-                        prazoAtivo ? 'translate-x-[22px]' : 'translate-x-[2px]'
-                      }`} />
-                    </button>
-                  </div>
-                  {prazoAtivo && (
-                    <input name="data_limite_entrega" type="datetime-local" className="w-full px-3 py-2.5 rounded-lg text-sm" />
-                  )}
-                </div>
-              )}
-
-              {showTransportadora && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Transportadora</label>
-                  <SelectTransportadora
-                    value={transportadora}
-                    onChange={setTransportadora}
-                    name="transportadora"
-                    placeholder="Buscar transportadora..."
-                  />
-                </div>
-              )}
-
-              {showObservacoes && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Observações</label>
-                  <textarea name="observacoes" rows={3} className="w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Informações adicionais..." />
-                </div>
-              )}
-            </div>
+        )}
+        {sucesso && (
+          <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+            ✅ {sucesso}
           </div>
         )}
 
-        {/* === CARD DE TOGGLES === */}
-        <div className="content-card overflow-hidden">
-          <div className="px-5 py-3 section-header flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
-              <h3 className="font-semibold text-gray-900 text-sm">Informações adicionais</h3>
+        <form onSubmit={handleSubmit} className="content-card p-6 space-y-6">
+          {/* ========== NF / Código Principal ========== */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              NF de Remessa
+            </label>
+            <input
+              name="nf_remessa"
+              type="text"
+              placeholder="Número da NF (opcional)"
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+            />
+          </div>
+
+          {/* ========== TOGGLES NA ORDEM: Transp → Qtd → Entregador ========== */}
+          <div className="border border-gray-100 rounded-xl bg-gray-50/50 divide-y divide-gray-100">
+            {/* 1º Transportadora */}
+            <ToggleSwitch
+              ativo={showTransportadora}
+              onClick={() => setShowTransportadora(!showTransportadora)}
+              label="🚚 Transportadora"
+            />
+
+            {/* 2º Quantidade */}
+            <ToggleSwitch
+              ativo={showQuantidade}
+              onClick={() => setShowQuantidade(!showQuantidade)}
+              label="📦 Quantidade [AGRUPAR]"
+            />
+
+            {/* 3º Entregador */}
+            <ToggleSwitch
+              ativo={showEntregador}
+              onClick={() => setShowEntregador(!showEntregador)}
+              label="👤 Atribuir Entregador"
+            />
+
+            {/* Demais toggles */}
+            <ToggleSwitch
+              ativo={showDestinatario}
+              onClick={() => setShowDestinatario(!showDestinatario)}
+              label="👤 Destinatário"
+            />
+            <ToggleSwitch
+              ativo={showDescricao}
+              onClick={() => setShowDescricao(!showDescricao)}
+              label="📝 Descrição"
+            />
+            <ToggleSwitch
+              ativo={showValor}
+              onClick={() => setShowValor(!showValor)}
+              label="💰 Valor por pacote"
+            />
+            <ToggleSwitch
+              ativo={showPrazo}
+              onClick={() => setShowPrazo(!showPrazo)}
+              label="📅 Prazo de entrega"
+            />
+            <ToggleSwitch
+              ativo={showEndereco}
+              onClick={() => setShowEndereco(!showEndereco)}
+              label="📍 Endereço de entrega"
+            />
+            <ToggleSwitch
+              ativo={showObservacoes}
+              onClick={() => setShowObservacoes(!showObservacoes)}
+              label="📋 Observações"
+            />
+          </div>
+
+          {/* ========== TRANSPORTADORA (1º) ========== */}
+          {showTransportadora && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                Transportadora
+              </label>
+              <SelectTransportadora
+                value={transportadora}
+                onChange={setTransportadora}
+              />
+              {transportadora && (
+                <p className="text-[10px] text-gray-400 mt-1">
+                  Prazo automático será calculado com base nos dias da transportadora
+                </p>
+              )}
             </div>
-            <span className="text-[10px] text-gray-400 font-medium">Ative conforme necessário</span>
-          </div>
+          )}
 
-          {/* Lista de toggles */}
-          <div className="divide-y divide-gray-100">
-            <ToggleSwitch ativo={showDestinatario} onClick={() => setShowDestinatario(!showDestinatario)} label="📋 Destinatário" />
-            <ToggleSwitch ativo={showEndereco} onClick={() => setShowEndereco(!showEndereco)} label="📫 Endereço de entrega" />
-            <ToggleSwitch ativo={showDescricao} onClick={() => setShowDescricao(!showDescricao)} label="📝 Descrição do pacote" />
-            <ToggleSwitch ativo={showQuantidade} onClick={() => setShowQuantidade(!showQuantidade)} label="🔢 Quantidade de itens" />
-            <ToggleSwitch ativo={showValor} onClick={() => setShowValor(!showValor)} label="💰 Valor do frete" />
-            <ToggleSwitch ativo={showEntregador} onClick={() => setShowEntregador(!showEntregador)} label="👤 Atribuir a entregador" />
-            <ToggleSwitch ativo={showPrazo} onClick={() => setShowPrazo(!showPrazo)} label="⏰ Prazo de entrega" />
-            <ToggleSwitch ativo={showTransportadora} onClick={() => setShowTransportadora(!showTransportadora)} label="🚚 Transportadora" />
-            <ToggleSwitch ativo={showObservacoes} onClick={() => setShowObservacoes(!showObservacoes)} label="📌 Observações" />
-          </div>
-        </div>
+          {/* ========== QUANTIDADE + CÓDIGOS [AGRUPAR] (2º) ========== */}
+          {showQuantidade && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                Quantidade de pacotes [AGRUPAR]
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="50"
+                value={quantidade}
+                onChange={e => setQuantidade(Math.max(1, parseInt(e.target.value) || 1))}
+                className="w-24 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+              />
+              <p className="text-[10px] text-amber-600 mt-1">
+                ⚡ [AGRUPAR] Serão criados {quantidade} pacote(s) no mesmo fluxo
+              </p>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="btn-primary w-full py-3.5 rounded-xl text-sm font-semibold tracking-wide"
-        >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-              Registrando...
-            </span>
-          ) : '📦 Registrar Pacote'}
-        </button>
-      </form>
+              {/* Campos de código para cada pacote */}
+              {quantidade > 1 && (
+                <div className="mt-3 space-y-2">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">
+                    Códigos dos pacotes (automático se vazio):
+                  </p>
+                  {codigosPacote.map((cod, i) => (
+                    <input
+                      key={i}
+                      type="text"
+                      value={cod}
+                      onChange={e => {
+                        const novos = [...codigosPacote]
+                        novos[i] = e.target.value
+                        setCodigosPacote(novos)
+                      }}
+                      placeholder={`Código pacote #${i + 1} (deixe vazio para automático)`}
+                      className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ========== ENTREGADOR (3º) ========== */}
+          {showEntregador && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                Atribuir a entregador
+              </label>
+              <select
+                value={entregadorId}
+                onChange={e => setEntregadorId(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+              >
+                <option value="">Selecionar entregador...</option>
+                {entregadores.map(e => (
+                  <option key={e.id} value={e.id}>{e.nome}</option>
+                ))}
+              </select>
+              {entregadorId && (
+                <p className="text-[10px] text-emerald-600 mt-1">
+                  ⚡ Ao selecionar, o pacote já será liberado direto para o entregador (pula a Central)
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* ========== DEMAIS CAMPOS ========== */}
+          {showDestinatario && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Destinatário</label>
+              <input name="destinatario" type="text" placeholder="Nome do destinatário"
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+              />
+            </div>
+          )}
+
+          {showDescricao && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Descrição</label>
+              <textarea name="descricao" rows={2} placeholder="Descrição do conteúdo..."
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+              />
+            </div>
+          )}
+
+          {showEndereco && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Endereço de entrega</label>
+              <input name="endereco_entrega" type="text" placeholder="Rua, número, bairro, cidade..."
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                required
+              />
+            </div>
+          )}
+
+          {showValor && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Valor por pacote (R$)</label>
+              <input
+                type="number" step="0.01" min="0"
+                value={valor}
+                onChange={e => setValor(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+              />
+            </div>
+          )}
+
+          {showPrazo && (
+            <div>
+              <label className="flex items-center gap-2 mb-1.5">
+                <input
+                  type="checkbox"
+                  checked={prazoAtivo}
+                  onChange={e => setPrazoAtivo(e.target.checked)}
+                  className="rounded"
+                />
+                <span className="text-xs font-semibold text-gray-700">Definir prazo de entrega</span>
+              </label>
+              {prazoAtivo && (
+                <input
+                  name="data_limite_entrega"
+                  type="datetime-local"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                />
+              )}
+            </div>
+          )}
+
+          {showObservacoes && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Observações</label>
+              <textarea name="observacoes" rows={2} placeholder="Observações adicionais..."
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+              />
+            </div>
+          )}
+
+          {/* ========== SUBMIT ========== */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-violet-600 text-white font-bold hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-lg shadow-violet-200"
+          >
+            {loading
+              ? '⏳ Registrando...'
+              : quantidade > 1
+                ? `📦 Registrar ${quantidade} Pacotes [AGRUPAR]`
+                : '📦 Registrar Pacote'
+            }
+          </button>
+
+          {/* Resumo do que vai acontecer */}
+          {showEntregador && entregadorId && codigosPacote.filter(c => c.trim()).length > 0 && (
+            <div className="px-4 py-3 rounded-xl bg-violet-50 border border-violet-100 text-xs text-violet-700">
+              ⚡ <strong>Fluxo automático:</strong> Os pacotes serão registrados e já liberados para o entregador,
+              pulando o status &quot;Recebido pela Central&quot; — mesma data e hora para entrada e liberação.
+            </div>
+          )}
+        </form>
       </div>
     </FeatureGuard>
   )
