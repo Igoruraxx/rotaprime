@@ -2,7 +2,7 @@
 // Define as transições válidas entre status
 
 export const TRANSICOES: Record<string, string[]> = {
-  'Recebido pela Central':     ['Aguardando Retirada', 'Retornado a Central'],
+  'Recebido pela Central':     ['Retirado pelo Entregador', 'Aguardando Retirada', 'Retornado a Central'],
   'Aguardando Retirada':       ['Retirado pelo Entregador', 'Retornado a Central'],
   'Retirado pelo Entregador':  ['Em Rota', 'Retornado a Central'],
   'Em Rota':                   ['Entregue', 'Retornado a Central'],
@@ -25,6 +25,7 @@ export const STATUS_ORDEM: Record<string, number> = {
 // Formato: 'statusAtual->novoStatus' : { quem, logs? }
 const PERMISSOES: Record<string, { quem: string; logs?: string }> = {
   'Aguardando Retirada':        { quem: 'admin', logs: 'data_repassado_entregador' },
+  'Recebido pela Central->Retirado pelo Entregador': { quem: 'entregador', logs: 'data_retirada_central' },
   'Retirado pelo Entregador':   { quem: 'entregador', logs: 'data_retirada_central' },
   'Em Rota':                    { quem: 'entregador' },
   'Entregue':                   { quem: 'entregador', logs: 'data_entrega_real' },

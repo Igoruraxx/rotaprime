@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
   const periodo = searchParams.get('periodo') // 'hoje' | '7d' | '7dias' | '30d' | '30dias' | 'tudo'
   const dataInicio = searchParams.get('data_inicio')
   const dataFim = searchParams.get('data_fim')
+  const busca = searchParams.get('busca') // busca por últimos dígitos do código
 
   let query = supabase
     .from('pacotes')
@@ -77,6 +78,11 @@ export async function GET(request: NextRequest) {
     const fim = new Date(dataFim)
     fim.setHours(23, 59, 59, 999)
     query = query.lte('data_chegada', fim.toISOString())
+  }
+
+  // Busca por últimos dígitos do código
+  if (busca && busca.trim()) {
+    query = query.ilike('codigo', `%${busca.trim()}`)
   }
 
   const { data: pacotes, error } = await query.order('data_chegada', {
