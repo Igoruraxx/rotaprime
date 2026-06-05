@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, Fragment } from 'react'
 import { useRouter } from 'next/navigation'
 import WhatsAppButton from '@/components/whatsapp-button'
 import FeatureGuard from '@/components/feature-guard'
@@ -41,18 +41,6 @@ const PERIODOS: { key: FiltroPeriodo; label: string }[] = [
   { key: '60d', label: '60 dias' },
 ]
 
-function filtrarPorPeriodo(dataChegada: string, periodo: FiltroPeriodo): boolean {
-  if (periodo === 'hoje') {
-    const hoje = new Date()
-    const d = new Date(dataChegada)
-    return d.toDateString() === hoje.toDateString()
-  }
-  const limite = new Date()
-  const dias = periodo === '7d' ? 7 : periodo === '15d' ? 15 : 60
-  limite.setDate(limite.getDate() - dias)
-  return new Date(dataChegada) >= limite
-}
-
 export default function PacotesPage() {
   const router = useRouter()
   const [pacotes, setPacotes] = useState<Pacote[]>([])
@@ -62,7 +50,30 @@ export default function PacotesPage() {
   const [filtroPeriodo, setFiltroPeriodo] = useState<FiltroPeriodo>('hoje')
   const [filtroEntregador, setFiltroEntregador] = useState('')
   const [filtroTransportadora, setFiltroTransportadora] = useState('')
+  const [filtroStatus, setFiltroStatus] = useState('')
+  const [dataEspecifica, setDataEspecifica] = useState('')
   const [msg, setMsg] = useState('')
+
+  const STATUS_LIST = Object.keys(STATUS_BADGE)
+
+  const usarDataEspecifica = dataEspecifica !== ''
+
+  function filtrarPorPeriodo(dataChegada: string, periodo: FiltroPeriodo): boolean {
+    if (usarDataEspecifica && dataEspecifica) {
+      const d = new Date(dataChegada)
+      const sel = new Date(dataEspecifica + 'T00:00:00')
+      return d.toDateString() === sel.toDateString()
+    }
+    if (periodo === 'hoje') {
+      const hoje = new Date()
+      const d = new Date(dataChegada)
+      return d.toDateString() === hoje.toDateString()
+    }
+    const limite = new Date()
+    const dias = periodo === '7d' ? 7 : periodo === '15d' ? 15 : 60
+    limite.setDate(limite.getDate() - dias)
+    return new Date(dataChegada) >= limite
+  }
 
   // Batch select
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -102,6 +113,9 @@ export default function PacotesPage() {
     }
     if (filtroTransportadora) {
       if ((p.transportadora || '') !== filtroTransportadora) return false
+    }
+    if (filtroStatus) {
+      if (p.status !== filtroStatus) return false
     }
     if (!filtrarPorPeriodo(p.data_chegada, filtroPeriodo)) return false
     return true
@@ -175,22 +189,41 @@ export default function PacotesPage() {
           </div>
         )}
 
-        {/* === PERÍODO + FILTROS === */}
+        {/* === FILTROS === */}
         <div className="content-card p-3 mb-5">
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex rounded-xl bg-gray-100 p-0.5 gap-0.5">
+            <div className="flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl">
               {PERIODOS.map(p => (
-                <button
-                  key={p.key}
-                  onClick={() => { setFiltroPeriodo(p.key); setSelected(new Set()) }}
-                  className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-                    filtroPeriodo === p.key
-                      ? 'bg-white text-gray-900 shadow-sm ring-1 ring-gray-200'
-                      : 'text-gray-500 hover:text-gray-700'
-                  } ${p.key === 'hoje' ? 'min-w-[90px]' : ''}`}
-                >
-                  {p.label}
-                </button>
+                <Fragment key={p.key}>
+                  <button
+                    onClick={() => {
+                      setFiltroPeriodo(p.key)
+                      if (p.key !== 'hoje') setDataEspecifica('')
+                      setSelected(new Set())
+                    }}
+                    className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
+                      filtroPeriodo === p.key
+                        ? 'bg-white text-gray-900 shadow-sm ring-1 ring-gray-200'
+                        : 'text-gray-500 hover:text-gray-700'
+                    } ${p.key === 'hoje' ? 'min-w-[90px]' : ''}`}
+                  >
+                    {p.label}
+                  </button>
+                  {p.key === 'hoje' && (
+                    <input
+                      type="date"
+                      value={dataEspecifica}
+                      onChange={e => {
+                        setDataEspecifica(e.target.value)
+                        if (e.target.value) {
+                          setFiltroPeriodo('hoje')
+                        }
+                      }}
+                      className="h-8 px-2 text-xs border-0 bg-transparent text-gray-600 cursor-pointer focus:outline-none"
+                      title="Selecionar data específica"
+                    />
+                  )}
+                </Fragment>
               ))}
             </div>
 
@@ -217,6 +250,24 @@ export default function PacotesPage() {
                 <option key={t} value={t}>{t}</option>
               ))}
             </select>
+
+            <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block" />
+
+            <div className="relative">
+              <select
+                value={filtroStatus}
+                onChange={e => { setFiltroStatus(e.target.value); setSelected(new Set()) }}
+                className="px-3 py-2 rounded-lg text-sm border border-gray-200 bg-white appearance-none cursor-pointer min-w-[200px]"
+                style={{ maxHeight: '200px', overflowY: 'auto' }}
+                size={1}
+              >
+                <option value="">📌 Todos os status</option>
+                {STATUS_LIST.map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs">▼</span>
+            </div>
           </div>
         </div>
 

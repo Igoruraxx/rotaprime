@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       .update({
         entregador_id: parseInt(entregador_id),
         data_repassado_entregador: agora,
-        status: 'Aguardando Retirada',
+        status: 'Recebido pela Central',
       })
       .in('codigo', codigos)
       .in('status', ['Recebido pela Central', 'Retornado a Central'])

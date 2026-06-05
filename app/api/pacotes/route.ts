@@ -96,10 +96,9 @@ export async function POST(request: NextRequest) {
       }
 
       if (temEntregador) {
-        // Status vai direto para "Aguardando Retirada" (pula Central)
-        pacote.status = 'Aguardando Retirada'
+        // Fica como "Recebido pela Central" — entregador precisa aceitar no Acompanhamento
+        pacote.status = 'Recebido pela Central'
         pacote.entregador_id = parseInt(body.entregador_id)
-        // Mesma data/hora tanto para chegada quanto para liberação
         pacote.data_chegada = agoraISO
         pacote.data_repassado_entregador = agoraISO
       } else {
@@ -125,7 +124,7 @@ export async function POST(request: NextRequest) {
       quantidade: data?.length || 0,
       fluxo_automatico: temEntregador,
       mensagem: temEntregador
-        ? `${data?.length || 0} pacotes registrados e já liberados para o entregador (pulou a Central)`
+        ? `${data?.length || 0} pacotes registrados e vinculados ao entregador. Ele precisa aceitar no Acompanhamento.`
         : `${data?.length || 0} pacotes registrados com sucesso`,
     })
   } catch (err) {

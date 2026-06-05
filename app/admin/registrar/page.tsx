@@ -43,14 +43,14 @@ export default function RegistrarPage() {
   const [sucesso, setSucesso] = useState('')
 
   // === Toggles ===
-  const [showQuantidade, setShowQuantidade] = useState(true)          // 1º
-  const [showEntregador, setShowEntregador] = useState(true)          // 2º
+  const [showQuantidade, setShowQuantidade] = useState(true)          // 1º — único ligado inicialmente
+  const [showEntregador, setShowEntregador] = useState(false)
   const [showDestinatario, setShowDestinatario] = useState(false)
   const [showDescricao, setShowDescricao] = useState(false)
   const [showValor, setShowValor] = useState(false)
   const [showPrazo, setShowPrazo] = useState(false)
   const [showObservacoes, setShowObservacoes] = useState(false)
-  const [showEndereco, setShowEndereco] = useState(true)
+  const [showEndereco, setShowEndereco] = useState(false)
 
   // === Campos ===
   const [valor, setValor] = useState('0,50')

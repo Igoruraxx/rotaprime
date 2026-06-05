@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       .from('pacotes')
       .update({
         entregador_id: entregador_id,
-        status: 'Aguardando Retirada',
+        status: 'Recebido pela Central',
         data_repassado_entregador: new Date().toISOString(),
         valor_pacote: valorPadrao > 0 ? valorPadrao : undefined,
       })

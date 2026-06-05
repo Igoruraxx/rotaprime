@@ -17,6 +17,7 @@ const NAV_FEATURE_MAP: Record<string, string> = {
   '/admin/pagamentos': FEATURES.CONTROLE_PAGAMENTOS,
   '/admin/finalizar-dia': FEATURES.FINALIZAR_DIA,
   '/admin/entregadores': FEATURES.ENTREGADORES_CRUD,
+  '/admin/impersonar': FEATURES.ENTREGADORES_CRUD,
   '/admin/fotos': FEATURES.GESTAO_FOTOS_ADMIN,
   '/admin/transportadoras': FEATURES.TRANSPORTADORAS_CRUD,
   '/admin/predefinicoes': FEATURES.VALOR_PADRAO_ENTREGA,
@@ -34,6 +35,7 @@ const ALL_NAV_ITEMS = [
   { href: '/admin/relatorio-mensal', icon: '📊', label: 'Métricas', grupo: 'Gestão' },
   { href: '/admin/transportadoras', icon: '🚚', label: 'Transportadoras', grupo: 'Sistema' },
   { href: '/admin/entregadores', icon: '👥', label: 'Entregadores', grupo: 'Sistema' },
+  { href: '/admin/impersonar', icon: '🔍', label: 'Impersonar', grupo: 'Sistema' },
   { href: '/admin/predefinicoes', icon: '🎛️', label: 'Predefinições', grupo: 'Sistema' },
   { href: '/admin/configuracoes', icon: '⚙️', label: 'Controle', grupo: 'Sistema' },
 ]
@@ -50,6 +52,7 @@ const ALL_MOBILE_ITEMS = [
   { href: '/admin/fotos', icon: '📸', label: 'Fotos' },
   { href: '/admin/transportadoras', icon: '🚚', label: 'Transp.' },
   { href: '/admin/entregadores', icon: '👥', label: 'Entreg.' },
+  { href: '/admin/impersonar', icon: '🔍', label: 'Imper.' },
   { href: '/admin/predefinicoes', icon: '🎛️', label: 'Predef.' },
   { href: '/admin/configuracoes', icon: '⚙️', label: 'Ctrl' },
 ]

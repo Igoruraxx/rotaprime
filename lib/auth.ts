@@ -14,6 +14,9 @@ export type UserSession = {
   id: number
   nome: string
   entregador_id?: number
+  impersonated?: boolean
+  originalAdminId?: number
+  originalAdminNome?: string
 }
 
 export async function criarToken(session: UserSession): Promise<string> {
@@ -48,6 +51,41 @@ export async function setSession(response: Response, session: UserSession) {
   response.headers.set(
     'Set-Cookie',
     `${COOKIE_NAME}=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_DURATION}`
+  )
+}
+
+export async function setImpersonatedSession(response: Response, entregadorSession: UserSession, adminSession: UserSession) {
+  // Salva a sessão admin original em cookie separado
+  const adminToken = await criarToken(adminSession)
+  response.headers.append(
+    'Set-Cookie',
+    `admin_session=${adminToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_DURATION}`
+  )
+  // Define a sessão do entregador como ativa
+  const entregadorToken = await criarToken(entregadorSession)
+  response.headers.append(
+    'Set-Cookie',
+    `${COOKIE_NAME}=${entregadorToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_DURATION}`
+  )
+}
+
+export function getAdminSessionFromCookies(request: NextRequest): Promise<UserSession | null> {
+  const adminToken = request.cookies.get('admin_session')?.value
+  if (!adminToken) return Promise.resolve(null)
+  return verificarToken(adminToken)
+}
+
+export async function clearImpersonation(response: Response) {
+  // Restaura a sessão admin
+  const adminToken = response.headers.get('Set-Cookie')?.match(/admin_session=([^;]+)/)?.[1]
+  response.headers.delete('Set-Cookie')
+  response.headers.set(
+    'Set-Cookie',
+    `${COOKIE_NAME}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`
+  )
+  response.headers.append(
+    'Set-Cookie',
+    `admin_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`
   )
 }
 

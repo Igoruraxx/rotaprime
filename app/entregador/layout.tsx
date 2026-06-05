@@ -8,6 +8,7 @@ import { FEATURES } from '@/lib/feature-keys'
 // ═══════════════════════════════════════════
 const NAV_FEATURE_MAP: Record<string, string> = {
   '/entregador': FEATURES.DASHBOARD_ENTREGADOR,
+  '/entregador/acompanhamento': FEATURES.DASHBOARD_ENTREGADOR,
   '/entregador/meus-pacotes': FEATURES.MEUS_PACOTES_AVANCADO,
   '/entregador/meus-dados': FEATURES.ENTREGADOR_DETALHE,
   '/entregador/financeiro': FEATURES.MODULO_FINANCEIRO,
@@ -15,6 +16,7 @@ const NAV_FEATURE_MAP: Record<string, string> = {
 
 const ALL_NAV_ITEMS = [
   { href: '/entregador', icon: '📊', label: 'Dashboard', grupo: 'Gestão' },
+  { href: '/entregador/acompanhamento', icon: '📋', label: 'Acompanhamento', grupo: 'Gestão' },
   { href: '/entregador/meus-pacotes', icon: '📦', label: 'Meus Pacotes', grupo: 'Gestão' },
   { href: '/entregador/meus-dados', icon: '👤', label: 'Meus Dados', grupo: 'Pessoal' },
   { href: '/entregador/financeiro', icon: '💰', label: 'Financeiro', grupo: 'Pessoal' },
@@ -42,6 +44,8 @@ export default async function EntregadorLayout({
   const features = await getAllFeaturesServer()
   const NAV_ITEMS = filtrarItens(ALL_NAV_ITEMS, features)
   const GRUPOS = Array.from(new Set(NAV_ITEMS.map(i => i.grupo)))
+
+  const isImpersonated = session.impersonated === true
 
   return (
     <div className="min-h-screen flex">
@@ -131,6 +135,29 @@ export default async function EntregadorLayout({
             ))}
           </div>
         </nav>
+
+        {/* Banner de impersonação */}
+        {isImpersonated && (
+          <div className="bg-gradient-to-r from-violet-600 to-purple-700">
+            <div className="max-w-7xl mx-auto px-4 md:px-8 py-2 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm text-white/90">
+                <span className="text-base">🔍</span>
+                <span>
+                  <strong className="text-white">Modo Impersonação</strong>
+                  {' · '}Você está vendo como <strong className="text-white">{session.nome}</strong>
+                  {session.originalAdminNome && (
+                    <> (admin: {session.originalAdminNome})</>
+                  )}
+                </span>
+              </div>
+              <form action="/api/admin/sair-impersonacao" method="POST">
+                <button className="px-3 py-1 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold rounded-lg transition-all whitespace-nowrap">
+                  ✕ Sair
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Content */}
         <main className="admin-content flex-1 p-4 md:p-8">
