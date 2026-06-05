@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/db'
 import { getSessionFromRequest } from '@/lib/auth'
-import { camposParaTransicao } from '@/lib/maquina-estados'
+import { camposParaTransicao, STATUS_RESTRITOS_ADMIN, STATUS_EXIGE_ENTREGADOR } from '@/lib/maquina-estados'
 
 export async function PUT(request: NextRequest) {
   const session = await getSessionFromRequest(request)
@@ -11,13 +11,28 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { codigos, novoStatus } = body
+    const { codigos, novoStatus, entregador_id } = body
 
     if (!codigos || !Array.isArray(codigos) || codigos.length === 0) {
       return NextResponse.json({ erro: 'Selecione pelo menos um pacote' }, { status: 400 })
     }
     if (!novoStatus) {
       return NextResponse.json({ erro: 'Informe o novo status' }, { status: 400 })
+    }
+
+    // ❌ Admin NUNCA pode definir "Em Rota" ou "Entregue"
+    if (STATUS_RESTRITOS_ADMIN.has(novoStatus)) {
+      return NextResponse.json({
+        erro: `"${novoStatus}" só pode ser definido pelo entregador responsável pelo pacote, não pelo admin.`,
+      }, { status: 403 })
+    }
+
+    // ❌ Status que exigem entregador selecionado
+    if (STATUS_EXIGE_ENTREGADOR.has(novoStatus) && !entregador_id) {
+      return NextResponse.json({
+        erro: `Para alterar para "${novoStatus}" é obrigatório selecionar um entregador responsável.`,
+        exigeEntregador: true,
+      }, { status: 400 })
     }
 
     // Buscar status atual dos pacotes selecionados
@@ -34,7 +49,6 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ erro: 'Nenhum pacote encontrado' }, { status: 404 })
     }
 
-    // Para cada pacote, calcular os campos corretos de transição
     const atualizados: Record<string, unknown>[] = []
     const ignorados: string[] = []
     const erros: string[] = []
@@ -47,10 +61,20 @@ export async function PUT(request: NextRequest) {
 
       const updates = camposParaTransicao(pacote.status, novoStatus)
 
-      // Valida se a transição é possível (admin pode tudo, mas usamos a máquina)
       if (!updates.status) {
         erros.push(`${pacote.codigo}: transição inválida de "${pacote.status}" para "${novoStatus}"`)
         continue
+      }
+
+      // Se o status exige entregador, aplica o ID em todos os pacotes
+      if (STATUS_EXIGE_ENTREGADOR.has(novoStatus) && entregador_id) {
+        updates.entregador_id = parseInt(entregador_id)
+        // Garante timeline completa
+        const agora = new Date().toISOString()
+        updates.data_repassado_entregador = agora
+        if (novoStatus === 'Retirado pelo Entregador') {
+          updates.data_retirada_central = agora
+        }
       }
 
       atualizados.push({
@@ -59,7 +83,6 @@ export async function PUT(request: NextRequest) {
       })
     }
 
-    // Se não há nada para atualizar, retorna
     if (atualizados.length === 0) {
       return NextResponse.json({
         ok: true,
@@ -72,7 +95,6 @@ export async function PUT(request: NextRequest) {
       })
     }
 
-    // Atualizar cada pacote individualmente (para respeitar timestamps diferentes)
     let totalAtualizados = 0
     for (const pacote of atualizados) {
       const { codigo, ...updates } = pacote

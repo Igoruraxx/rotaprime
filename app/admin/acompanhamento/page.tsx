@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatCurrency, formatDateBR, isAtrasado, statusBadgeClass, statusLabel } from '@/lib/shared-helpers'
-import { TRANSICOES } from '@/lib/maquina-estados'
+import { transicoesValidasParaAdmin, STATUS_EXIGE_ENTREGADOR } from '@/lib/maquina-estados'
 
 // ═══════════════════════════════════════════
 // TIPOS
@@ -49,6 +49,8 @@ export default function AcompanhamentoTransportadoraPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [alterandoStatus, setAlterandoStatus] = useState(false)
   const [novoStatusLote, setNovoStatusLote] = useState('')
+  const [entregadorSelecionado, setEntregadorSelecionado] = useState('')
+  const [listaEntregadores, setListaEntregadores] = useState<{ id: number; nome: string }[]>([])
   const [msg, setMsg] = useState('')
   const [filtroTransportadora, setFiltroTransportadora] = useState('')
   const [buscando, setBuscando] = useState('')
@@ -65,6 +67,17 @@ export default function AcompanhamentoTransportadoraPage() {
       setStats(data.stats)
       setPacotes(data.ultimosPacotes || [])
       setTransportadoras(data.transportadoras || [])
+
+      // Carregar entregadores disponíveis
+      try {
+        const resEnt = await fetch('/api/entregadores')
+        if (resEnt.ok) {
+          const dataEnt = await resEnt.json()
+          setListaEntregadores(dataEnt.entregadores || dataEnt || [])
+        }
+      } catch {
+        // silencioso
+      }
     } catch {
       setMsg('❌ Erro ao carregar dados')
     } finally {
@@ -212,6 +225,13 @@ export default function AcompanhamentoTransportadoraPage() {
 
   async function alterarStatusLote() {
     if (selected.size === 0 || !novoStatusLote) return
+
+    // Se exige entregador, validar
+    if (STATUS_EXIGE_ENTREGADOR.has(novoStatusLote) && !entregadorSelecionado) {
+      setMsg(`❌ Selecione um entregador para "${novoStatusLote}"`)
+      return
+    }
+
     setAlterandoStatus(true)
     setMsg('')
 
@@ -222,6 +242,7 @@ export default function AcompanhamentoTransportadoraPage() {
         body: JSON.stringify({
           codigos: Array.from(selected),
           novoStatus: novoStatusLote,
+          entregador_id: entregadorSelecionado || undefined,
         }),
       })
       const data = await res.json()
@@ -229,6 +250,7 @@ export default function AcompanhamentoTransportadoraPage() {
         setMsg(`✅ ${data.mensagem}`)
         setSelected(new Set())
         setNovoStatusLote('')
+        setEntregadorSelecionado('')
         carregar()
       } else {
         setMsg(`❌ ${data.erro || 'Erro ao alterar status'}`)
@@ -247,14 +269,17 @@ export default function AcompanhamentoTransportadoraPage() {
     for (const p of pacotes) {
       if (selected.has(p.codigo)) statusSet.add(p.status)
     }
-    // Se todos são do mesmo status, mostra as transições válidas
+    // Se todos são do mesmo status, mostra as transições válidas para admin
     if (statusSet.size === 1) {
       const statusAtual = Array.from(statusSet)[0]
-      return TRANSICOES[statusAtual] || []
+      return transicoesValidasParaAdmin(statusAtual)
     }
-    // Se são de status diferentes, mostra opções comuns
-    // (admin pode forçar qualquer transição, então mostra todas)
-    return Object.keys(TRANSICOES)
+    // Se são de status diferentes, mostra união de todas as transições válidas
+    const todas = new Set<string>()
+    for (const s of statusSet) {
+      transicoesValidasParaAdmin(s).forEach(t => todas.add(t))
+    }
+    return Array.from(todas)
   }
 
   return (
@@ -369,7 +394,7 @@ export default function AcompanhamentoTransportadoraPage() {
 
             <select
               value={novoStatusLote}
-              onChange={e => setNovoStatusLote(e.target.value)}
+              onChange={e => { setNovoStatusLote(e.target.value); setEntregadorSelecionado('') }}
               className="px-4 py-2 rounded-xl text-sm border border-violet-200 bg-white min-w-[220px]"
             >
               <option value="">Alterar status para...</option>
@@ -377,6 +402,20 @@ export default function AcompanhamentoTransportadoraPage() {
                 <option key={s} value={s}>→ {s}</option>
               ))}
             </select>
+
+            {/* Seletor de entregador para status que exigem */}
+            {novoStatusLote && STATUS_EXIGE_ENTREGADOR.has(novoStatusLote) && (
+              <select
+                value={entregadorSelecionado}
+                onChange={e => setEntregadorSelecionado(e.target.value)}
+                className="px-4 py-2 rounded-xl text-sm border border-violet-200 bg-white min-w-[220px]"
+              >
+                <option value="">👤 Selecionar entregador...</option>
+                {listaEntregadores.map(e => (
+                  <option key={e.id} value={e.id}>{e.nome}</option>
+                ))}
+              </select>
+            )}
 
             <button
               onClick={alterarStatusLote}
@@ -387,7 +426,7 @@ export default function AcompanhamentoTransportadoraPage() {
             </button>
 
             <button
-              onClick={() => { setSelected(new Set()); setNovoStatusLote('') }}
+              onClick={() => { setSelected(new Set()); setNovoStatusLote(''); setEntregadorSelecionado('') }}
               className="px-3 py-2 rounded-xl text-sm text-gray-500 hover:text-gray-700 hover:bg-white transition"
             >
               ✕ Cancelar

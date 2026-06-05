@@ -48,6 +48,16 @@ export function transicoesValidas(statusAtual: string): string[] {
   return TRANSICOES[statusAtual] || []
 }
 
+// Status que o admin NUNCA pode selecionar (apenas entregador via app)
+export const STATUS_RESTRITOS_ADMIN = new Set(['Em Rota', 'Entregue'])
+
+// Status que exigem entregador_id ao serem definidos pelo admin
+export const STATUS_EXIGE_ENTREGADOR = new Set(['Aguardando Retirada', 'Retirado pelo Entregador'])
+
+export function transicoesValidasParaAdmin(statusAtual: string): string[] {
+  return (TRANSICOES[statusAtual] || []).filter(s => !STATUS_RESTRITOS_ADMIN.has(s))
+}
+
 export function quemPode(statusAtual: string, novoStatus: string): string | null {
   // Verifica primeiro se há uma transição específica permitida
   const chaveTransicao = `${statusAtual}->${novoStatus}`
@@ -97,6 +107,13 @@ export function camposParaTransicao(statusAtual: string, novoStatus: string): Re
   const campoLog = logTransicao(statusAtual, novoStatus)
   if (campoLog) {
     updates[campoLog] = agora
+  }
+
+  // Se admin define "Retirado pelo Entregador", também preenche o campo
+  // de quando foi repassado ao entregador (timeline anterior)
+  if (novoStatus === 'Retirado pelo Entregador' && statusAtual !== 'Aguardando Retirada') {
+    updates.data_repassado_entregador = agora
+    updates.data_retirada_central = agora
   }
 
   if (novoStatus === 'Validado pelo Admin') {
