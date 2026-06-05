@@ -46,7 +46,7 @@ const STATUS_MAP: Record<TabId, string[]> = {
 }
 
 // ═══════════════════════════════════════════
-// MODAL DE ENTREGA
+// MODAL DE ENTREGA (individual — foto + GPS obrigatórios)
 // ═══════════════════════════════════════════
 
 function EntregaModal({
@@ -102,8 +102,11 @@ function EntregaModal({
         <p className="text-sm text-gray-500 mb-5">
           Pacote <span className="font-mono font-semibold">#{pacote.codigo}</span>
         </p>
+        <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2 mb-4 border border-amber-200">
+          ⚠️ A finalização é individual. Cada pacote exige foto + GPS comprobatórios.
+        </p>
 
-        {/* Foto */}
+        {/* Foto — OBRIGATÓRIA */}
         <label className="block mb-4">
           <span className="text-sm font-semibold text-gray-700 mb-1.5 block">
             📸 Foto da entrega <span className="text-red-500">*</span>
@@ -126,7 +129,7 @@ function EntregaModal({
           )}
         </label>
 
-        {/* GPS */}
+        {/* GPS — OBRIGATÓRIO */}
         <div className="mb-4">
           <span className="text-sm font-semibold text-gray-700 mb-1.5 block">
             📍 Localização (GPS) <span className="text-red-500">*</span>
@@ -144,7 +147,7 @@ function EntregaModal({
           </button>
         </div>
 
-        {/* Observação */}
+        {/* Observação (opcional) */}
         <div className="mb-5">
           <label className="text-sm font-semibold text-gray-700 mb-1.5 block">
             Observação <span className="text-gray-400 font-normal">(opcional)</span>
@@ -181,7 +184,7 @@ function EntregaModal({
 }
 
 // ═══════════════════════════════════════════
-// SKELETON
+// SKELETON LOADING
 // ═══════════════════════════════════════════
 
 function Skeleton() {
@@ -210,24 +213,37 @@ export default function MeusPacotesPage() {
   const [pacotes, setPacotes] = useState<Pacote[]>([])
   const [loading, setLoading] = useState(true)
   const [msg, setMsg] = useState('')
+  const [msgTipo, setMsgTipo] = useState<'sucesso' | 'erro'>('sucesso')
+
+  // --- Seleção em lote para Recebidos ---
   const [aceitando, setAceitando] = useState(false)
   const [selectedRecebidos, setSelectedRecebidos] = useState<Set<string>>(new Set())
+
+  // --- Seleção em lote para Em Andamento (Iniciar Rota) ---
+  const [iniciandoRota, setIniciandoRota] = useState(false)
+  const [selectedAndamento, setSelectedAndamento] = useState<Set<string>>(new Set())
 
   // Busca por dígitos
   const [busca, setBusca] = useState('')
 
-  // Modal de entrega
+  // Modal de entrega (individual — único pacote por vez)
   const [pacoteEntrega, setPacoteEntrega] = useState<Pacote | null>(null)
   const [entregando, setEntregando] = useState(false)
 
-  // ── Buscar pacotes ────────────────────────
+  // ═══ Helper de mensagem ═══════════════════
+  const mostrarMsg = useCallback((texto: string, tipo: 'sucesso' | 'erro' = 'sucesso') => {
+    setMsg(texto)
+    setMsgTipo(tipo)
+    setTimeout(() => setMsg(''), 5000)
+  }, [])
+
+  // ═══ Buscar pacotes ═══════════════════════
   const fetchPacotes = useCallback(async () => {
     setLoading(true)
     try {
       const status = STATUS_MAP[tab].join(',')
       const params = new URLSearchParams({ status })
 
-      // Só envia busca na aba "Em Andamento"
       if (tab === 'andamento' && busca.trim()) {
         params.set('busca', busca.trim())
       }
@@ -240,16 +256,17 @@ export default function MeusPacotesPage() {
       const data = await res.json()
       setPacotes(data.pacotes || [])
       setSelectedRecebidos(new Set())
+      setSelectedAndamento(new Set())
     } catch {
-      setMsg('❌ Erro ao carregar pacotes')
+      mostrarMsg('❌ Erro ao carregar pacotes', 'erro')
     } finally {
       setLoading(false)
     }
-  }, [tab, busca, router])
+  }, [tab, busca, router, mostrarMsg])
 
   useEffect(() => { fetchPacotes() }, [fetchPacotes])
 
-  // ── CSRF token ───────────────────────
+  // ═══ CSRF token ══════════════════════════
   const getCsrf = useCallback(async (): Promise<string | null> => {
     try {
       const res = await fetch('/api/entregador/csrf')
@@ -258,13 +275,12 @@ export default function MeusPacotesPage() {
     } catch { return null }
   }, [])
 
-  // ── Aceitar lote ──────────────────────────
+  // ═══ 1. Aceitar lote (Recebido → Retirado) ═══════════════
   const aceitarLote = useCallback(async (todos?: boolean) => {
     const codigos = todos ? undefined : Array.from(selectedRecebidos)
     if (!todos && codigos?.length === 0) return
 
     setAceitando(true)
-    setMsg('')
     try {
       const res = await fetch('/api/entregador/aceitar-lote', {
         method: 'POST',
@@ -273,19 +289,43 @@ export default function MeusPacotesPage() {
       })
       const data = await res.json()
       if (res.ok) {
-        setMsg(`✅ ${data.mensagem}`)
+        mostrarMsg(`✅ ${data.mensagem}`)
         fetchPacotes()
       } else {
-        setMsg(`❌ ${data.erro || 'Erro ao aceitar'}`)
+        mostrarMsg(`❌ ${data.erro || 'Erro ao aceitar'}`, 'erro')
       }
     } catch {
-      setMsg('❌ Erro de conexão')
+      mostrarMsg('❌ Erro de conexão ao aceitar lote', 'erro')
     }
     setAceitando(false)
-    setTimeout(() => setMsg(''), 4000)
-  }, [selectedRecebidos, fetchPacotes])
+  }, [selectedRecebidos, fetchPacotes, mostrarMsg])
 
-  // ── Entregar pacote ───────────────────────
+  // ═══ 2. Iniciar rota em lote (Retirado → Em Rota) ═══════
+  const iniciarRotaLote = useCallback(async () => {
+    const codigos = Array.from(selectedAndamento)
+    if (codigos.length === 0) return
+
+    setIniciandoRota(true)
+    try {
+      const res = await fetch('/api/entregador/iniciar-rota-lote', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codigos }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        mostrarMsg(`✅ ${data.mensagem}`)
+        fetchPacotes()
+      } else {
+        mostrarMsg(`❌ ${data.erro || 'Erro ao iniciar rota'}`, 'erro')
+      }
+    } catch {
+      mostrarMsg('❌ Erro de conexão ao iniciar rota em lote', 'erro')
+    }
+    setIniciandoRota(false)
+  }, [selectedAndamento, fetchPacotes, mostrarMsg])
+
+  // ═══ 3. Entregar pacote (INDIVIDUAL — nunca em lote) ═══
   const handleEntregar = useCallback(async (
     codigo: string, fotoBase64: string, gps: string, observacao: string
   ) => {
@@ -303,10 +343,12 @@ export default function MeusPacotesPage() {
         const uploadData = await uploadRes.json()
         fotoUrl = uploadData.url
       }
-    } catch { /* fallback mantém base64 */ }
+    } catch {
+      mostrarMsg('⚠️ Foto enviada sem compressão (modo fallback)', 'erro')
+    }
 
     const token = await getCsrf()
-    if (!token) { alert('Erro de segurança. Recarregue.'); setEntregando(false); return }
+    if (!token) { mostrarMsg('❌ Erro de segurança. Recarregue a página.', 'erro'); setEntregando(false); return }
 
     try {
       const res = await fetch(`/api/entregador/pacotes/${codigo}`, {
@@ -321,22 +363,44 @@ export default function MeusPacotesPage() {
         }),
       })
       if (res.ok) {
-        setMsg(`✅ ${codigo} entregue com sucesso!`)
+        mostrarMsg(`✅ ${codigo} entregue com sucesso!`)
         setPacoteEntrega(null)
         fetchPacotes()
       } else {
         const err = await res.json()
-        setMsg(`❌ ${err.erro || 'Erro ao entregar'}`)
+        mostrarMsg(`❌ ${err.erro || 'Erro ao entregar'}`, 'erro')
       }
     } catch {
-      setMsg('❌ Erro de conexão')
+      mostrarMsg('❌ Erro de conexão ao finalizar entrega', 'erro')
     }
     setEntregando(false)
-    setTimeout(() => setMsg(''), 4000)
-  }, [getCsrf, fetchPacotes])
+  }, [getCsrf, fetchPacotes, mostrarMsg])
 
-  // ── Alternar seleção ──────────────────────
-  function toggleSelect(codigo: string) {
+  // ═══ 4. Iniciar rota individual (1 pacote) ═══════════════
+  const iniciarRotaIndividual = useCallback(async (codigo: string) => {
+    const token = await getCsrf()
+    if (!token) { mostrarMsg('❌ Erro de segurança. Recarregue.', 'erro'); return }
+
+    try {
+      const res = await fetch(`/api/entregador/pacotes/${codigo}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ acao: 'rota', csrf_token: token }),
+      })
+      if (res.ok) {
+        mostrarMsg(`✅ ${codigo} → Em Rota`)
+        fetchPacotes()
+      } else {
+        const e = await res.json()
+        mostrarMsg(`❌ ${e.erro || 'Erro ao iniciar rota'}`, 'erro')
+      }
+    } catch {
+      mostrarMsg('❌ Erro de conexão', 'erro')
+    }
+  }, [getCsrf, fetchPacotes, mostrarMsg])
+
+  // ═══ Seleção em lote — Recebidos ════════════════════════
+  function toggleSelectRecebidos(codigo: string) {
     setSelectedRecebidos(prev => {
       const next = new Set(prev)
       if (next.has(codigo)) next.delete(codigo); else next.add(codigo)
@@ -344,13 +408,34 @@ export default function MeusPacotesPage() {
     })
   }
 
-  function toggleTodos() {
+  function toggleTodosRecebidos() {
     if (selectedRecebidos.size === pacotes.length) setSelectedRecebidos(new Set())
     else setSelectedRecebidos(new Set(pacotes.map(p => p.codigo)))
   }
 
-  // ── Filtrar dígitos válidos ─────────────
-  const digitosValidos = /^\d{1,6}$/
+  // ═══ Seleção em lote — Em Andamento (só "Retirado pelo Entregador") ═══
+  function podeIniciarRota(p: Pacote): boolean {
+    return p.status === 'Retirado pelo Entregador'
+  }
+
+  function toggleSelectAndamento(codigo: string) {
+    setSelectedAndamento(prev => {
+      const next = new Set(prev)
+      if (next.has(codigo)) next.delete(codigo); else next.add(codigo)
+      return next
+    })
+  }
+
+  function toggleTodosAndamento() {
+    const selecionaveis = pacotes.filter(podeIniciarRota).map(p => p.codigo)
+    if (selectedAndamento.size === selecionaveis.length && selecionaveis.length > 0) {
+      setSelectedAndamento(new Set())
+    } else {
+      setSelectedAndamento(new Set(selecionaveis))
+    }
+  }
+
+  const pacotesParaIniciarRota = pacotes.filter(podeIniciarRota)
 
   return (
     <div className="max-w-3xl mx-auto pb-24">
@@ -364,6 +449,8 @@ export default function MeusPacotesPage() {
             {tab === 'finalizados' && 'Pacotes entregues e validados'}
           </p>
         </div>
+
+        {/* Botão "Aceitar Todos" — só na aba Recebidos */}
         {tab === 'recebidos' && pacotes.length > 0 && (
           <button
             onClick={() => aceitarLote(true)}
@@ -378,7 +465,9 @@ export default function MeusPacotesPage() {
       {/* MENSAGEM */}
       {msg && (
         <div className={`mb-4 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2 border ${
-          msg.startsWith('✅') ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'
+          msgTipo === 'sucesso'
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            : 'bg-red-50 text-red-700 border-red-200'
         }`}>
           <span className="flex-1">{msg}</span>
           <button onClick={() => setMsg('')} className="opacity-50 hover:opacity-100">✕</button>
@@ -445,7 +534,7 @@ export default function MeusPacotesPage() {
       {/* ──── LISTAS ──── */}
       {!loading && (
         <>
-          {/* ABA RECEBIDOS */}
+          {/* ═══════════ ABA RECEBIDOS ═══════════ */}
           {tab === 'recebidos' && (
             <>
               {pacotes.length === 0 ? (
@@ -460,13 +549,12 @@ export default function MeusPacotesPage() {
                 </div>
               ) : (
                 <>
-                  {/* SELECT ALL */}
                   <div className="flex items-center gap-3 mb-3 px-1">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={selectedRecebidos.size === pacotes.length}
-                        onChange={toggleTodos}
+                        checked={selectedRecebidos.size === pacotes.length && pacotes.length > 0}
+                        onChange={toggleTodosRecebidos}
                         className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                       />
                       <span className="text-sm font-medium text-gray-600">
@@ -484,7 +572,6 @@ export default function MeusPacotesPage() {
                     )}
                   </div>
 
-                  {/* CARDS */}
                   <div className="space-y-2">
                     {pacotes.map(p => (
                       <div
@@ -492,22 +579,20 @@ export default function MeusPacotesPage() {
                         className={`bg-white rounded-2xl p-4 border-2 transition-all cursor-pointer ${
                           selectedRecebidos.has(p.codigo) ? 'border-violet-400 bg-violet-50/50' : 'border-gray-100 hover:border-gray-200'
                         }`}
-                        onClick={() => toggleSelect(p.codigo)}
+                        onClick={() => toggleSelectRecebidos(p.codigo)}
                       >
                         <div className="flex items-start gap-3">
                           <input
                             type="checkbox"
                             checked={selectedRecebidos.has(p.codigo)}
-                            onChange={() => toggleSelect(p.codigo)}
+                            onChange={() => toggleSelectRecebidos(p.codigo)}
                             onClick={e => e.stopPropagation()}
                             className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500 mt-1"
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap mb-1">
                               <span className="text-sm font-bold text-gray-900 font-mono">{p.codigo}</span>
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold">
-                                Aguardando
-                              </span>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold">Aguardando</span>
                             </div>
                             <p className="text-sm text-gray-600 truncate">👤 {p.destinatario || 'Sem destinatário'}</p>
                             <p className="text-xs text-gray-400 mt-1 truncate">📍 {p.endereco_entrega}</p>
@@ -525,7 +610,7 @@ export default function MeusPacotesPage() {
             </>
           )}
 
-          {/* ABA EM ANDAMENTO */}
+          {/* ═══════════ ABA EM ANDAMENTO ═══════════ */}
           {tab === 'andamento' && (
             <>
               {pacotes.length === 0 ? (
@@ -541,74 +626,124 @@ export default function MeusPacotesPage() {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  {pacotes.map(p => {
-                    const atrasado = isAtrasado(p.data_limite_entrega)
-                    return (
-                      <div key={p.codigo} className={`bg-white rounded-2xl p-4 border-2 transition-all ${
-                        atrasado ? 'border-red-200 bg-red-50/30' : 'border-gray-100 hover:border-gray-200'
-                      }`}>
-                        <div className="flex items-start gap-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap mb-1">
-                              <span className="text-sm font-bold text-gray-900 font-mono">{p.codigo}</span>
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${statusBadgeClass(p.status)}`}>
-                                {statusLabel(p.status)}
-                              </span>
-                              {atrasado && (
-                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-semibold">
-                                  🔴 Atrasado
+                <>
+                  {/* Barra de seleção em lote para INICIAR ROTA */}
+                  {pacotesParaIniciarRota.length > 0 && (
+                    <div className="flex items-center gap-3 mb-3 px-1">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedAndamento.size === pacotesParaIniciarRota.length && pacotesParaIniciarRota.length > 0}
+                          onChange={toggleTodosAndamento}
+                          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm font-medium text-gray-600">
+                          {selectedAndamento.size === pacotesParaIniciarRota.length
+                            ? 'Desmarcar todos'
+                            : `Selecionar disponíveis (${pacotesParaIniciarRota.length})`}
+                        </span>
+                      </label>
+
+                      {selectedAndamento.size > 0 && (
+                        <button
+                          onClick={iniciarRotaLote}
+                          disabled={iniciandoRota}
+                          className="ml-auto px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-blue-200 transition-all disabled:opacity-50 shadow-sm"
+                        >
+                          {iniciandoRota ? 'Iniciando...' : `🚚 Iniciar Rota (${selectedAndamento.size})`}
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* ⚠️ Bloqueio de finalização em lote */}
+                  <div className="mb-3 px-1">
+                    <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                      <span>⚠️</span>
+                      <span>
+                        <strong>Finalização individual:</strong> cada pacote só pode ser finalizado
+                        um por vez com foto + GPS obrigatórios. Não é possível finalizar em lote.
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Lista de pacotes */}
+                  <div className="space-y-2">
+                    {pacotes.map(p => {
+                      const atrasado = isAtrasado(p.data_limite_entrega)
+                      const podeRota = podeIniciarRota(p)
+
+                      return (
+                        <div key={p.codigo} className={`bg-white rounded-2xl p-4 border-2 transition-all ${
+                          atrasado ? 'border-red-200 bg-red-50/30' : 'border-gray-100 hover:border-gray-200'
+                        }`}>
+                          <div className="flex items-start gap-3">
+                            {/* Checkbox — só para pacotes que podem iniciar rota */}
+                            {podeRota ? (
+                              <input
+                                type="checkbox"
+                                checked={selectedAndamento.has(p.codigo)}
+                                onChange={() => toggleSelectAndamento(p.codigo)}
+                                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1"
+                              />
+                            ) : (
+                              <div className="w-4 h-4 mt-1 shrink-0" />
+                            )}
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap mb-1">
+                                <span className="text-sm font-bold text-gray-900 font-mono">{p.codigo}</span>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${statusBadgeClass(p.status)}`}>
+                                  {statusLabel(p.status)}
+                                </span>
+                                {atrasado && (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-semibold">🔴 Atrasado</span>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-600 truncate">👤 {p.destinatario || 'Sem destinatário'}</p>
+                              <p className="text-xs text-gray-400 mt-0.5 truncate">📍 {p.endereco_entrega}</p>
+                              <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                                <span>📅 {formatDateBR(p.data_chegada)}</span>
+                                <span>💰 {formatCurrency(p.valor_pacote)}</span>
+                              </div>
+                            </div>
+
+                            {/* Ações */}
+                            <div className="shrink-0">
+                              {p.status === 'Em Rota' && (
+                                <button
+                                  onClick={() => setPacoteEntrega(p)}
+                                  className="px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl text-xs font-bold hover:shadow-lg hover:shadow-green-200 transition-all shadow-md active:scale-95"
+                                  title="Finalizar entrega — obrigatório foto + GPS"
+                                >
+                                  ✅ Entregar
+                                </button>
+                              )}
+                              {podeRota && !selectedAndamento.has(p.codigo) && (
+                                <button
+                                  onClick={() => iniciarRotaIndividual(p.codigo)}
+                                  className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-xs font-bold hover:shadow-lg hover:shadow-blue-200 transition-all shadow-md active:scale-95"
+                                >
+                                  🚚 Rota
+                                </button>
+                              )}
+                              {podeRota && selectedAndamento.has(p.codigo) && (
+                                <span className="inline-flex items-center px-3 py-2 rounded-xl text-xs font-semibold bg-blue-100 text-blue-700">
+                                  Selecionado
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-gray-600 truncate">👤 {p.destinatario || 'Sem destinatário'}</p>
-                            <p className="text-xs text-gray-400 mt-0.5 truncate">📍 {p.endereco_entrega}</p>
-                            <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
-                              <span>📅 {formatDateBR(p.data_chegada)}</span>
-                              <span>💰 {formatCurrency(p.valor_pacote)}</span>
-                            </div>
                           </div>
-
-                          {/* Botão Entregar */}
-                          {p.status === 'Em Rota' && (
-                            <button
-                              onClick={() => setPacoteEntrega(p)}
-                              className="shrink-0 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl text-xs font-bold hover:shadow-lg hover:shadow-green-200 transition-all shadow-md active:scale-95"
-                            >
-                              ✅ Entregar
-                            </button>
-                          )}
-                          {p.status === 'Retirado pelo Entregador' && (
-                            <button
-                              onClick={async () => {
-                                const token = await getCsrf()
-                                if (!token) { alert('Erro de segurança'); return }
-                                try {
-                                  const res = await fetch(`/api/entregador/pacotes/${p.codigo}`, {
-                                    method: 'PUT',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ acao: 'rota', csrf_token: token }),
-                                  })
-                                  if (res.ok) { setMsg(`✅ ${p.codigo} → Em Rota`); fetchPacotes(); setTimeout(() => setMsg(''), 3000) }
-                                  else { const e = await res.json(); setMsg(`❌ ${e.erro || 'Erro'}`) }
-                                } catch { setMsg('❌ Erro de conexão') }
-                                setTimeout(() => setMsg(''), 4000)
-                              }}
-                              className="shrink-0 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-xs font-bold hover:shadow-lg hover:shadow-blue-200 transition-all shadow-md active:scale-95"
-                            >
-                              🚚 Iniciar Rota
-                            </button>
-                          )}
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                      )
+                    })}
+                  </div>
+                </>
               )}
             </>
           )}
 
-          {/* ABA FINALIZADOS */}
+          {/* ═══════════ ABA FINALIZADOS ═══════════ */}
           {tab === 'finalizados' && (
             <>
               {pacotes.length === 0 ? (
@@ -660,7 +795,7 @@ export default function MeusPacotesPage() {
         </>
       )}
 
-      {/* MODAL DE ENTREGA */}
+      {/* MODAL DE ENTREGA (individual — único por vez) */}
       <EntregaModal
         pacote={pacoteEntrega}
         onClose={() => !entregando && setPacoteEntrega(null)}

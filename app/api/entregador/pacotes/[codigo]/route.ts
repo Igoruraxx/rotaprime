@@ -111,18 +111,23 @@ export async function PUT(
 
   // Validações específicas
   if (acao === 'entregar') {
-    if (!camposSolicitados.foto) {
-      return NextResponse.json(
-        { erro: 'Foto da entrega é obrigatória' },
-        { status: 400 }
-      )
-    }
-    if (!camposSolicitados.gps_foto) {
-      return NextResponse.json(
-        { erro: 'GPS da entrega é obrigatório' },
-        { status: 400 }
-      )
-    }
+      const { foto, gps_foto } = body
+
+      // ❌ Foto OBRIGATÓRIA para finalizar entrega
+      if (!foto) {
+        return NextResponse.json(
+          { erro: 'Foto comprobatória da entrega é obrigatória. Capture a foto antes de finalizar.' },
+          { status: 400 }
+        )
+      }
+
+      // ❌ GPS OBRIGATÓRIO para finalizar entrega
+      if (!gps_foto) {
+        return NextResponse.json(
+          { erro: 'Localização GPS é obrigatória. Capture a localização antes de finalizar.' },
+          { status: 400 }
+        )
+      }
   }
 
   if (acao === 'devolver' && !camposSolicitados.motivo_devolucao) {
